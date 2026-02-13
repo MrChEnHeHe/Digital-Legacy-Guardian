@@ -1,0 +1,194 @@
+# config/settings.yaml
+# 后量子隐私计算系统 - 配置文件
+# 支持多环境配置：development, testing, production
+
+default: &default
+  # 系统基础配置
+  system:
+    name: "后量子安全隐私计算系统"
+    version: "1.0.0"
+    debug: false
+    log_level: "INFO"
+    encoding: "utf-8"
+    
+  # 格密码参数配置 (基于Kyber-768标准)
+  lattice:
+    # 多项式环参数
+    n: 256                    # 多项式次数 (环维度)
+    q: 3329                   # 模数 (质数)
+    eta: 2                    # 噪声分布参数 (中心二项分布范围)
+    
+    # NTT变换参数
+    zeta: 17                  # 原根
+    bit_reversal_table:       # 位反转表 (0-255)
+      [0, 128, 64, 192, 32, 160, 96, 224, 16, 144, 80, 208, 48, 176, 112, 240,
+       8, 136, 72, 200, 40, 168, 104, 232, 24, 152, 88, 216, 56, 184, 120, 248,
+       4, 132, 68, 196, 36, 164, 100, 228, 20, 148, 84, 212, 52, 180, 116, 244,
+       12, 140, 76, 204, 44, 172, 108, 236, 28, 156, 92, 220, 60, 188, 124, 252,
+       2, 130, 66, 194, 34, 162, 98, 226, 18, 146, 82, 210, 50, 178, 114, 242,
+       10, 138, 74, 202, 42, 170, 106, 234, 26, 154, 90, 218, 58, 186, 122, 250,
+       6, 134, 70, 198, 38, 166, 102, 230, 22, 150, 86, 214, 54, 182, 118, 246,
+       14, 142, 78, 206, 46, 174, 110, 238, 30, 158, 94, 222, 62, 190, 126, 254,
+       1, 129, 65, 193, 33, 161, 97, 225, 17, 145, 81, 209, 49, 177, 113, 241,
+       9, 137, 73, 201, 41, 169, 105, 233, 25, 153, 89, 217, 57, 185, 121, 249,
+       5, 133, 69, 197, 37, 165, 101, 229, 21, 149, 85, 213, 53, 181, 117, 245,
+       13, 141, 77, 205, 45, 173, 109, 237, 29, 157, 93, 221, 61, 189, 125, 253,
+       3, 131, 67, 195, 35, 163, 99, 227, 19, 147, 83, 211, 51, 179, 115, 243,
+       11, 139, 75, 203, 43, 171, 107, 235, 27, 155, 91, 219, 59, 187, 123, 251,
+       7, 135, 71, 199, 39, 167, 103, 231, 23, 151, 87, 215, 55, 183, 119, 247,
+       15, 143, 79, 207, 47, 175, 111, 239, 31, 159, 95, 223, 63, 191, 127, 255]
+    
+    # Kyber参数 (ML-KEM-768)
+    kyber:
+      k: 3                    # 模块维度 (Kyber-512: k=2, Kyber-768: k=3, Kyber-1024: k=4)
+      eta1: 2                 # 私钥噪声参数
+      eta2: 2                 # 误差噪声参数
+      du: 10                  # 压缩参数u
+      dv: 4                   # 压缩参数v
+      security_level: 3       # NIST安全等级 (1, 3, 5)
+    
+  # 协议层配置
+  protocols:
+    # 不经意传输 (OT)
+    ot:
+      security_param: 128     # 安全参数 (比特)
+      base_ot_count: 128      # 基础OT数量 (用于OT扩展)
+      message_max_size: 4096  # 单条消息最大长度 (字节)
+      batch_size: 1024        # 批量OT默认批次大小
+      
+    # 隐私求交 (PSI)
+    psi:
+      cuckoo:
+        num_hashes: 3         # 布谷鸟哈希函数数量
+        max_iterations: 500   # 最大插入迭代次数
+        load_factor: 1.2      # 负载因子 (bins = items * load_factor)
+        stash_size: 10        # 溢出桶大小限制
+      simple_hash:
+        bins_multiplier: 2.0  # 简单哈希表桶数量倍数
+      ot_extension: true      # 是否使用OT扩展优化
+      
+    # 隐私检索 (PIR)
+    pir:
+      db_chunk_size: 1024     # 数据库分块大小
+      max_batch_size: 100     # 最大批量查询数量
+      use_homomorphic: true   # 使用同态加密 (否则使用OT-based PIR)
+      compression: true       # 启用响应压缩
+      
+  # 噪声管理配置
+  noise:
+    max_budget: 100.0         # 最大噪声预算
+    refresh_threshold: 0.8    # 刷新阈值 (超过此值触发刷新)
+    modulus_switching: true   # 启用模数切换优化
+    
+  # 网络层配置
+  network:
+    server:
+      host: "127.0.0.1"
+      port: 8888
+      max_connections: 100
+      timeout: 30             # 连接超时 (秒)
+      buffer_size: 65536      # 缓冲区大小 (字节)
+      
+    client:
+      reconnect_attempts: 3
+      reconnect_delay: 1.0    # 重连延迟 (秒)
+      
+    security:
+      use_post_quantum: true  # 使用后量子密钥交换
+      session_key_size: 32    # 会话密钥长度 (字节)
+      iv_size: 12             # 初始化向量长度 (字节)
+      mac_size: 16            # 消息认证码长度 (字节)
+      
+  # 日志配置
+  logging:
+    format: "[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s"
+    date_format: "%Y-%m-%d %H:%M:%S"
+    file_rotation: true
+    max_file_size: "10MB"
+    backup_count: 5
+    audit_enabled: true       # 启用审计日志
+    
+  # 演示配置
+  demo:
+    web:
+      port: 8501
+      host: "localhost"
+      theme: "light"
+      page_title: "后量子安全隐私计算系统"
+      favicon: "🔐"
+      
+    default_datasets:
+      psi_client_size: 1000
+      psi_server_size: 1000
+      pir_db_size: 1000
+      intersection_ratio: 0.1
+
+# 开发环境配置
+development:
+  <<: *default
+  system:
+    name: "后量子安全隐私计算系统 [开发版]"
+    version: "1.0.0-dev"
+    debug: true
+    log_level: "DEBUG"
+    encoding: "utf-8"
+  
+  logging:
+    format: "[%(asctime)s] [%(levelname)s] [%(name)s:%(lineno)d] %(message)s"
+    date_format: "%Y-%m-%d %H:%M:%S"
+    file_rotation: false
+    audit_enabled: true
+
+# 测试环境配置
+testing:
+  <<: *default
+  system:
+    name: "后量子安全隐私计算系统 [测试版]"
+    version: "1.0.0-test"
+    debug: true
+    log_level: "DEBUG"
+    encoding: "utf-8"
+  
+  protocols:
+    ot:
+      security_param: 64      # 降低安全参数加速测试
+      base_ot_count: 64
+    psi:
+      cuckoo:
+        max_iterations: 100   # 减少迭代次数
+    
+  demo:
+    default_datasets:
+      psi_client_size: 100    # 小规模数据集
+      psi_server_size: 100
+      pir_db_size: 100
+
+# 生产环境配置
+production:
+  <<: *default
+  system:
+    name: "后量子安全隐私计算系统"
+    version: "1.0.0"
+    debug: false
+    log_level: "WARNING"
+    encoding: "utf-8"
+  
+  lattice:
+    kyber:
+      k: 4                    # 使用Kyber-1024 (最高安全级别)
+      security_level: 5
+  
+  protocols:
+    ot:
+      security_param: 256     # 最高安全参数
+      
+  network:
+    server:
+      host: "0.0.0.0"         # 监听所有接口
+      timeout: 60
+      max_connections: 1000
+      
+  logging:
+    log_level: "WARNING"
+    audit_enabled: true
+    file_rotation: true
