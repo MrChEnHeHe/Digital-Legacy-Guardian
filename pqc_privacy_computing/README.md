@@ -42,9 +42,9 @@ python demo/client.py
 python run_demo.py
 
 to 和溢位：
-上面的使用方法不用看
+为了减少各位工作量，我写了一个配置虚拟环境的脚本，现在步骤如下
+(先让终端走到工作目录 （cd pqc_privacy_computing\scripts）)
+1. 终端运行  python setup_env.py 安装依赖
+2. 终端运行 python run_demo_venv.py 启动演示
 
-两步走
-1.终端运行  python setup.py 安装依赖
-2.终端运行 python run_demo.py 启动演示
 
