@@ -1,0 +1,74 @@
+# 跨银行联合风控系统配置文件
+
+# 系统配置
+system:
+  name: "跨银行联合风控系统"
+  version: "1.0.0"
+  debug: false
+  log_level: "INFO"
+
+# 安全参数
+security:
+  security_param: 128  # 安全参数（位）
+  algorithm: "kyber-768"  # 加密算法
+  security_level: 3  # NIST安全等级
+
+# PSI配置
+psi:
+  cuckoo:
+    num_hashes: 3  # 布谷鸟哈希函数数量
+    max_iterations: 500  # 最大插入迭代次数
+    load_factor: 1.2  # 负载因子
+    stash_size: 10  # 溢出桶大小
+  batch_size: 1000  # 批量处理大小
+
+# OT配置
+ot:
+  base_ot_count: 128  # 基础OT数量
+  message_max_size: 4096  # 单条消息最大长度（字节）
+  batch_size: 1024  # 批量OT默认批次大小
+
+# PIR配置
+pir:
+  db_chunk_size: 1024  # 数据库分块大小
+  max_batch_size: 100  # 最大批量查询数量
+  use_homomorphic: true  # 使用同态加密
+  compression: true  # 启用响应压缩
+
+# 数据库配置
+database:
+  path: "data/risk_database.json"  # 数据库文件路径
+  backup_enabled: true  # 启用备份
+  backup_interval: 3600  # 备份间隔（秒）
+  max_size: 1000000  # 最大客户数
+
+# Web界面配置
+web:
+  host: "localhost"
+  port: 8501
+  theme: "light"
+  page_title: "跨银行联合风控系统"
+  favicon: "🔐"
+
+# 服务器配置
+server:
+  host: "127.0.0.1"
+  port: 8888
+  max_connections: 100
+  timeout: 30
+  buffer_size: 65536
+
+# 日志配置
+logging:
+  format: "[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s"
+  date_format: "%Y-%m-%d %H:%M:%S"
+  file_rotation: true
+  max_file_size: "10MB"
+  backup_count: 5
+  audit_enabled: true
+
+# 演示配置
+demo:
+  num_banks: 3  # 演示银行数量
+  customers_per_bank: 1000  # 每家银行客户数
+  intersection_ratio: 0.1  # 预期交集比例

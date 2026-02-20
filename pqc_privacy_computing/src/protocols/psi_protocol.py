@@ -302,6 +302,15 @@ class CuckooHashPSI:
         Returns:
             (intersection, stats): 交集和统计信息
         """
+        print(f"[PSI协议] 接收方集合大小: {len(set_x)}")
+        print(f"[PSI协议] 发送方集合大小: {len(set_y)}")
+        
+        # 调试：打印前几个哈希值
+        if set_x:
+            print(f"[PSI协议] 接收方前3个哈希: {list(set_x)[:3]}")
+        if set_y:
+            print(f"[PSI协议] 发送方前3个哈希: {list(set_y)[:3]}")
+        
         # 简化实现：直接计算交集
         # 在真实的PSI协议中，应该使用OT和布谷鸟哈希来保护隐私
         
@@ -315,6 +324,10 @@ class CuckooHashPSI:
         # 简化实现：直接计算交集
         # 使用相同的哈希函数来匹配元素
         intersection = set_x & set_y
+        
+        print(f"[PSI协议] 交集大小: {len(intersection)}")
+        if intersection:
+            print(f"[PSI协议] 交集前3个哈希: {list(intersection)[:3]}")
         
         # 统计信息
         stats = {
