@@ -79,7 +79,7 @@ class Polynomial:
             d2 = buf[1] >> 8 | (buf[2] << 4)
             if d1 < Q:
                 coeffs.append(d1)
-            if d2 < Q and len(coeffs) < N:
+            if len(coeffs) < N and d2 < Q:
                 coeffs.append(d2)
         
         return cls(np.array(coeffs, dtype=np.int32))
