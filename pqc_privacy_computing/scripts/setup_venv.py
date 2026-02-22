@@ -82,11 +82,25 @@ def install_dependencies():
     if not run_command(f'"{pip_path}" install --upgrade pip'):
         print("[警告] pip升级失败，继续安装依赖...")
     
-    # 安装依赖
+    # 安装依赖 - 使用国内镜像源和预编译包
     print("\n[步骤 2/3] 安装项目依赖...")
     requirements_path = project_root / "config" / "requirements.txt"
-    if not run_command(f'"{pip_path}" install -r "{requirements_path}"'):
+    
+    # 使用清华镜像源
+    mirror_url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+    print(f"[提示] 使用镜像源: {mirror_url}")
+    print(f"[提示] 使用预编译包以加快安装速度")
+    
+    # 构建安装命令
+    install_cmd = f'"{pip_path}" install -r "{requirements_path}" -i {mirror_url} --prefer-binary --timeout 300'
+    
+    if not run_command(install_cmd):
         print("[错误] 依赖安装失败")
+        print("\n[提示] 如果安装失败，可以尝试以下方法：")
+        print("  1. 检查网络连接")
+        print("  2. 手动安装依赖:")
+        print("     venv\\Scripts\\activate.bat")
+        print(f"     pip install -r config\\requirements.txt -i {mirror_url}")
         return False
     
     print("[成功] 所有依赖安装完成")
@@ -108,29 +122,41 @@ def verify_installation():
     # 测试导入关键依赖
     print("\n[步骤 3/3] 验证依赖安装...")
     test_packages = [
-        'yaml',
-        'numpy',
-        'Crypto',
-        'streamlit',
-        'pandas',
-        'matplotlib'
+        ('yaml', 'pyyaml'),
+        ('numpy', 'numpy'),
+        ('Crypto', 'pycryptodome'),
+        ('streamlit', 'streamlit'),
+        ('pandas', 'pandas'),
+        ('matplotlib', 'matplotlib')
     ]
     
-    for package in test_packages:
+    all_ok = True
+    for module_name, package_name in test_packages:
         try:
             result = subprocess.run(
-                [str(python_path), "-c", f"import {package}; print('✓ {package}')"],
+                [str(python_path), "-c", f"import {module_name}; print('✓ {module_name}')"],
                 capture_output=True,
-                text=True
+                text=True,
+                timeout=10
             )
             if result.returncode == 0:
                 print(result.stdout.strip())
             else:
-                print(f"✗ {package} - 导入失败")
+                print(f"✗ {module_name} ({package_name}) - 导入失败")
+                all_ok = False
+        except subprocess.TimeoutExpired:
+            print(f"✗ {module_name} ({package_name}) - 导入超时")
+            all_ok = False
         except Exception as e:
-            print(f"✗ {package} - {e}")
+            print(f"✗ {module_name} ({package_name}) - {e}")
+            all_ok = False
     
-    return True
+    if all_ok:
+        print("\n[成功] 所有依赖验证通过！")
+    else:
+        print("\n[警告] 部分依赖验证失败，请检查安装")
+    
+    return all_ok
 
 
 def create_activation_guide():
