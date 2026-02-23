@@ -18,47 +18,38 @@ def get_project_root():
     return Path(__file__).parent.parent
 
 
-def check_venv():
-    """检查虚拟环境"""
+def get_venv_python():
+    """获取虚拟环境的Python路径"""
     project_root = get_project_root()
     venv_path = project_root / "venv"
     
+    # 检查虚拟环境是否存在
     if not venv_path.exists():
-        return False
+        return None
     
-    # 检查是否在虚拟环境中
-    if os.getenv('VIRTUAL_ENV'):
-        return True
-    
-    return False
-
-
-def activate_venv():
-    """激活虚拟环境并重新运行脚本"""
-    project_root = get_project_root()
-    venv_path = project_root / "venv"
-    
-    print("[检测] 检测到虚拟环境，正在激活...")
-    
+    # 确定Python路径
     if os.name == 'nt':  # Windows
         python_exec = venv_path / "Scripts" / "python.exe"
     else:  # Linux/macOS
         python_exec = venv_path / "bin" / "python"
     
-    if not python_exec.exists():
-        print(f"[错误] 虚拟环境Python不存在: {python_exec}")
-        return False
+    # 检查Python是否存在
+    if python_exec.exists():
+        return str(python_exec)
     
-    # 在虚拟环境中重新运行脚本
-    print(f"[激活] 使用Python: {python_exec}")
+    return None
+
+
+def check_venv():
+    """检查虚拟环境"""
+    venv_python = get_venv_python()
     
-    # 构建新的命令行参数
-    new_args = [str(python_exec), str(project_root / "run_demo.py")] + sys.argv[1:]
+    if venv_python:
+        print(f"[检测] 发现虚拟环境: {venv_python}")
+        return True
     
-    # 在虚拟环境中执行
-    os.execv(str(python_exec), new_args)
-    
-    return True
+    print("[提示] 未发现虚拟环境")
+    return False
 
 
 def print_banner():
@@ -115,8 +106,13 @@ def run_server(host='127.0.0.1', port=8888):
     project_root = get_project_root()
     print(f"[启动] 服务器 ({host}:{port})...")
     
+    # 获取虚拟环境的 Python
+    python_exec = get_venv_python()
+    if not python_exec:
+        python_exec = sys.executable  # 使用系统 Python
+    
     server_process = subprocess.Popen(
-        [sys.executable, str(project_root / 'demo' / 'server.py'), '--host', host, '--port', str(port)],
+        [python_exec, str(project_root / 'demo' / 'server.py'), '--host', host, '--port', str(port)],
         cwd=project_root,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -140,9 +136,14 @@ def run_client_interactive(host='127.0.0.1', port=8888):
     project_root = get_project_root()
     print("[启动] 交互式客户端...")
     
+    # 获取虚拟环境的 Python
+    python_exec = get_venv_python()
+    if not python_exec:
+        python_exec = sys.executable  # 使用系统 Python
+    
     try:
         subprocess.run(
-            [sys.executable, str(project_root / 'demo' / 'client.py'), '--host', host, '--port', str(port)],
+            [python_exec, str(project_root / 'demo' / 'client.py'), '--host', host, '--port', str(port)],
             cwd=project_root
         )
     except KeyboardInterrupt:
@@ -154,9 +155,14 @@ def run_web_interface():
     project_root = get_project_root()
     print("[启动] Streamlit Web界面...")
     
+    # 获取虚拟环境的 Python
+    python_exec = get_venv_python()
+    if not python_exec:
+        python_exec = sys.executable  # 使用系统 Python
+    
     try:
         subprocess.run(
-            ['streamlit', 'run', str(project_root / 'demo' / 'interactive_demo.py'), '--server.port', '8501'],
+            [python_exec, "-m", "streamlit", "run", str(project_root / 'demo' / 'interactive_demo.py'), '--server.port', '8501'],
             cwd=project_root
         )
     except FileNotFoundError:
@@ -183,12 +189,16 @@ def run_tests():
 
 def main():
     """主函数"""
-    # 首先检查虚拟环境
-    if check_venv():
-        if activate_venv():
-            return  # 已经在虚拟环境中重新运行
-        else:
-            print("[警告] 虚拟环境激活失败，使用系统Python")
+    # 打印横幅
+    print_banner()
+    
+    # 检查虚拟环境
+    venv_python = get_venv_python()
+    if venv_python:
+        print(f"[信息] 使用虚拟环境: {venv_python}")
+    else:
+        print("[信息] 未发现虚拟环境，将使用系统Python")
+        print("[提示] 运行 'python scripts/setup_venv.py' 创建虚拟环境")
     
     parser = argparse.ArgumentParser(
         description='后量子隐私计算系统启动器',
@@ -214,8 +224,6 @@ def main():
     
     args = parser.parse_args()
     
-    print_banner()
-    
     # 如果没有指定参数，进入交互模式
     if not any([args.server, args.client, args.web, args.test, args.all]):
         print("请选择启动模式:")
@@ -226,7 +234,11 @@ def main():
         print("  5. 启动完整演示（服务器+客户端）")
         print("  0. 退出")
         
-        choice = input("\n输入选项 (0-5): ").strip()
+        try:
+            choice = input("\n输入选项 (0-5): ").strip()
+        except (EOFError, KeyboardInterrupt):
+            print("\n退出")
+            return
         
         if choice == '1':
             args.server = True
@@ -238,8 +250,11 @@ def main():
             args.test = True
         elif choice == '5':
             args.all = True
-        else:
+        elif choice == '0':
             print("退出")
+            return
+        else:
+            print("[错误] 无效选项，请重新运行")
             return
     
     # 检查依赖
@@ -249,7 +264,11 @@ def main():
         if any([args.server, args.client, args.web, args.test, args.all]):
             print("[提示] 继续执行，但可能缺少某些功能")
         else:
-            if input("是否继续? (y/n): ").lower() != 'y':
+            try:
+                if input("是否继续? (y/n): ").lower() != 'y':
+                    return
+            except (EOFError, KeyboardInterrupt):
+                print("\n退出")
                 return
     
     server_process = None
