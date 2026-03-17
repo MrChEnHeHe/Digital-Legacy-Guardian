@@ -1,0 +1,27 @@
+node_modules/
+cache/
+artifacts/
+typechain/
+typechain-types/
+
+# Hardhat files
+coverage/
+coverage.json
+.nyc_output/
+
+# Environment variables
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

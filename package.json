@@ -1,0 +1,28 @@
+{
+  "name": "digital-legacy-guardian",
+  "version": "1.0.0",
+  "description": "数字遗产管家 - 基于门限密码与去中心化触发条件的数字资产继承协议",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "build": "npm run build:frontend && npm run build:backend",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "cd backend && npm run build",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+    "test": "cd backend && npm test"
+  },
+  "keywords": [
+    "digital-legacy",
+    "shamir-secret-sharing",
+    "threshold-cryptography",
+    "blockchain",
+    "inheritance"
+  ],
+  "author": "Digital Legacy Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

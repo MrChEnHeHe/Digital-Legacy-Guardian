@@ -1,0 +1,16 @@
+{
+  "name": "digital-legacy-contracts",
+  "version": "1.0.0",
+  "description": "数字遗产管家智能合约",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "node": "hardhat node",
+    "deploy": "hardhat run scripts/deploy.js --network localhost"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^3.0.2",
+    "hardhat": "^2.19.0",
+    "dotenv": "^16.3.1"
+  }
+}
