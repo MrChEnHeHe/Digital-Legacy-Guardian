@@ -3,8 +3,8 @@
     "name": "演示遗产计划",
     "threshold": 3,
     "totalShares": 5,
-    "triggerMode": "hybrid",
-    "timeLock": 180
+    "triggerMode": "timed",
+    "timeLock": 0.001
   },
   "guardians": [
     {

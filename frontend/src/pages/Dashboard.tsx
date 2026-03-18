@@ -9,6 +9,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [selectedPlan, setSelectedPlan] = useState<any>(null)
   const [inheritanceStatus, setInheritanceStatus] = useState<any>(null)
+  const [currentTime, setCurrentTime] = useState(new Date())
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -20,6 +21,15 @@ export default function Dashboard() {
       loadInheritanceStatus(selectedPlan.id)
     }
   }, [selectedPlan])
+
+  // 定期更新时间，用于实时显示时间锁剩余时间
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date())
+    }, 1000) // 每秒更新一次，产生连续的倒计时效果
+
+    return () => clearInterval(interval)
+  }, [])
 
   const loadPlans = async () => {
     try {
@@ -72,6 +82,8 @@ export default function Dashboard() {
         return 'bg-yellow-100 text-yellow-800'
       case 'completed':
         return 'bg-blue-100 text-blue-800'
+      case 'locked':
+        return 'bg-gray-100 text-gray-800'
       default:
         return 'bg-gray-100 text-gray-800'
     }
@@ -85,9 +97,70 @@ export default function Dashboard() {
         return '继承中'
       case 'completed':
         return '已继承'
+      case 'locked':
+        return '锁定中'
       default:
         return status
     }
+  }
+
+  // 计算时间锁剩余时间
+  const calculateTimeLockRemaining = (plan: any) => {
+    if (plan.triggerMode === 'consensus' || !plan.timeLock || plan.timeLock <= 0) {
+      return { remaining: 0, isExpired: true, display: '无时间限制' }
+    }
+
+    const createdAt = new Date(plan.createdAt)
+    const now = currentTime
+    const totalMilliseconds = plan.timeLock * 24 * 60 * 60 * 1000
+    const elapsedMilliseconds = now.getTime() - createdAt.getTime()
+    const remainingMilliseconds = totalMilliseconds - elapsedMilliseconds
+
+    if (remainingMilliseconds <= 0) {
+      return { remaining: 0, isExpired: true, display: '时间锁已到期' }
+    }
+
+    // 计算剩余天数、小时、分钟、秒
+    const remainingDays = Math.floor(remainingMilliseconds / (24 * 60 * 60 * 1000))
+    const remainingHours = Math.floor((remainingMilliseconds % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000))
+    const remainingMinutes = Math.floor((remainingMilliseconds % (60 * 60 * 1000)) / (60 * 1000))
+    const remainingSeconds = Math.floor((remainingMilliseconds % (60 * 1000)) / 1000)
+
+    let display = ''
+    if (remainingDays > 0) {
+      display += `${remainingDays}天 `
+    }
+    if (remainingHours > 0) {
+      display += `${remainingHours}小时 `
+    }
+    if (remainingMinutes > 0) {
+      display += `${remainingMinutes}分钟 `
+    }
+    if (remainingSeconds > 0) {
+      display += `${remainingSeconds}秒`
+    }
+
+    return { 
+      remaining: remainingMilliseconds, 
+      isExpired: false, 
+      display: display.trim() 
+    }
+  }
+
+  // 获取计划的实际状态
+  const getPlanStatus = (plan: any) => {
+    if (plan.status !== 'active') {
+      return plan.status
+    }
+
+    if (plan.triggerMode === 'timed') {
+      const timeLockStatus = calculateTimeLockRemaining(plan)
+      if (!timeLockStatus.isExpired) {
+        return 'locked'
+      }
+    }
+
+    return plan.status
   }
 
   if (loading) {
@@ -192,7 +265,7 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
-                    {plan.status === 'active' && (
+                    {plan.status === 'active' && (plan.triggerMode === 'consensus' || calculateTimeLockRemaining(plan).isExpired) && (
                       <button
                         onClick={(e) => {
                           e.stopPropagation()
@@ -204,17 +277,15 @@ export default function Dashboard() {
                         <Edit className="h-4 w-4" />
                       </button>
                     )}
-                    {plan.status === 'completed' && (
-                      <button
-                        onClick={(e) => handleDeletePlan(plan.id, e)}
-                        className="p-2 text-gray-500 hover:text-red-600 hover:bg-gray-100 rounded-full transition-colors"
-                        title="删除计划"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    )}
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(plan.status)}`}>
-                      {getStatusText(plan.status)}
+                    <button
+                      onClick={(e) => handleDeletePlan(plan.id, e)}
+                      className="p-2 text-gray-500 hover:text-red-600 hover:bg-gray-100 rounded-full transition-colors"
+                      title="删除计划"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(getPlanStatus(plan))}`}>
+                      {getStatusText(getPlanStatus(plan))}
                     </span>
                   </div>
                 </div>
@@ -235,18 +306,22 @@ export default function Dashboard() {
                   <div>
                     <p className="text-gray-500">触发模式</p>
                     <p className="font-medium">
-                      {plan.triggerMode === 'time' ? '时间锁' : 
-                       plan.triggerMode === 'consensus' ? '社会共识' : '混合模式'}
+                      {plan.triggerMode === 'consensus' ? '社会共识' : '时间锁'}
                     </p>
                   </div>
                 </div>
 
-                {plan.triggerMode !== 'consensus' && (
+                {plan.triggerMode === 'timed' && (
                   <div className="mt-3 pt-3 border-t border-gray-100">
                     <div className="flex items-center text-sm">
                       <Clock className="h-4 w-4 mr-2 text-gray-500" />
                       <span className="text-gray-500">时间锁: </span>
                       <span className="font-medium ml-1">{plan.timeLock}天</span>
+                    </div>
+                    <div className="flex items-center text-sm mt-1">
+                      <Clock className="h-4 w-4 mr-2 text-gray-500" />
+                      <span className="text-gray-500">剩余时间: </span>
+                      <span className="font-medium ml-1">{calculateTimeLockRemaining(plan).display}</span>
                     </div>
                   </div>
                 )}

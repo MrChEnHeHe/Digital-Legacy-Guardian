@@ -31,7 +31,7 @@ export default function CreatePlan() {
   const [guardians, setGuardians] = useState<Guardian[]>([])
   const [threshold, setThreshold] = useState(3)
   const [totalShares, setTotalShares] = useState(5)
-  const [triggerMode, setTriggerMode] = useState<'time' | 'consensus' | 'hybrid'>('hybrid')
+  const [enableTimeLock, setEnableTimeLock] = useState(false)
   const [timeLock, setTimeLock] = useState(180)
   const [newAsset, setNewAsset] = useState<Partial<Asset>>({})
   const [newGuardian, setNewGuardian] = useState<Partial<Guardian>>({})
@@ -85,8 +85,8 @@ export default function CreatePlan() {
         guardians,
         threshold,
         totalShares,
-        triggerMode,
-        timeLock,
+        triggerMode: enableTimeLock ? 'timed' : 'consensus',
+        timeLock: enableTimeLock ? timeLock : 0,
       })
       alert('遗产计划创建成功！')
       setStep(1)
@@ -337,44 +337,49 @@ export default function CreatePlan() {
           </h2>
 
           <div className="space-y-4">
-            <label className="block text-sm font-medium">触发模式</label>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {[
-                { value: 'time', label: '时间锁', desc: '设定时间后自动解锁' },
-                { value: 'consensus', label: '社会共识', desc: '监护人确认后解锁' },
-                { value: 'hybrid', label: '混合模式', desc: '时间+共识双重验证' },
-              ].map((mode) => (
-                <button
-                  key={mode.value}
-                  onClick={() => setTriggerMode(mode.value as any)}
-                  className={`p-4 rounded-lg border-2 transition-all ${
-                    triggerMode === mode.value
-                      ? 'border-primary-600 bg-primary-50'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  <div className="font-semibold mb-1">{mode.label}</div>
-                  <div className="text-sm text-gray-600">{mode.desc}</div>
-                </button>
-              ))}
+            <label className="block text-sm font-medium">基础触发机制</label>
+            <div className="p-4 rounded-lg border-2 border-primary-600 bg-primary-50">
+              <div className="font-semibold mb-1">社会共识</div>
+              <div className="text-sm text-gray-600">需要 {threshold} 位监护人提交份额表示同意</div>
             </div>
           </div>
 
-          {(triggerMode === 'time' || triggerMode === 'hybrid') && (
-            <div>
-              <label className="block text-sm font-medium mb-2">时间锁（天）</label>
-              <input
-                type="number"
-                min="1"
-                className="input-field"
-                value={timeLock}
-                onChange={(e) => setTimeLock(parseInt(e.target.value))}
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                {timeLock}天后，如果无活动则允许触发继承
-              </p>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <label className="block text-sm font-medium">启用时间锁</label>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="sr-only peer"
+                  checked={enableTimeLock}
+                  onChange={(e) => setEnableTimeLock(e.target.checked)}
+                />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
+              </label>
             </div>
-          )}
+            {enableTimeLock && (
+              <div>
+                <label className="block text-sm font-medium mb-2">时间锁期限（天）</label>
+                <input
+                  type="number"
+                  min="0.001"
+                  step="0.001"
+                  className="input-field"
+                  value={timeLock}
+                  onChange={(e) => setTimeLock(parseFloat(e.target.value))}
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  启用时间锁后，需要同时满足两个条件：
+                  <br />
+                  1. 达到门限数量的监护人同意
+                  <br />
+                  2. 时间锁期限已到期
+                  <br />
+                  测试阶段可使用小数值（如 0.001）快速检查
+                </p>
+              </div>
+            )}
+          </div>
 
           <div className="flex space-x-4">
             <button onClick={() => setStep(2)} className="btn-secondary flex-1">
@@ -415,9 +420,9 @@ export default function CreatePlan() {
                 <br />
                 门限配置: {threshold}-of-{totalShares}
                 <br />
-                触发模式: {triggerMode === 'time' ? '时间锁' : triggerMode === 'consensus' ? '社会共识' : '混合模式'}
-                {timeLock && <br />}
-                {timeLock && `时间锁: ${timeLock}天`}
+                触发机制: 社会共识
+                {enableTimeLock && <br />}
+                {enableTimeLock && `时间锁: ${timeLock}天`}
               </div>
             </div>
 

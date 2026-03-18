@@ -1,1 +1,42 @@
-{}
+{
+  "5bdc700b-b00f-4d6a-9bb1-9b665b23faf5": {
+    "id": "5bdc700b-b00f-4d6a-9bb1-9b665b23faf5",
+    "planId": "演示遗产计划-1773801018697",
+    "heirAddress": "2153266563@qq.com",
+    "heirEmail": "2153266563@qq.com",
+    "guardianSignatures": [],
+    "sharesCollected": 3,
+    "submittedGuardians": [
+      "1",
+      "2",
+      "3"
+    ],
+    "status": "verifying",
+    "createdAt": "2026-03-18T02:42:58.573Z",
+    "updatedAt": "2026-03-18T02:45:46.880Z"
+  },
+  "6bf5c1da-e763-4ff6-8fe7-22794807ae35": {
+    "id": "6bf5c1da-e763-4ff6-8fe7-22794807ae35",
+    "planId": "8569843c-e52e-49f3-bf79-20e6b6be5e57",
+    "heirAddress": "2153266563@qq.com",
+    "heirEmail": "2153266563@qq.com",
+    "guardianSignatures": [],
+    "sharesCollected": 0,
+    "submittedGuardians": [],
+    "status": "collecting",
+    "createdAt": "2026-03-18T16:01:25.763Z",
+    "updatedAt": "2026-03-18T16:01:25.763Z"
+  },
+  "7214c0db-514b-4885-87cc-61a1a622b53e": {
+    "id": "7214c0db-514b-4885-87cc-61a1a622b53e",
+    "planId": "f2949b37-008f-48a3-b074-acb8bc10c0db",
+    "heirAddress": "2153266563@qq.com",
+    "heirEmail": "2153266563@qq.com",
+    "guardianSignatures": [],
+    "sharesCollected": 0,
+    "submittedGuardians": [],
+    "status": "collecting",
+    "createdAt": "2026-03-18T16:12:49.170Z",
+    "updatedAt": "2026-03-18T16:12:49.170Z"
+  }
+}

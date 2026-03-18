@@ -49,7 +49,7 @@ export interface LegacyPlan {
   guardians: any[]
   threshold: number
   totalShares: number
-  triggerMode: 'time' | 'consensus' | 'hybrid'
+  triggerMode: 'consensus' | 'timed'
   timeLock: number
   masterKey: string
   shares: Share[]
@@ -119,7 +119,7 @@ class LegacyPlanService {
     guardians: any[]
     threshold: number
     totalShares: number
-    triggerMode: 'time' | 'consensus' | 'hybrid'
+    triggerMode: 'consensus' | 'timed'
     timeLock: number
   }): LegacyPlan {
     const masterKey = shamirSecretSharing.generateMasterKey()
@@ -237,6 +237,31 @@ class LegacyPlanService {
 
     if (plan.status !== 'active') {
       throw new Error('Plan is not active')
+    }
+
+    // 检查时间锁是否到期
+    if (plan.triggerMode === 'timed') {
+      if (plan.timeLock && plan.timeLock > 0) {
+        const createdAt = new Date(plan.createdAt)
+        const now = new Date()
+        const totalMilliseconds = plan.timeLock * 24 * 60 * 60 * 1000
+        const elapsedMilliseconds = now.getTime() - createdAt.getTime()
+        
+        if (elapsedMilliseconds < totalMilliseconds) {
+          const remainingDays = Math.floor((totalMilliseconds - elapsedMilliseconds) / (24 * 60 * 60 * 1000))
+          const remainingHours = Math.floor(((totalMilliseconds - elapsedMilliseconds) % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000))
+          const remainingMinutes = Math.floor(((totalMilliseconds - elapsedMilliseconds) % (60 * 60 * 1000)) / (60 * 1000))
+          const remainingSeconds = Math.floor(((totalMilliseconds - elapsedMilliseconds) % (60 * 1000)) / 1000)
+          
+          let remainingTime = ''
+          if (remainingDays > 0) remainingTime += `${remainingDays}天 `
+          if (remainingHours > 0) remainingTime += `${remainingHours}小时 `
+          if (remainingMinutes > 0) remainingTime += `${remainingMinutes}分钟 `
+          if (remainingSeconds > 0) remainingTime += `${remainingSeconds}秒`
+          
+          throw new Error(`时间锁未到期，剩余时间：${remainingTime.trim()}`)
+        }
+      }
     }
 
     const request: InheritanceRequest = {
@@ -369,7 +394,7 @@ class LegacyPlanService {
     name: string
     threshold: number
     totalShares: number
-    triggerMode: 'time' | 'consensus' | 'hybrid'
+    triggerMode: 'consensus' | 'timed'
     timeLock: number
     guardians: any[]
     assets: any[]
