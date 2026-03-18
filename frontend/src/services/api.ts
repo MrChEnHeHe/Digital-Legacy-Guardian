@@ -25,6 +25,7 @@ export interface LegacyPlan {
 export interface InheritanceRequest {
   planId: string
   heirAddress: string
+  heirEmail: string
   guardianSignatures: string[]
 }
 

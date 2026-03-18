@@ -282,9 +282,9 @@ export default function Dashboard() {
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(selectedPlan.id)
-                    alert('计划ID已复制到剪贴板')
                   }}
                   className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
+                  title="复制计划ID到剪贴板"
                 >
                   复制ID
                 </button>
@@ -339,9 +339,9 @@ export default function Dashboard() {
                           <button
                             onClick={() => {
                               navigator.clipboard.writeText(guardian.id)
-                              alert('监护人ID已复制')
                             }}
                             className="px-2 py-1 bg-gray-200 text-gray-700 text-xs rounded hover:bg-gray-300 transition-colors"
+                            title="复制监护人ID到剪贴板"
                           >
                             复制监护人ID
                           </button>
@@ -349,9 +349,9 @@ export default function Dashboard() {
                             <button
                               onClick={() => {
                                 navigator.clipboard.writeText(share.id)
-                                alert('份额ID已复制')
                               }}
                               className="px-2 py-1 bg-yellow-200 text-yellow-800 text-xs rounded hover:bg-yellow-300 transition-colors"
+                              title="复制份额ID到剪贴板"
                             >
                               复制份额ID
                             </button>

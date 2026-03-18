@@ -51,12 +51,23 @@ const features = [
 
 export default function Home() {
   const navigate = useNavigate()
-  const [demoData, setDemoData] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(false)
 
   const generateDemoData = async () => {
     try {
+      setIsLoading(true)
+      console.log('=== 开始生成演示数据 ===')
+      
+      // 检查模板文件是否存在
       const response = await fetch('/demo-template.json')
+      console.log('模板文件请求状态:', response.status)
+      
+      if (!response.ok) {
+        throw new Error(`模板文件请求失败: ${response.status} ${response.statusText}`)
+      }
+      
       const template = await response.json()
+      console.log('模板文件读取成功:', template)
       
       console.log('=== 演示模板文件位置 ===')
       console.log('文件路径: c:/Users/36083/Desktop/digital_legacy/frontend/public/demo-template.json')
@@ -80,25 +91,30 @@ export default function Home() {
       console.log(`- 触发模式: ${planInfo.triggerMode}`)
       console.log(`- 时间锁: ${planInfo.timeLock}天`)
       console.log('\n监护人信息:')
-      planInfo.guardians.forEach((g, i) => {
+      planInfo.guardians.forEach((g: any, i: number) => {
         console.log(`${i + 1}. ${g.name} (${g.role})`)
         console.log(`   - 监护人ID: ${g.id}`)
         console.log(`   - 邮箱: ${g.email}`)
       })
       console.log('\n资产信息:')
-      planInfo.assets.forEach((a, i) => {
+      planInfo.assets.forEach((a: any, i: number) => {
         console.log(`${i + 1}. ${a.name} (${a.type})`)
         console.log(`   - 详情: ${a.value}`)
         console.log(`   - 描述: ${a.description}`)
       })
 
+      console.log('\n=== 开始创建演示计划 ===')
       const createdPlan = await createDemoPlan(planInfo)
       console.log('\n=== 演示计划创建成功 ===')
       console.log(`- 计划ID: ${createdPlan.id}`)
+      
+      // 直接跳转到控制台
       navigate('/dashboard')
     } catch (error) {
       console.error('读取模板或创建演示计划失败:', error)
-      alert('读取模板或创建演示计划失败，请检查控制台了解详情')
+      alert(`读取模板或创建演示计划失败: ${(error as Error).message}\n请检查控制台了解详情`)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -139,9 +155,20 @@ export default function Home() {
           </Link>
           <button
             onClick={generateDemoData}
-            className="btn-secondary text-lg px-8 py-3"
+            disabled={isLoading}
+            className="btn-secondary text-lg px-8 py-3 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
           >
-            生成演示数据
+            {isLoading ? (
+              <>
+                <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                正在创建...
+              </>
+            ) : (
+              '生成演示数据'
+            )}
           </button>
         </motion.div>
       </div>
