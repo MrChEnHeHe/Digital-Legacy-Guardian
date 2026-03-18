@@ -33,6 +33,11 @@ export const createLegacyPlan = async (data: any): Promise<LegacyPlan> => {
   return response.data
 }
 
+export const createDemoPlan = async (data: any): Promise<LegacyPlan> => {
+  const response = await api.post('/demo/create', data)
+  return response.data
+}
+
 export const getLegacyPlans = async (): Promise<LegacyPlan[]> => {
   const response = await api.get('/plans')
   return response.data

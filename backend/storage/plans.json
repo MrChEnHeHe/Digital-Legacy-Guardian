@@ -1,13 +1,103 @@
 {
-  "a35d6607-5f20-4069-8fcc-c4e2eeedcd30": {
-    "id": "a35d6607-5f20-4069-8fcc-c4e2eeedcd30",
-    "name": "计划 1",
+  "演示遗产计划-1773797926673": {
+    "id": "演示遗产计划-1773797926673",
+    "name": "演示遗产计划",
+    "assets": [],
+    "guardians": [
+      {
+        "id": "1",
+        "name": "barry",
+        "role": "son",
+        "email": "3525026496@qq.com"
+      },
+      {
+        "id": "2",
+        "name": "lvyingshuo",
+        "role": "lawyer",
+        "email": "2152805144@qq.com"
+      },
+      {
+        "id": "3",
+        "name": "chenyuke",
+        "role": "friend",
+        "email": "2153266563.com"
+      },
+      {
+        "id": "4",
+        "name": "wangyouchen",
+        "role": "friend",
+        "email": "1938824385@qq.com"
+      },
+      {
+        "id": "5",
+        "name": "zhangruipeng",
+        "role": "brother",
+        "email": "1762817240@qq.com"
+      }
+    ],
+    "threshold": 3,
+    "totalShares": 5,
+    "triggerMode": "hybrid",
+    "timeLock": 180,
+    "masterKey": "3ea09e441d7a352f8400769a1ce435d6912dfc96965f8d0d40cb54a50e1f6692",
+    "shares": [
+      {
+        "id": "06670eb0-508a-4c7f-a5f4-1be976212bfb",
+        "index": 1,
+        "value": "f69441b4fc180f4ce61b48b322511fec9d4264a04e86554081d363a86bfc3ea2",
+        "commitment": "4b4c7c6d11388f73159968f83d0ba723d63366e93bcbd3ce6eeb5fa0aaec4b11"
+      },
+      {
+        "id": "81f1bea7-da01-4b16-b7b1-cf39a66207a5",
+        "index": 2,
+        "value": "ecfb645325aaddd7e1ab09786db3e9fe28c3fbb298ce56a139586337b4983a30",
+        "commitment": "b8a34a9b40dce2447a4d023909fe8e68dc2fba680f87e27db2bf35cd2ff59e58"
+      },
+      {
+        "id": "36ae81ab-d918-4176-a904-1c8b4a010e8f",
+        "index": 3,
+        "value": "21d6061e9a32a0d076afb8e9ff0c940b33b2c1cd7537912f675a5352e7f3593c",
+        "commitment": "08b17403d2f0e715bcae6e3e2d7d08cfbf07cd3669dcb6b93394bdb771936bee"
+      },
+      {
+        "id": "690b72df-e3ed-4fb0-bc86-369e8d82510f",
+        "index": 4,
+        "value": "9524271759af5836a5295707d65b1e13be0eb6f0e3c204eb0bd933fa060d9a4c",
+        "commitment": "2242c6065234129a63d88708d0f793563dbf97b61a9f256cd9e6f94fde1942f6"
+      },
+      {
+        "id": "c0c92ee6-9a04-4b29-9f62-9048d80a9fd0",
+        "index": 5,
+        "value": "46e5c73d6421040a6d17e3d1f39f8817c7d7db1ce46db1d426d5052d0ee6feda",
+        "commitment": "109de82eec732556fdac460deccc6781d05d56af4e34f8630cbf301ddc69dda5"
+      }
+    ],
+    "encryptedAssets": "U2FsdGVkX1/6Sy4QSk4kdzoVn1t02Jh7kAw/4Q/CrEhPtr5RLDoFsVAZBL2neqZ1MNhaDu/YUu648dY6TTOztIZFFQy0oZGXP3QapiqfEXCgvudHcrIjqz8bx97wDEFAGtpvhXRQF7Xgq8tXyGhDptGjaOmz3R7aP1H/VGctM0Og38MhPdcliwmaVAa9TonDyQxicg3MCytN1niPLy782XqFVuMKa6tuFI1REtDGpKIyYm8eiudeZ6f4e93s9zSS35nn3uiCek1SsJgyZqWbKMQZniw4WCsQ6AWBTsdaJioDAD+VdiVkcmwm3u4jDevEZoJP41P55gxtq0blSJAwoQqe1rHjzGoewjt/nHoGQRMYVQAoyxuJzkxqjL0MLfVW5Zdy9VPd3mFlGET7LeLfaZJ0mkAtbbd5QszPJImFi2kM+vC5JtcXbAb4mC4LpPZgHJ5uiS6cl2pVktaXR0xeMydpkAIN1+9vRGYRZVsSFfrxa/p69RYbdil8AoWDPNN0GwU8MxXbd+tGLVdIGtxTNw==",
+    "createdAt": "2026-03-18T01:38:46.673Z",
+    "updatedAt": "2026-03-18T01:42:33.698Z",
+    "status": "active"
+  },
+  "演示遗产计划-1773797942806": {
+    "id": "演示遗产计划-1773797942806",
+    "name": "演示遗产计划",
     "assets": [
       {
+        "name": "支付宝账号",
         "type": "cloud",
-        "value": "2153266563@qq.com",
-        "name": "账号",
-        "description": "好康的"
+        "value": "账号: 13800138000, 密码: Pass123!",
+        "description": "主要支付账户"
+      },
+      {
+        "name": "微信支付",
+        "type": "cloud",
+        "value": "账号: zhangsan123, 密码: Wechat456!",
+        "description": "日常支付工具"
+      },
+      {
+        "name": "比特币钱包",
+        "type": "crypto",
+        "value": "0x742d35Cc6634C0532925a3b844Bc9e7595f8b3f",
+        "description": "冷钱包私钥"
       }
     ],
     "guardians": [
@@ -15,64 +105,170 @@
         "id": "1",
         "name": "barry",
         "role": "son",
-        "email": "3525026496@qq.com",
-        "publicKey": "0x5789ce15b7932"
+        "email": "3525026496@qq.com"
       },
       {
         "id": "2",
-        "name": "chenyuke",
-        "role": "me",
-        "email": "2153266563@qq.com",
-        "publicKey": "0x70728d4ba53e98"
+        "name": "lvyingshuo",
+        "role": "lawyer",
+        "email": "2152805144@qq.com"
       },
       {
         "id": "3",
-        "name": "lvyingshuo",
-        "role": "son",
-        "email": "2152805144@qq.com",
-        "publicKey": "0x55affd816d99b"
+        "name": "chenyuke",
+        "role": "friend",
+        "email": "2153266563.com"
+      },
+      {
+        "id": "4",
+        "name": "wangyouchen",
+        "role": "friend",
+        "email": "1938824385@qq.com"
+      },
+      {
+        "id": "5",
+        "name": "zhangruipeng",
+        "role": "brother",
+        "email": "1762817240@qq.com"
       }
     ],
     "threshold": 3,
     "totalShares": 5,
-    "triggerMode": "consensus",
+    "triggerMode": "hybrid",
     "timeLock": 180,
-    "masterKey": "6c3dfaf66f1b167521b84defa5703d55649d0c95d96f3ca3260b5d814ee08f81",
+    "masterKey": "24d8bd4781b68d0275484e2b5a36f73d97f43075af6d7ef99159400179439f35",
     "shares": [
       {
-        "id": "789d7179-a686-44b9-ad2c-86e7b547c8ba",
+        "id": "c66124a3-3422-4973-b791-94be24d15afb",
         "index": 1,
-        "value": "870d6eb0daaf82653cb1cc6920d40dc644fe6bb56843ab9617a7bb70aa1de9b4",
-        "commitment": "c58f768c67d1437f9806a85e67c751c42c9e59c94d859d0ac76b30d655547507"
+        "value": "6737c17be602db1a75dc0155c797e4ccffbaf064962b8c7b8212d25ef77589cc",
+        "commitment": "8b4573d9225f1d66bddbccb6067e4ba19462e76d8bb42e63c5117bdae5cff6f1"
       },
       {
-        "id": "7b0d25a2-4779-4fef-9c4e-21a47e5ac127",
+        "id": "6a754696-b609-496a-bcfb-391e4460c2c7",
         "index": 2,
-        "value": "18d823bd028a04ae65fa929e33e74dc5ee77a7fffb2be7bfbc1e5069d47d84e4",
-        "commitment": "007989ed3c646c364917b390ee80f98623687577db38d47c6a06962ee9574526"
+        "value": "f1b2c6ad5e168d761e039256866c42ca4f68d7cf8e8fb121751acc38a89b69f4",
+        "commitment": "bd0a316ba907ec9146645777550c67175f247a05165aac44c257ebf0a7debb58"
       },
       {
-        "id": "9a9f0bd4-0953-471a-9742-0b8adff3153a",
+        "id": "87212ff7-d1a8-43bc-a30b-daaa1c68947d",
         "index": 3,
-        "value": "219e1a1ae6aa9d509d92a08edea9fd546108c1759227f120136f1c6ccdff6054",
-        "commitment": "f8de77046f50d86bced82076fc96778ba4feab2b0d53ee48a5f446f926973b31"
+        "value": "c449ccdbe9f1a4156dbf012d96b4113586fde6b69899eceb6a712d8e8cb5406a",
+        "commitment": "1d30667c37723096a7c7579da2d081bda70a0a19f4ac761eb60aedb32742932e"
       },
       {
-        "id": "8bad128e-8abb-4330-817f-1b1124b274a1",
+        "id": "715d134c-86c2-4826-a233-d638eda3fb22",
         "index": 4,
-        "value": "a15f51ca87114c4be379f63b211c1c719cb1b8162d37c7b71d9a1f7996a37c04",
-        "commitment": "310427b1362121384757fe2bd3bf973cd8ef8347c77d536e0bd6c895d0dd1378"
+        "value": "defcd40789941ef8650e4ddaf86f500ea67a1d19b44a3fd96215f660a3c30c71",
+        "commitment": "bf14e67cfd1e33a55f38d84f7fa2c139474dc3ee3f696428beb0a59068bcf289"
       },
       {
-        "id": "26265917-c349-4982-a901-4f6e7dd9406e",
+        "id": "e205f0ac-337f-4c12-b7e5-8e82fb591912",
         "index": 5,
-        "value": "981bcacbe3be11a037b093a2fb3dab1da1728be1cc5b6b84da9f59902e69d8b1",
-        "commitment": "10e1183a390e5a049f0cda416270c9c85ad21fd6e07426f651478c18ef1b68d0"
+        "value": "41cbdc303cfdfe1f03f1785eab9dff55addd7af8e1a0a9eb5c0926aeedc4cec6",
+        "commitment": "318d38d93e530affc023cfd988549b1ff55a3db559306af3097c1a037baaf1db"
       }
     ],
-    "encryptedAssets": "U2FsdGVkX1/wZAGwT26boHxwMsOMJQbD+Wpo3fNmEgcKp4ZffavOgNQlDpWpXW/0KzgzN3DwNvWM01ho2f8Z0WDqTnQNdZyB1SJo4WLAM6NXmBIyqM84B7+LCdf7E/kCuGs8G72FkzT6wI9yOrnCyg==",
-    "createdAt": "2026-03-17T15:51:56.184Z",
-    "updatedAt": "2026-03-17T15:51:56.184Z",
+    "encryptedAssets": "U2FsdGVkX1+kYPDIaPmPiVn2QK9sfQHGGBzWe+DtzVId5BMOlIBrPnQDAqXDDE3Au57g6jzxen5NKmegOf8larGHZop9nAoxxgy/kTu7wwqfTvoOr3a0VHNY7Cf3s7m0bRSExh6bDSLGHCq+P9ZFc3qZbB5JUcuqa+2TxGArESwR5AjO1VUFkn4lyD3stSsVynSG9u8q+6K3U7iU4r8U/R4xTPTUVJu+yBCjW4zbtRbeFRx6u2fdMe0bT/8Ur/FzvLPmDWIRZHeJgRd97NhP+RWiYQpwKt8n1iTbJaH3n/xSSzyg8i+cwdw/qj0a5AZlmtrIGFZIiWg2Tids2o18bY8LIHTz6Ahhn8u9kQaFJmD+lwpUK3E+uCyLZ3zNAlT6kQfyMYmiOHvyuqGnAlEwdtJSRkUhQDQ8Qy3WH9qR1oKKiI5Jj4Cu6GpHqe3lbHxjmB/3eFcZPcwaDDktKeAm/rFKncaEXMD0BExIO5nHmHLxZeUPFVb7ZrctOq1QrHRRUkk377sinu8aEKoaIfU8ZA==",
+    "createdAt": "2026-03-18T01:39:02.806Z",
+    "updatedAt": "2026-03-18T01:39:02.806Z",
+    "status": "active"
+  },
+  "演示遗产计划-1773798130634": {
+    "id": "演示遗产计划-1773798130634",
+    "name": "演示遗产计划",
+    "assets": [
+      {
+        "name": "支付宝账号",
+        "type": "cloud",
+        "value": "账号: 13800138000, 密码: Pass123!",
+        "description": "主要支付账户"
+      },
+      {
+        "name": "微信支付",
+        "type": "cloud",
+        "value": "账号: zhangsan123, 密码: Wechat456!",
+        "description": "日常支付工具"
+      },
+      {
+        "name": "比特币钱包",
+        "type": "crypto",
+        "value": "0x742d35Cc6634C0532925a3b844Bc9e7595f8b3f",
+        "description": "冷钱包私钥"
+      }
+    ],
+    "guardians": [
+      {
+        "id": "1",
+        "name": "barry",
+        "role": "son",
+        "email": "3525026496@qq.com"
+      },
+      {
+        "id": "2",
+        "name": "lvyingshuo",
+        "role": "lawyer",
+        "email": "2152805144@qq.com"
+      },
+      {
+        "id": "3",
+        "name": "chenyuke",
+        "role": "friend",
+        "email": "2153266563.com"
+      },
+      {
+        "id": "4",
+        "name": "wangyouchen",
+        "role": "friend",
+        "email": "1938824385@qq.com"
+      },
+      {
+        "id": "5",
+        "name": "zhangruipeng",
+        "role": "brother",
+        "email": "1762817240@qq.com"
+      }
+    ],
+    "threshold": 3,
+    "totalShares": 5,
+    "triggerMode": "hybrid",
+    "timeLock": 180,
+    "masterKey": "5b478f73b797ae687afb1d814ac23ca4db6862d0c4144dce521cc767b13a05e7",
+    "shares": [
+      {
+        "id": "cd9c6c67-1613-418e-9a9a-e5855db5ca53",
+        "index": 1,
+        "value": "d0479628a64ee264985ec4950bc591cdf4a4d6dba97dd2a90578e75dac4eceac",
+        "commitment": "3e61ca97a8fbf8d776b8a11da6befd2d5c29beb7c4af86fb8430ab4468d028ff"
+      },
+      {
+        "id": "96831224-ae43-442e-b15c-309cbd0ff553",
+        "index": 2,
+        "value": "b239c1fc19aaeba3af227b703fa7644ac6345a4419bfd6e519c6af2e20ce189b",
+        "commitment": "8b9d226203f360dc36aec7c3e42bf676071586e1ae9492d4d7533f25fdaa86c8"
+      },
+      {
+        "id": "5a848196-3172-43b0-8574-e6f777187734",
+        "index": 3,
+        "value": "11e12ee11abca25bf464212e667b41b5016ed0a14da5a828f061ed90eb7e3b4",
+        "commitment": "5b6dfe96e66a88aabe865eef3aa2576f2dae51cfc50de739bc12a12fb2cc6883"
+      },
+      {
+        "id": "bdb3b191-991c-4cf1-8041-f220bdcdcec7",
+        "index": 4,
+        "value": "bcf488fe8e517deac8ca187d0006813f924c8f2d9acd5d816537365e760c2e7d",
+        "commitment": "419078873df1762e99c00748d51295bcbf3be398b3620bf75418370c552f9130"
+      },
+      {
+        "id": "32598ed1-a42f-4101-9e75-a3113d9d9482",
+        "index": 5,
+        "value": "e5bd242d8f9c06f2cbadfeae8c83cbb78cd540aeab98dfe19c59f5be56cafa70",
+        "commitment": "201045067df490897823061652ada3985130673d782a6eeb84126099b5e15e98"
+      }
+    ],
+    "encryptedAssets": "U2FsdGVkX19ARZv0sdEKK6pXCtoA2pA+/89Qi2gdNCkO6vSgNP1oe1XOkh3onOypmaBkeWNeAWw50HlKN8fou/4EEN8M+qfB/EC2OrjbKaZP2azbcgSDf/M0GvO09Z2fDjVxjJRD6iugkPqSPaynYmaUywl7q3UaTwh3r267RdG2yUGXFGNZAMCPGrCEfhr/n8FNxBn5iTOM2rIYbCcZqcTBLH5DVHiUlzaMGOYo7Oda8LH2BMTuVFhikDgMyAw751djz0xkcbyElFoXTnzzWEILpnjz6ZBISqQB9nSv4tMzh5w5w3JI5JuqlUZUi5/7VgEqlS0Zv/2UnfgicPabJZ7LSONsHeHOxSRJw+4rj7UBCL4KZfu0bRNTf07E6qvzzXsDwY0R4EVirnlpsmC2jodydxa/W/N1NcDizdTJ/BaSrQp8SNEWMCcbbYWQh2novLYmOcfWT+nRPkpXnS4heSX4KXyToaGAMTxInm/vZmdg7uCzqCipSiDByXlBPlLaNrGLoZ7Ds4qUWeRsXvlXqg==",
+    "createdAt": "2026-03-18T01:42:10.634Z",
+    "updatedAt": "2026-03-18T01:42:10.634Z",
     "status": "active"
   }
 }

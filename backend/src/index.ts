@@ -93,7 +93,14 @@ app.delete('/api/plans/:id/assets/:index', (req, res) => {
   }
 })
 
-
+app.post('/api/demo/create', async (req, res) => {
+  try {
+    const demoPlan = await legacyPlanService.createDemoPlan(req.body)
+    res.json(demoPlan)
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || 'Failed to create demo plan' })
+  }
+})
 
 app.post('/api/inheritance/initiate', (req, res) => {
   try {

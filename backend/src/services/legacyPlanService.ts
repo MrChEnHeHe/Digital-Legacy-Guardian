@@ -63,6 +63,7 @@ export interface InheritanceRequest {
   id: string
   planId: string
   heirAddress: string
+  heirEmail?: string
   guardianSignatures: string[]
   sharesCollected: number
   submittedGuardians: string[]
@@ -226,6 +227,7 @@ class LegacyPlanService {
   initiateInheritance(data: {
     planId: string
     heirAddress: string
+    heirEmail: string
     guardianSignatures: string[]
   }): InheritanceRequest {
     const plan = this.plans.get(data.planId)
@@ -241,6 +243,7 @@ class LegacyPlanService {
       id: uuidv4(),
       planId: data.planId,
       heirAddress: data.heirAddress,
+      heirEmail: data.heirEmail,
       guardianSignatures: data.guardianSignatures,
       sharesCollected: 0,
       submittedGuardians: [],
@@ -322,6 +325,11 @@ class LegacyPlanService {
         request.status = 'verifying'
         plan.status = 'completed'
         plan.updatedAt = new Date().toISOString()
+        
+        // 发送继承成功邮件给继承人
+        if (request.heirEmail) {
+          this.sendHeirNotificationEmail(request, plan)
+        }
       }
 
       this.saveData()
@@ -345,6 +353,74 @@ class LegacyPlanService {
       planId: plan.id,
       submittedAt: new Date(),
     })
+  }
+
+  private async sendHeirNotificationEmail(request: InheritanceRequest, plan: LegacyPlan): Promise<void> {
+    await emailService.sendHeirNotification({
+      heirName: request.heirAddress.slice(0, 10) + '...',
+      heirEmail: request.heirEmail!,
+      planName: plan.name,
+      planId: plan.id,
+      assets: plan.assets,
+    })
+  }
+
+  async createDemoPlan(data: {
+    name: string
+    threshold: number
+    totalShares: number
+    triggerMode: 'time' | 'consensus' | 'hybrid'
+    timeLock: number
+    guardians: any[]
+    assets: any[]
+  }): Promise<LegacyPlan> {
+    const masterKey = shamirSecretSharing.generateMasterKey()
+    const shares = shamirSecretSharing.split(masterKey, data.totalShares, data.threshold)
+    const encryptedAssets = shamirSecretSharing.encryptAsset(data.assets, masterKey)
+    
+    const plan: LegacyPlan = {
+      id: data.name + '-' + Date.now(),
+      name: data.name,
+      assets: data.assets,
+      guardians: data.guardians,
+      threshold: data.threshold,
+      totalShares: data.totalShares,
+      triggerMode: data.triggerMode,
+      timeLock: data.timeLock,
+      masterKey,
+      shares,
+      encryptedAssets,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      status: 'active',
+    }
+
+    this.plans.set(plan.id, plan)
+    this.saveData()
+
+    console.log('=== 演示计划创建成功 ===')
+    console.log('遗产计划信息:')
+    console.log(`- 计划ID: ${plan.id}`)
+    console.log(`- 计划名称: ${plan.name}`)
+    console.log(`- 门限配置: ${plan.threshold}-of-${plan.totalShares}`)
+    console.log(`- 触发模式: ${plan.triggerMode}`)
+    console.log(`- 时间锁: ${plan.timeLock}天`)
+    console.log('\n监护人信息:')
+    data.guardians.forEach((g, i) => {
+      console.log(`${i + 1}. ${g.name} (${g.role})`)
+      console.log(`   - 监护人ID: ${g.id}`)
+      console.log(`   - 邮箱: ${g.email}`)
+    })
+    console.log('\n资产信息:')
+    data.assets.forEach((a, i) => {
+      console.log(`${i + 1}. ${a.name} (${a.type})`)
+      console.log(`   - 详情: ${a.value}`)
+      console.log(`   - 描述: ${a.description}`)
+    })
+
+    await this.sendShareEmails(plan)
+
+    return plan
   }
 
   getInheritanceStatus(planId: string): any {

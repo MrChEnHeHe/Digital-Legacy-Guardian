@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion'
 import { Shield, Lock, Users, Clock, Zap, ShieldCheck } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import { createDemoPlan } from '../services/api'
 
 const features = [
   {
@@ -48,6 +50,58 @@ const features = [
 ]
 
 export default function Home() {
+  const navigate = useNavigate()
+  const [demoData, setDemoData] = useState<any>(null)
+
+  const generateDemoData = async () => {
+    try {
+      const response = await fetch('/demo-template.json')
+      const template = await response.json()
+      
+      console.log('=== 演示模板文件位置 ===')
+      console.log('文件路径: c:/Users/36083/Desktop/digital_legacy/frontend/public/demo-template.json')
+      console.log('\n模板内容:')
+      console.log(JSON.stringify(template, null, 2))
+      
+      const planInfo = {
+        name: template.plan.name,
+        threshold: template.plan.threshold,
+        totalShares: template.plan.totalShares,
+        triggerMode: template.plan.triggerMode,
+        timeLock: template.plan.timeLock,
+        guardians: template.guardians,
+        assets: template.assets,
+      }
+
+      console.log('\n=== 准备创建演示计划 ===')
+      console.log('遗产计划信息:')
+      console.log(`- 计划名称: ${planInfo.name}`)
+      console.log(`- 门限配置: ${planInfo.threshold}-of-${planInfo.totalShares}`)
+      console.log(`- 触发模式: ${planInfo.triggerMode}`)
+      console.log(`- 时间锁: ${planInfo.timeLock}天`)
+      console.log('\n监护人信息:')
+      planInfo.guardians.forEach((g, i) => {
+        console.log(`${i + 1}. ${g.name} (${g.role})`)
+        console.log(`   - 监护人ID: ${g.id}`)
+        console.log(`   - 邮箱: ${g.email}`)
+      })
+      console.log('\n资产信息:')
+      planInfo.assets.forEach((a, i) => {
+        console.log(`${i + 1}. ${a.name} (${a.type})`)
+        console.log(`   - 详情: ${a.value}`)
+        console.log(`   - 描述: ${a.description}`)
+      })
+
+      const createdPlan = await createDemoPlan(planInfo)
+      console.log('\n=== 演示计划创建成功 ===')
+      console.log(`- 计划ID: ${createdPlan.id}`)
+      navigate('/dashboard')
+    } catch (error) {
+      console.error('读取模板或创建演示计划失败:', error)
+      alert('读取模板或创建演示计划失败，请检查控制台了解详情')
+    }
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -83,9 +137,12 @@ export default function Home() {
           <Link to="/create-plan" className="btn-primary text-lg px-8 py-3">
             创建遗产计划
           </Link>
-          <Link to="/dashboard" className="btn-secondary text-lg px-8 py-3">
-            查看演示
-          </Link>
+          <button
+            onClick={generateDemoData}
+            className="btn-secondary text-lg px-8 py-3"
+          >
+            生成演示数据
+          </button>
         </motion.div>
       </div>
 

@@ -6,12 +6,13 @@ import { Play, CheckCircle, Clock, AlertTriangle, Share2 } from 'lucide-react'
 export default function Inheritance() {
   const [planId, setPlanId] = useState('')
   const [heirAddress, setHeirAddress] = useState('')
+  const [heirEmail, setHeirEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState<any>(null)
   const [step, setStep] = useState<'initiate' | 'collect' | 'verify' | 'complete'>('initiate')
 
   const handleInitiate = async () => {
-    if (!planId || !heirAddress) {
+    if (!planId || !heirAddress || !heirEmail) {
       alert('请填写所有必填字段')
       return
     }
@@ -21,6 +22,7 @@ export default function Inheritance() {
       const result = await initiateInheritance({
         planId,
         heirAddress,
+        heirEmail,
         guardianSignatures: [],
       })
       setStatus(result)
@@ -127,6 +129,17 @@ export default function Inheritance() {
                 placeholder="输入接收资产的地址"
                 value={heirAddress}
                 onChange={(e) => setHeirAddress(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">继承人邮箱</label>
+              <input
+                type="email"
+                className="input-field"
+                placeholder="输入接收通知的邮箱地址"
+                value={heirEmail}
+                onChange={(e) => setHeirEmail(e.target.value)}
               />
             </div>
 
