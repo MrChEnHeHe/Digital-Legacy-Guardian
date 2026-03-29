@@ -11,6 +11,7 @@ interface ShareEmailData {
   planId: string
   shareId: string
   shareIndex: number
+  shareValue: string  // 份额值
   threshold: number
   totalShares: number
   creatorName?: string
@@ -236,19 +237,21 @@ class EmailService {
       
       <div class="share-box">
         <h3 style="margin-top: 0; color: #B45309;">🔑 您的份额信息</h3>
-        <p style="margin-bottom: 5px;"><strong>份额ID（请妥善保管）：</strong></p>
+        <p style="margin-bottom: 5px;"><strong>份额ID：</strong></p>
         <div class="share-id">${data.shareId}</div>
+        <p style="margin-bottom: 5px; margin-top: 15px;"><strong>份额值（请妥善保管，提交时需要）：</strong></p>
+        <div class="share-id">${data.shareValue}</div>
         <p style="font-size: 12px; color: #92400E; margin-top: 10px;">
-          ⚠️ 此份额ID是恢复数字资产的关键，请勿泄露给他人！
+          ⚠️ 此份额值是恢复数字资产的关键，请勿泄露给他人！
         </p>
       </div>
       
       <div class="warning-box">
         <div class="warning-title">⚠️ 重要安全提示</div>
         <ul class="warning-list">
-          <li>请妥善保管此邮件和份额ID</li>
-          <li>份额ID丢失将无法恢复，请备份保存</li>
-          <li>请勿将份额ID告知他人，包括其他监护人</li>
+          <li>请妥善保管此邮件和份额值</li>
+          <li>份额值丢失将无法恢复，请备份保存</li>
+          <li>请勿将份额值告知他人，包括其他监护人</li>
           <li>继承触发时，需要 ${data.threshold} 位监护人同时提交份额</li>
           <li>如有疑问，请联系计划创建者确认</li>
         </ul>
@@ -259,7 +262,7 @@ class EmailService {
         <li>当继承触发时，您将收到通知</li>
         <li>访问数字遗产管家系统</li>
         <li>进入"监护人"页面</li>
-        <li>输入计划ID、您的监护人ID和份额ID</li>
+        <li>输入计划ID、您的监护人ID和份额值</li>
         <li>提交份额完成验证</li>
       </ol>
     </div>

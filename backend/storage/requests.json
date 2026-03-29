@@ -12,5 +12,83 @@
     "status": "verifying",
     "createdAt": "2026-03-29T03:23:50.442Z",
     "updatedAt": "2026-03-29T03:24:51.009Z"
+  },
+  "aba7f099-2132-4858-ac48-f0efebd56527": {
+    "id": "aba7f099-2132-4858-ac48-f0efebd56527",
+    "planId": "92e0e297-6d8b-4044-ac64-a6916c9528b9",
+    "heirAddress": "2153266563@qq.com",
+    "heirEmail": "2153266563@qq.com",
+    "guardianSignatures": [],
+    "sharesCollected": 1,
+    "submittedGuardians": [
+      "0TRS"
+    ],
+    "status": "collecting",
+    "createdAt": "2026-03-29T05:03:21.862Z",
+    "updatedAt": "2026-03-29T05:12:02.567Z",
+    "submittedShares": [
+      {
+        "id": "2606aebb-b5b9-40b4-a246-bf9885605e62",
+        "index": 2,
+        "value": "ed49694d3dad0c562e2140a180c45a731a9a96d9e1788a59b3ef7045051a4956",
+        "commitment": "476371ce671cbb91d25c1e4391598aff7f38fc2a3197ce172f64b9de5ca11b16"
+      }
+    ]
+  },
+  "1e233343-a3a9-442f-bd91-e4c4408df922": {
+    "id": "1e233343-a3a9-442f-bd91-e4c4408df922",
+    "planId": "119f3f17-eee5-4a95-809f-020d7b1b0b5a",
+    "heirAddress": "2153266563@qq.com",
+    "heirEmail": "2153266563@qq.com",
+    "guardianSignatures": [],
+    "sharesCollected": 1,
+    "submittedGuardians": [
+      "0TRS"
+    ],
+    "status": "verifying",
+    "createdAt": "2026-03-29T05:17:04.415Z",
+    "updatedAt": "2026-03-29T05:17:54.893Z",
+    "submittedShares": [
+      {
+        "id": "b1835290-0692-466f-96e5-58bcff52e643",
+        "index": 1,
+        "value": "4cdf79c8287e8a6317c7da40242bd365472908c0310492ec92733b6dec8c9f1",
+        "commitment": "f16b5a59cfa54d64ef587f43616474ae195b5e4f4e5a0019c438d3017ec9318b"
+      }
+    ]
+  },
+  "b8d76e2a-65b1-4bc6-975d-0904c051f82b": {
+    "id": "b8d76e2a-65b1-4bc6-975d-0904c051f82b",
+    "planId": "d6022740-c2c7-45f3-84b9-da0ad8b30c26",
+    "heirAddress": "2153266563@qq.com",
+    "heirEmail": "2153266563@qq.com",
+    "guardianSignatures": [],
+    "sharesCollected": 0,
+    "submittedGuardians": [],
+    "status": "collecting",
+    "createdAt": "2026-03-29T05:20:41.881Z",
+    "updatedAt": "2026-03-29T05:20:41.881Z"
+  },
+  "6d2c4496-052a-4a7e-8da6-f82af2f8d858": {
+    "id": "6d2c4496-052a-4a7e-8da6-f82af2f8d858",
+    "planId": "ff78c146-50b4-4605-b835-f886a8a2143b",
+    "heirAddress": "2153266563@qq.com",
+    "heirEmail": "2153266563@qq.com",
+    "guardianSignatures": [],
+    "sharesCollected": 1,
+    "submittedGuardians": [
+      "0TRS"
+    ],
+    "status": "verifying",
+    "createdAt": "2026-03-29T05:25:26.237Z",
+    "updatedAt": "2026-03-29T05:25:48.610Z",
+    "submittedShares": [
+      {
+        "id": "84a4d2df-cb19-44bf-bd6e-a22c29f81365",
+        "index": 1,
+        "value": "55ae2ad84473d9d62efb635d386a9d4ce2b96932e95375b33df1d19b6dc7e246",
+        "commitment": "35fccad9615b4ae0595bbb72701d0c579ff53e03f3611280247f67f106c0441d"
+      }
+    ]
   }
 }

@@ -9,6 +9,13 @@ export interface Share {
   commitment: string
 }
 
+export interface StoredShare {
+  id: string
+  index: number
+  commitment: string
+  // ❌ 不存储 value 字段
+}
+
 export interface ShamirSecretSharing {
   split(secret: string, n: number, t: number): Share[]
   combine(shares: Share[]): string
@@ -54,8 +61,13 @@ export class ShamirSecretSharingImpl implements ShamirSecretSharing {
   }
 
   combine(shares: Share[]): string {
-    if (shares.length < 2) {
-      throw new Error('Need at least 2 shares to reconstruct')
+    if (shares.length < 1) {
+      throw new Error('Need at least 1 share to reconstruct')
+    }
+    
+    // 如果只有一个份额，直接返回该份额的值（门限为1的情况）
+    if (shares.length === 1) {
+      return shares[0].value.padStart(64, '0')
     }
 
     const sortedShares = [...shares].sort((a, b) => a.index - b.index)
@@ -93,9 +105,10 @@ export class ShamirSecretSharingImpl implements ShamirSecretSharing {
   }
 
   generateCommitment(share: Share): string {
-    const keyPair = this.ec.genKeyPair()
-    const publicKey = keyPair.getPublic('hex')
-    const commitment = CryptoJS.SHA256(publicKey + share.value).toString()
+    // 使用份额ID和份额值生成确定性的承诺值
+    // 这样可以在不存储份额值的情况下验证提交的值是否正确
+    const data = share.id + share.value + share.index.toString()
+    const commitment = CryptoJS.SHA256(data).toString()
     return commitment
   }
 

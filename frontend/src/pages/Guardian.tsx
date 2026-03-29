@@ -9,7 +9,7 @@ export default function Guardian() {
   const [, setCurrentUser] = useState<any>(null)
   const [planId, setPlanId] = useState('')
   const [guardianId, setGuardianId] = useState('')
-  const [shareId, setShareId] = useState('')
+  const [shareValue, setShareValue] = useState('')
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
@@ -26,7 +26,7 @@ export default function Guardian() {
   }, [navigate])
 
   const handleSubmit = async () => {
-    if (!planId || !guardianId || !shareId) {
+    if (!planId || !guardianId || !shareValue) {
       alert('请填写所有必填字段')
       return
     }
@@ -36,7 +36,7 @@ export default function Guardian() {
       const response = await submitGuardianShare({
         planId,
         guardianId,
-        share: shareId,
+        shareValue: shareValue.trim(),
       })
       
       if (response.success) {
@@ -102,7 +102,7 @@ export default function Guardian() {
               setSubmitted(false)
               setPlanId('')
               setGuardianId('')
-              setShareId('')
+              setShareValue('')
             }}
             className="btn-secondary w-full"
           >
@@ -143,12 +143,12 @@ export default function Guardian() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">份额ID</label>
+              <label className="block text-sm font-medium mb-2">份额值</label>
               <textarea
                 className="input-field min-h-[150px]"
-                placeholder="输入您的份额ID"
-                value={shareId}
-                onChange={(e) => setShareId(e.target.value)}
+                placeholder="输入您的份额值（由系统通过邮件发送给您的十六进制字符串）"
+                value={shareValue}
+                onChange={(e) => setShareValue(e.target.value)}
               />
               <p className="text-xs text-gray-500 mt-1">
                 请确保您输入的是正确的份额ID，提交后无法修改

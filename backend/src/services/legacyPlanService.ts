@@ -1,4 +1,4 @@
-import { shamirSecretSharing, Share } from '../crypto/shamir'
+import { shamirSecretSharing, Share, StoredShare } from '../crypto/shamir'
 import { v4 as uuidv4 } from 'uuid'
 import { emailService } from './emailService'
 import * as fs from 'fs'
@@ -51,8 +51,7 @@ export interface LegacyPlan {
   totalShares: number
   triggerMode: 'consensus' | 'timed'
   timeLock: number
-  masterKey: string
-  shares: Share[]
+  shares: StoredShare[]  // 使用 StoredShare，不存储份额值
   encryptedAssets: string
   createdAt: string
   updatedAt: string
@@ -69,6 +68,7 @@ export interface InheritanceRequest {
   guardianSignatures: string[]
   sharesCollected: number
   submittedGuardians: string[]
+  submittedShares?: Share[]  // 存储提交的份额值（仅存在于内存中，不持久化）
   status: 'pending' | 'collecting' | 'verifying' | 'completed'
   createdAt: string
   updatedAt: string
@@ -130,6 +130,13 @@ class LegacyPlanService {
     const shares = shamirSecretSharing.split(masterKey, data.totalShares, data.threshold)
     const encryptedAssets = shamirSecretSharing.encryptAsset(data.assets, masterKey)
 
+    // 将 Share 转换为 StoredShare（移除 value 字段）
+    const storedShares: StoredShare[] = shares.map(share => ({
+      id: share.id,
+      index: share.index,
+      commitment: share.commitment
+    }))
+
     const plan: LegacyPlan = {
       id: uuidv4(),
       name: data.name || `计划 ${this.plans.size + 1}`,
@@ -139,8 +146,7 @@ class LegacyPlanService {
       totalShares: data.totalShares,
       triggerMode: data.triggerMode,
       timeLock: data.timeLock,
-      masterKey,
-      shares,
+      shares: storedShares,
       encryptedAssets,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -152,25 +158,28 @@ class LegacyPlanService {
     this.plans.set(plan.id, plan)
     this.saveData()
 
-    this.sendShareEmails(plan)
+    // 发送邮件时包含完整的份额值
+    this.sendShareEmails(plan, shares)
 
     return plan
   }
 
-  private async sendShareEmails(plan: LegacyPlan): Promise<void> {
+  private async sendShareEmails(plan: LegacyPlan, sharesWithValue?: Share[]): Promise<void> {
     for (let i = 0; i < plan.guardians.length; i++) {
       const guardian = plan.guardians[i]
-      const share = plan.shares[i]
+      const storedShare = plan.shares[i]
+      const fullShare = sharesWithValue?.[i]
 
-      if (guardian.email && share) {
+      if (guardian.email && storedShare && fullShare) {
         await emailService.sendShareEmail({
           guardianName: guardian.name,
           guardianEmail: guardian.email,
           guardianId: guardian.id,
           planName: plan.name,
           planId: plan.id,
-          shareId: share.id,
-          shareIndex: share.index,
+          shareId: storedShare.id,
+          shareIndex: storedShare.index,
+          shareValue: fullShare.value,  // 发送份额值给监护人
           threshold: plan.threshold,
           totalShares: plan.totalShares,
         })
@@ -325,22 +334,36 @@ class LegacyPlanService {
   submitGuardianShare(data: {
     planId: string
     guardianId: string
-    share: string
+    shareValue: string
   }): { success: boolean; message: string } {
     const plan = this.plans.get(data.planId)
     if (!plan) {
       return { success: false, message: 'Plan not found' }
     }
 
-    const guardian = plan.guardians.find((g) => g.id === data.guardianId)
-    if (!guardian) {
+    const guardianIndex = plan.guardians.findIndex((g) => g.id === data.guardianId)
+    if (guardianIndex === -1) {
       return { success: false, message: 'Guardian not found' }
     }
 
-    // 验证份额ID是否有效
-    const share = plan.shares.find((s) => s.id === data.share)
-    if (!share) {
-      return { success: false, message: 'Invalid share ID' }
+    // 查找该监护人对应的份额（通过索引匹配）
+    const storedShare = plan.shares[guardianIndex]
+    if (!storedShare) {
+      return { success: false, message: 'Share not found for this guardian' }
+    }
+
+    // 使用承诺值验证提交的份额值
+    // 构造临时Share对象用于验证
+    const tempShare: Share = {
+      id: storedShare.id,
+      index: storedShare.index,
+      value: data.shareValue,
+      commitment: storedShare.commitment
+    }
+    
+    const isValid = shamirSecretSharing.verifyCommitment(tempShare, storedShare.commitment)
+    if (!isValid) {
+      return { success: false, message: 'Invalid share value' }
     }
 
     // 查找最新的继承请求（状态不是 completed）
@@ -356,10 +379,18 @@ class LegacyPlanService {
     if (!request.submittedGuardians) {
       request.submittedGuardians = []
     }
+    
+    // 确保 submittedShares 字段存在（用于存储提交的份额值）
+    if (!request.submittedShares) {
+      request.submittedShares = []
+    }
+    
     // 检查监护人是否已经提交过份额
     if (!request.submittedGuardians.includes(data.guardianId)) {
       request.sharesCollected += 1
       request.submittedGuardians.push(data.guardianId)
+      // 存储提交的份额值（用于后续恢复主密钥）
+      request.submittedShares.push(tempShare)
       request.updatedAt = new Date().toISOString()
 
       if (request.sharesCollected >= plan.threshold) {
@@ -367,15 +398,22 @@ class LegacyPlanService {
         plan.status = 'completed'
         plan.updatedAt = new Date().toISOString()
         
-        // 发送继承成功邮件给继承人
+        // 从提交的份额恢复主密钥
+        const masterKey = shamirSecretSharing.combine(request.submittedShares)
+        
+        // 使用主密钥解密资产
+        const decryptedAssets = shamirSecretSharing.decryptAsset(plan.encryptedAssets, masterKey)
+        
+        // 发送继承成功邮件给继承人（包含解密后的资产）
         if (request.heirEmail) {
-          this.sendHeirNotificationEmail(request, plan)
+          this.sendHeirNotificationEmail(request, plan, decryptedAssets)
         }
       }
 
       this.saveData()
 
       // 发送成功提交份额的邮件给监护人
+      const guardian = plan.guardians[guardianIndex]
       if (guardian.email) {
         this.sendGuardianShareSubmittedEmail(guardian, plan)
       }
@@ -396,13 +434,13 @@ class LegacyPlanService {
     })
   }
 
-  private async sendHeirNotificationEmail(request: InheritanceRequest, plan: LegacyPlan): Promise<void> {
+  private async sendHeirNotificationEmail(request: InheritanceRequest, plan: LegacyPlan, decryptedAssets: any[]): Promise<void> {
     await emailService.sendHeirNotification({
       heirName: request.heirAddress.slice(0, 10) + '...',
       heirEmail: request.heirEmail!,
       planName: plan.name,
       planId: plan.id,
-      assets: plan.assets,
+      assets: decryptedAssets,
     })
   }
 
@@ -419,6 +457,13 @@ class LegacyPlanService {
     const shares = shamirSecretSharing.split(masterKey, data.totalShares, data.threshold)
     const encryptedAssets = shamirSecretSharing.encryptAsset(data.assets, masterKey)
     
+    // 将 Share 转换为 StoredShare（移除 value 字段）
+    const storedShares: StoredShare[] = shares.map(share => ({
+      id: share.id,
+      index: share.index,
+      commitment: share.commitment
+    }))
+    
     const plan: LegacyPlan = {
       id: data.name + '-' + Date.now(),
       name: data.name,
@@ -428,8 +473,7 @@ class LegacyPlanService {
       totalShares: data.totalShares,
       triggerMode: data.triggerMode,
       timeLock: data.timeLock,
-      masterKey,
-      shares,
+      shares: storedShares,
       encryptedAssets,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -459,7 +503,7 @@ class LegacyPlanService {
       console.log(`   - 描述: ${a.description}`)
     })
 
-    await this.sendShareEmails(plan)
+    await this.sendShareEmails(plan, shares)
 
     return plan
   }
@@ -516,7 +560,10 @@ class LegacyPlanService {
       throw new Error('Not enough shares to recover')
     }
 
+    // 从份额恢复主密钥
     const masterKey = shamirSecretSharing.combine(shares)
+    
+    // 使用主密钥解密资产
     const assets = shamirSecretSharing.decryptAsset(plan.encryptedAssets, masterKey)
 
     plan.status = 'completed'
@@ -527,7 +574,7 @@ class LegacyPlanService {
       (r) => r.planId === planId && r.status !== 'completed'
     )
 
-    // 发送继承成功通知给继承人
+    // 发送继承成功通知给继承人（使用解密后的资产）
     if (request && request.heirAddress) {
       // 尝试从继承人地址中提取姓名和邮箱
       // 假设 heirAddress 是邮箱格式，如 "name <email@example.com>"

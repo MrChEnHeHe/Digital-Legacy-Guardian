@@ -102,7 +102,7 @@ export const getInheritanceStatus = async (planId: string): Promise<any> => {
 export const submitGuardianShare = async (data: {
   planId: string
   guardianId: string
-  share: string
+  shareValue: string
 }): Promise<any> => {
   const response = await api.post('/inheritance/share', data)
   return response.data

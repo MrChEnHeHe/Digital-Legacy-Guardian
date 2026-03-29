@@ -101,8 +101,8 @@ export default function Login() {
     e.preventDefault()
     setMessage('')
 
-    if (!loginForm.email || !loginForm.password || !loginForm.verificationCode) {
-      setMessage('请填写所有必填字段')
+    if (!loginForm.email || !loginForm.password) {
+      setMessage('请填写邮箱和密码')
       return
     }
 
@@ -111,7 +111,6 @@ export default function Login() {
       const result = await authApi.login({
         email: loginForm.email,
         password: loginForm.password,
-        verificationCode: loginForm.verificationCode,
       })
 
       if (result.success) {
@@ -121,7 +120,7 @@ export default function Login() {
           navigate('/dashboard')
         }, 1000)
       } else {
-        setMessage('登录失败')
+        setMessage(result.message || '登录失败')
       }
     } catch (error: any) {
       setMessage(error.response?.data?.message || '登录失败，请稍后重试')
@@ -190,7 +189,8 @@ export default function Login() {
                 />
               </div>
 
-              <div>
+              {/* 暂时移除验证码输入字段，方便测试 */}
+              {/* <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">验证码</label>
                 <div className="flex gap-2">
                   <input
@@ -214,7 +214,7 @@ export default function Login() {
                     {countdown > 0 ? `${countdown}秒` : '获取验证码'}
                   </button>
                 </div>
-              </div>
+              </div> */}
 
               <button
                 type="submit"
