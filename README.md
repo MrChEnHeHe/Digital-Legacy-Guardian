@@ -232,7 +232,7 @@ digital_legacy/
 
 ## 文档
 
-- [快速启动指南](./QUICKSTART.md) - 快速上手项目
+- [快速启动指南](./docs/QUICKSTART.md) - 快速上手项目
 - [API文档](./docs/API.md) - RESTful API详细说明
 - [架构文档](./docs/ARCHITECTURE.md) - 系统架构设计
 - [部署文档](./docs/DEPLOYMENT.md) - 生产环境部署指南
@@ -329,4 +329,3 @@ digital_legacy/
 
 ---
 
-本作品适用于信息安全竞赛、开源密码学项目、数字资产管理工具等场景。

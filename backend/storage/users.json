@@ -1,0 +1,20 @@
+{
+  "0TRS": {
+    "id": "0TRS",
+    "name": "陈雨柯",
+    "email": "2153266563@qq.com",
+    "passwordHash": "25117a3dc40b69e06614ceb0b491ac4eb2e80d52d39e4ce6d5afb4c5696744c7c769f05710f6fc4c1db98be733666fb9ffa885675cdb059cf02f36fa98fee451",
+    "salt": "43c56bb2bccf68f9104679c9429bca26",
+    "createdAt": "2026-03-29T03:08:02.770Z",
+    "updatedAt": "2026-03-29T03:08:02.770Z"
+  },
+  "7XIZ": {
+    "id": "7XIZ",
+    "name": "吕英硕",
+    "email": "2152805144@qq.com",
+    "passwordHash": "963df662ccee0ce3a377ebffd00e0b0e750af61cf201bde428fcea3b5821a92858c192293f3549d13fbd0e061a749523154932ae9cce8a11c2cd5bb1b82de5cb",
+    "salt": "ccb4bc842f6b33635c154c9914f65b5c",
+    "createdAt": "2026-03-29T03:26:06.093Z",
+    "updatedAt": "2026-03-29T03:26:06.093Z"
+  }
+}

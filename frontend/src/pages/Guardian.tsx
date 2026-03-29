@@ -1,14 +1,29 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { submitGuardianShare } from '../services/api'
 import { Shield, Key, CheckCircle, AlertCircle } from 'lucide-react'
 
 export default function Guardian() {
+  const navigate = useNavigate()
+  const [, setCurrentUser] = useState<any>(null)
   const [planId, setPlanId] = useState('')
   const [guardianId, setGuardianId] = useState('')
   const [shareId, setShareId] = useState('')
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+
+  useEffect(() => {
+    const userStr = localStorage.getItem('user')
+    if (!userStr) {
+      navigate('/login')
+      return
+    }
+    const user = JSON.parse(userStr)
+    setCurrentUser(user)
+    // 自动填充监护人ID为当前用户ID
+    setGuardianId(user.id)
+  }, [navigate])
 
   const handleSubmit = async () => {
     if (!planId || !guardianId || !shareId) {
@@ -118,11 +133,13 @@ export default function Guardian() {
               <label className="block text-sm font-medium mb-2">监护人ID</label>
               <input
                 type="text"
-                className="input-field"
+                className="input-field bg-gray-100"
                 placeholder="输入您的监护人ID"
                 value={guardianId}
-                onChange={(e) => setGuardianId(e.target.value)}
+                disabled
+                title="已自动填充为当前登录用户ID"
               />
+              <p className="text-xs text-gray-500 mt-1">已自动填充为当前登录用户ID</p>
             </div>
 
             <div>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { getLegacyPlans, getInheritanceStatus, deleteLegacyPlan } from '../services/api'
-import { Activity, Shield, Clock, Users, AlertCircle, Edit, Trash2 } from 'lucide-react'
+import { Activity, Shield, Clock, Users, AlertCircle, Edit, Trash2, LogOut } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 export default function Dashboard() {
@@ -10,11 +10,19 @@ export default function Dashboard() {
   const [selectedPlan, setSelectedPlan] = useState<any>(null)
   const [inheritanceStatus, setInheritanceStatus] = useState<any>(null)
   const [currentTime, setCurrentTime] = useState(new Date())
+  const [currentUser, setCurrentUser] = useState<any>(null)
   const navigate = useNavigate()
 
   useEffect(() => {
-    loadPlans()
-  }, [])
+    const userStr = localStorage.getItem('user')
+    if (userStr) {
+      const user = JSON.parse(userStr)
+      setCurrentUser(user)
+      loadPlans(user.id)
+    } else {
+      navigate('/login')
+    }
+  }, [navigate])
 
   useEffect(() => {
     if (selectedPlan) {
@@ -31,15 +39,20 @@ export default function Dashboard() {
     return () => clearInterval(interval)
   }, [])
 
-  const loadPlans = async () => {
+  const loadPlans = async (userId?: string) => {
     try {
-      const data = await getLegacyPlans()
+      const data = await getLegacyPlans(userId)
       setPlans(data)
     } catch (error) {
       console.error('Failed to load plans:', error)
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem('user')
+    navigate('/login')
   }
 
   const loadInheritanceStatus = async (planId: string) => {
@@ -177,9 +190,21 @@ export default function Dashboard() {
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6"
     >
-      <div className="text-center">
-        <h1 className="text-3xl font-bold text-gradient mb-2">控制台</h1>
-        <p className="text-gray-600">管理您的数字遗产计划</p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-gradient mb-2">控制台</h1>
+          <p className="text-gray-600">
+            欢迎，{currentUser?.name || '用户'} 
+            <span className="text-sm text-gray-400 ml-2">(ID: {currentUser?.id})</span>
+          </p>
+        </div>
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+        >
+          <LogOut className="h-5 w-5" />
+          退出登录
+        </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

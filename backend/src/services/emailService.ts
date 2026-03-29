@@ -650,6 +650,131 @@ class EmailService {
       return true
     }
   }
+
+  async sendVerificationCodeEmail(data: {
+    userName: string
+    userEmail: string
+    code: string
+    purpose: string
+  }): Promise<boolean> {
+    const emailContent = `
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>验证码 - 数字遗产管家</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    .container {
+      background-color: #ffffff;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: #4F46E5;
+    }
+    .title {
+      font-size: 22px;
+      font-weight: 600;
+      color: #1F2937;
+      margin-bottom: 20px;
+    }
+    .code-box {
+      background-color: #EEF2FF;
+      border: 2px solid #4F46E5;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+      text-align: center;
+    }
+    .code {
+      font-size: 32px;
+      font-weight: bold;
+      color: #4F46E5;
+      letter-spacing: 8px;
+    }
+    .warning {
+      color: #DC2626;
+      font-size: 14px;
+      margin-top: 20px;
+    }
+    .footer {
+      text-align: center;
+      color: #9CA3AF;
+      font-size: 12px;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #E5E7EB;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">🔐 数字遗产管家</div>
+    </div>
+    
+    <h1 class="title">尊敬的 ${data.userName}，您好！</h1>
+    
+    <p>您正在进行${data.purpose}操作，请使用以下验证码完成验证：</p>
+    
+    <div class="code-box">
+      <div class="code">${data.code}</div>
+    </div>
+    
+    <p class="warning">⚠️ 验证码有效期为5分钟，请勿将验证码告知他人。</p>
+    
+    <div class="footer">
+      <p>此邮件由数字遗产管家系统自动发送，请勿回复。</p>
+      <p>© ${new Date().getFullYear()} Digital Legacy Guardian. All rights reserved.</p>
+    </div>
+  </div>
+</body>
+</html>
+    `
+
+    if (this.isConfigured && this.transporter) {
+      try {
+        await this.transporter.sendMail({
+          from: process.env.SMTP_FROM || process.env.SMTP_USER,
+          to: data.userEmail,
+          subject: `【数字遗产管家】${data.purpose}验证码`,
+          html: emailContent,
+        })
+        console.log(`Verification code email sent successfully to ${data.userEmail}`)
+        return true
+      } catch (error) {
+        console.error('Failed to send verification code email:', error)
+        return false
+      }
+    } else {
+      console.log('\n========================================')
+      console.log('📧 验证码邮件模拟')
+      console.log('========================================')
+      console.log(`收件人: ${data.userEmail}`)
+      console.log(`用户名: ${data.userName}`)
+      console.log(`用途: ${data.purpose}`)
+      console.log(`验证码: ${data.code}`)
+      console.log('========================================\n')
+      return true
+    }
+  }
 }
 
 export const emailService = new EmailService()

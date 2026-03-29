@@ -1,16 +1,30 @@
-import { Link, useLocation } from 'react-router-dom'
-import { Shield, Lock, Home, PlusCircle, LayoutDashboard, Heart, Info } from 'lucide-react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Shield, Lock, Home, PlusCircle, LayoutDashboard, Heart, LogIn, LogOut, User, RefreshCw } from 'lucide-react'
 
 const Navbar = () => {
   const location = useLocation()
+  const navigate = useNavigate()
   
+  const userStr = typeof window !== 'undefined' ? localStorage.getItem('user') : null
+  const user = userStr ? JSON.parse(userStr) : null
+
   const navItems = [
     { path: '/', label: '首页', icon: Home },
-    { path: '/create', label: '创建计划', icon: PlusCircle },
+    { path: '/create-plan', label: '创建计划', icon: PlusCircle },
     { path: '/dashboard', label: '管理面板', icon: LayoutDashboard },
     { path: '/inheritance', label: '继承流程', icon: Heart },
-    { path: '/about', label: '关于', icon: Info },
+    { path: '/guardian', label: '监护人', icon: User },
   ]
+
+  const handleLogout = () => {
+    localStorage.removeItem('user')
+    navigate('/login')
+  }
+
+  const handleSwitchUser = () => {
+    localStorage.removeItem('user')
+    navigate('/login')
+  }
 
   return (
     <nav className="bg-white shadow-lg sticky top-0 z-50">
@@ -44,9 +58,46 @@ const Navbar = () => {
             })}
           </div>
 
-          <div className="flex items-center space-x-2">
-            <Lock className="w-5 h-5 text-green-500" />
-            <span className="text-sm text-gray-600">安全加密</span>
+          <div className="flex items-center space-x-3">
+            {user ? (
+              <>
+                <div className="flex items-center space-x-2 text-sm">
+                  <User className="w-4 h-4 text-primary-600" />
+                  <div className="flex flex-col">
+                    <span className="text-gray-700">{user.name}</span>
+                    <span className="text-xs text-gray-400">ID: {user.id}</span>
+                  </div>
+                </div>
+                <button
+                  onClick={handleSwitchUser}
+                  className="flex items-center space-x-1 px-3 py-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                  title="切换用户"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  <span>切换</span>
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center space-x-1 px-3 py-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  title="退出登录"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>退出</span>
+                </button>
+              </>
+            ) : (
+              <Link
+                to="/login"
+                className="flex items-center space-x-1 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+              >
+                <LogIn className="w-4 h-4" />
+                <span>登录</span>
+              </Link>
+            )}
+            <div className="flex items-center space-x-1 text-sm text-gray-500">
+              <Lock className="w-4 h-4 text-green-500" />
+              <span>安全加密</span>
+            </div>
           </div>
         </div>
       </div>

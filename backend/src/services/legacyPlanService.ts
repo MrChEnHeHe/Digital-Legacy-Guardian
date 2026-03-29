@@ -57,6 +57,8 @@ export interface LegacyPlan {
   createdAt: string
   updatedAt: string
   status: 'active' | 'collecting' | 'completed'
+  creatorId?: string
+  heirId?: string
 }
 
 export interface InheritanceRequest {
@@ -121,6 +123,8 @@ class LegacyPlanService {
     totalShares: number
     triggerMode: 'consensus' | 'timed'
     timeLock: number
+    creatorId?: string
+    heirId?: string
   }): LegacyPlan {
     const masterKey = shamirSecretSharing.generateMasterKey()
     const shares = shamirSecretSharing.split(masterKey, data.totalShares, data.threshold)
@@ -141,6 +145,8 @@ class LegacyPlanService {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       status: 'active',
+      creatorId: data.creatorId,
+      heirId: data.heirId,
     }
 
     this.plans.set(plan.id, plan)
@@ -178,6 +184,16 @@ class LegacyPlanService {
 
   getAllPlans(): LegacyPlan[] {
     return Array.from(this.plans.values())
+  }
+
+  getUserPlans(userId: string): LegacyPlan[] {
+    return Array.from(this.plans.values()).filter(plan => {
+      if (plan.creatorId === userId) return true
+      if (plan.heirId === userId) return true
+      const isGuardian = plan.guardians.some((g: any) => g.id === userId)
+      if (isGuardian) return true
+      return false
+    })
   }
 
   updatePlan(id: string, updates: Partial<LegacyPlan>): LegacyPlan | undefined {

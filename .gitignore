@@ -19,3 +19,4 @@ backend/.env
 contracts/build/
 contracts/cache/
 contracts/artifacts/
+./docs/Problems.md

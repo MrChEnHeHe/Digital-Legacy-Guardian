@@ -9,6 +9,12 @@ const api = axios.create({
   },
 })
 
+export interface User {
+  id: string
+  name: string
+  email: string
+}
+
 export interface LegacyPlan {
   id: string
   name: string
@@ -20,6 +26,8 @@ export interface LegacyPlan {
   timeLock: number
   createdAt: string
   status: 'active' | 'collecting' | 'completed'
+  creatorId?: string
+  heirId?: string
 }
 
 export interface InheritanceRequest {
@@ -27,6 +35,37 @@ export interface InheritanceRequest {
   heirAddress: string
   heirEmail: string
   guardianSignatures: string[]
+}
+
+export const authApi = {
+  register: async (data: { name: string; email: string; password: string }): Promise<{ success: boolean; message: string; userId?: string }> => {
+    const response = await api.post('/auth/register', data)
+    return response.data
+  },
+
+  sendVerificationCode: async (email: string): Promise<{ success: boolean; message: string }> => {
+    const response = await api.post('/auth/send-code', { email })
+    return response.data
+  },
+
+  login: async (data: { email: string; password: string; verificationCode: string }): Promise<{ success: boolean; user?: User }> => {
+    const response = await api.post('/auth/login', data)
+    return response.data
+  },
+
+  getUser: async (userId: string): Promise<User | null> => {
+    try {
+      const response = await api.get(`/users/${userId}`)
+      return response.data
+    } catch {
+      return null
+    }
+  },
+
+  searchUsers: async (query: string): Promise<User[]> => {
+    const response = await api.get(`/users/search?q=${encodeURIComponent(query)}`)
+    return response.data
+  },
 }
 
 export const createLegacyPlan = async (data: any): Promise<LegacyPlan> => {
@@ -39,8 +78,9 @@ export const createDemoPlan = async (data: any): Promise<LegacyPlan> => {
   return response.data
 }
 
-export const getLegacyPlans = async (): Promise<LegacyPlan[]> => {
-  const response = await api.get('/plans')
+export const getLegacyPlans = async (userId?: string): Promise<LegacyPlan[]> => {
+  const url = userId ? `/plans?userId=${userId}` : '/plans'
+  const response = await api.get(url)
   return response.data
 }
 

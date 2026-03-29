@@ -1,15 +1,27 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { initiateInheritance, getInheritanceStatus } from '../services/api'
 import { Play, CheckCircle, Clock, AlertTriangle, Share2 } from 'lucide-react'
 
 export default function Inheritance() {
+  const navigate = useNavigate()
+  const [, setCurrentUser] = useState<any>(null)
   const [planId, setPlanId] = useState('')
   const [heirAddress, setHeirAddress] = useState('')
   const [heirEmail, setHeirEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState<any>(null)
   const [step, setStep] = useState<'initiate' | 'collect' | 'verify' | 'complete'>('initiate')
+
+  useEffect(() => {
+    const userStr = localStorage.getItem('user')
+    if (!userStr) {
+      navigate('/login')
+      return
+    }
+    setCurrentUser(JSON.parse(userStr))
+  }, [navigate])
 
   const handleInitiate = async () => {
     if (!planId || !heirAddress || !heirEmail) {

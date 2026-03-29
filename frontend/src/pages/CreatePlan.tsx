@@ -1,7 +1,8 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Plus, Save, Users, Clock, Shield } from 'lucide-react'
-import { createLegacyPlan } from '../services/api'
+import { Plus, Save, Users, Clock, Shield, Search } from 'lucide-react'
+import { createLegacyPlan, authApi } from '../services/api'
 
 interface Asset {
   type: 'crypto' | 'cloud' | 'file' | 'contract'
@@ -26,6 +27,7 @@ const assetTypePlaceholders: Record<string, string> = {
 }
 
 export default function CreatePlan() {
+  const navigate = useNavigate()
   const [step, setStep] = useState(1)
   const [assets, setAssets] = useState<Asset[]>([])
   const [guardians, setGuardians] = useState<Guardian[]>([])
@@ -36,6 +38,72 @@ export default function CreatePlan() {
   const [newAsset, setNewAsset] = useState<Partial<Asset>>({})
   const [newGuardian, setNewGuardian] = useState<Partial<Guardian>>({})
   const [loading, setLoading] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<any[]>([])
+  const [searching, setSearching] = useState(false)
+  const [heirId, setHeirId] = useState('')
+  const [heirSearchQuery, setHeirSearchQuery] = useState('')
+  const [heirSearchResults, setHeirSearchResults] = useState<any[]>([])
+  const [heirSearching, setHeirSearching] = useState(false)
+
+  const getCurrentUser = () => {
+    const userStr = localStorage.getItem('user')
+    if (userStr) {
+      return JSON.parse(userStr)
+    }
+    return null
+  }
+
+  const searchUsers = async (query: string, type: 'guardian' | 'heir') => {
+    if (!query.trim()) {
+      if (type === 'guardian') {
+        setSearchResults([])
+      } else {
+        setHeirSearchResults([])
+      }
+      return
+    }
+
+    if (type === 'guardian') {
+      setSearching(true)
+    } else {
+      setHeirSearching(true)
+    }
+
+    try {
+      const results = await authApi.searchUsers(query)
+      if (type === 'guardian') {
+        setSearchResults(results)
+      } else {
+        setHeirSearchResults(results)
+      }
+    } catch (error) {
+      console.error('搜索用户失败:', error)
+    } finally {
+      if (type === 'guardian') {
+        setSearching(false)
+      } else {
+        setHeirSearching(false)
+      }
+    }
+  }
+
+  const selectGuardian = (user: any) => {
+    setNewGuardian({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: '',
+    })
+    setSearchResults([])
+    setSearchQuery('')
+  }
+
+  const selectHeir = (user: any) => {
+    setHeirId(user.id)
+    setHeirSearchResults([])
+    setHeirSearchQuery('')
+  }
 
   const addAsset = () => {
     if (newAsset.type && newAsset.name && newAsset.value) {
@@ -80,6 +148,7 @@ export default function CreatePlan() {
   const handleSubmit = async () => {
     setLoading(true)
     try {
+      const currentUser = getCurrentUser()
       await createLegacyPlan({
         assets,
         guardians,
@@ -87,11 +156,11 @@ export default function CreatePlan() {
         totalShares,
         triggerMode: enableTimeLock ? 'timed' : 'consensus',
         timeLock: enableTimeLock ? timeLock : 0,
+        creatorId: currentUser?.id,
+        heirId: heirId || undefined,
       })
       alert('遗产计划创建成功！')
-      setStep(1)
-      setAssets([])
-      setGuardians([])
+      navigate('/dashboard')
     } catch (error) {
       alert('创建失败，请重试')
     } finally {
@@ -219,38 +288,88 @@ export default function CreatePlan() {
             设置监护人
           </h2>
 
+          <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <h3 className="font-semibold text-blue-800 mb-2">搜索已注册用户</h3>
+            <div className="relative">
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input
+                    type="text"
+                    className="input-field pl-10"
+                    placeholder="输入用户ID搜索已注册用户..."
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value)
+                      searchUsers(e.target.value, 'guardian')
+                    }}
+                  />
+                </div>
+              </div>
+              {searching && (
+                <div className="mt-2 text-sm text-gray-500">搜索中...</div>
+              )}
+              {searchResults.length > 0 && (
+                <div className="mt-2 border border-gray-200 rounded-lg overflow-hidden">
+                  {searchResults.map((user) => (
+                    <button
+                      key={user.id}
+                      onClick={() => selectGuardian(user)}
+                      className="w-full p-3 text-left hover:bg-gray-50 border-b last:border-b-0"
+                    >
+                      <div className="font-medium">{user.name}</div>
+                      <div className="text-sm text-gray-500">ID: {user.id} | {user.email}</div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <input
-              type="text"
-              className="input-field"
-              placeholder="监护人ID（必填）"
-              value={newGuardian.id || ''}
-              onChange={(e) => setNewGuardian({ ...newGuardian, id: e.target.value })}
-            />
+            <div>
+              <label className="block text-sm font-medium mb-1 text-gray-700">监护人ID</label>
+              <input
+                type="text"
+                className="input-field bg-gray-50"
+                placeholder="通过搜索选择"
+                value={newGuardian.id || ''}
+                readOnly
+              />
+            </div>
 
-            <input
-              type="text"
-              className="input-field"
-              placeholder="监护人姓名"
-              value={newGuardian.name || ''}
-              onChange={(e) => setNewGuardian({ ...newGuardian, name: e.target.value })}
-            />
+            <div>
+              <label className="block text-sm font-medium mb-1 text-gray-700">监护人姓名</label>
+              <input
+                type="text"
+                className="input-field bg-gray-50"
+                placeholder="通过搜索选择"
+                value={newGuardian.name || ''}
+                readOnly
+              />
+            </div>
 
-            <input
-              type="text"
-              className="input-field"
-              placeholder="角色（如：妻子、律师）"
-              value={newGuardian.role || ''}
-              onChange={(e) => setNewGuardian({ ...newGuardian, role: e.target.value })}
-            />
+            <div>
+              <label className="block text-sm font-medium mb-1 text-gray-700">角色</label>
+              <input
+                type="text"
+                className="input-field"
+                placeholder="角色（如：妻子、律师）"
+                value={newGuardian.role || ''}
+                onChange={(e) => setNewGuardian({ ...newGuardian, role: e.target.value })}
+              />
+            </div>
 
-            <input
-              type="email"
-              className="input-field"
-              placeholder="邮箱地址"
-              value={newGuardian.email || ''}
-              onChange={(e) => setNewGuardian({ ...newGuardian, email: e.target.value })}
-            />
+            <div>
+              <label className="block text-sm font-medium mb-1 text-gray-700">邮箱</label>
+              <input
+                type="email"
+                className="input-field bg-gray-50"
+                placeholder="通过搜索选择"
+                value={newGuardian.email || ''}
+                readOnly
+              />
+            </div>
           </div>
 
           <button onClick={addGuardian} className="btn-primary w-full flex items-center justify-center">
@@ -282,6 +401,49 @@ export default function CreatePlan() {
               ))}
             </div>
           )}
+
+          <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+            <h3 className="font-semibold text-green-800 mb-2">指定继承人（可选）</h3>
+            <div className="relative">
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input
+                    type="text"
+                    className="input-field pl-10"
+                    placeholder="输入用户ID搜索继承人..."
+                    value={heirSearchQuery}
+                    onChange={(e) => {
+                      setHeirSearchQuery(e.target.value)
+                      searchUsers(e.target.value, 'heir')
+                    }}
+                  />
+                </div>
+              </div>
+              {heirSearching && (
+                <div className="mt-2 text-sm text-gray-500">搜索中...</div>
+              )}
+              {heirSearchResults.length > 0 && (
+                <div className="mt-2 border border-gray-200 rounded-lg overflow-hidden">
+                  {heirSearchResults.map((user) => (
+                    <button
+                      key={user.id}
+                      onClick={() => selectHeir(user)}
+                      className="w-full p-3 text-left hover:bg-gray-50 border-b last:border-b-0"
+                    >
+                      <div className="font-medium">{user.name}</div>
+                      <div className="text-sm text-gray-500">ID: {user.id} | {user.email}</div>
+                    </button>
+                  ))}
+                </div>
+              )}
+              {heirId && (
+                <div className="mt-2 p-2 bg-green-100 rounded text-sm">
+                  已选择继承人ID: {heirId}
+                </div>
+              )}
+            </div>
+          </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>

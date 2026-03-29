@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import { legacyPlanService } from './services/legacyPlanService'
+import { userService } from './services/userService'
 
 dotenv.config()
 
@@ -15,6 +16,70 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Digital Legacy Guardian API is running' })
 })
 
+app.post('/api/auth/register', async (req, res) => {
+  try {
+    const result = await userService.register(req.body)
+    if (result.success) {
+      res.json(result)
+    } else {
+      res.status(400).json(result)
+    }
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || 'Failed to register' })
+  }
+})
+
+app.post('/api/auth/send-code', async (req, res) => {
+  try {
+    const result = await userService.sendLoginVerificationCode(req.body.email)
+    if (result.success) {
+      res.json(result)
+    } else {
+      res.status(400).json(result)
+    }
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || 'Failed to send verification code' })
+  }
+})
+
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const result = await userService.login(req.body)
+    if (result.success) {
+      res.json({ success: true, user: result.user })
+    } else {
+      res.status(401).json(result)
+    }
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || 'Failed to login' })
+  }
+})
+
+app.get('/api/users/search', (req, res) => {
+  try {
+    const query = req.query.q as string
+    if (!query) {
+      return res.status(400).json({ error: 'Search query is required' })
+    }
+    const users = userService.searchUserById(query)
+    res.json(users.map(u => ({ id: u.id, name: u.name, email: u.email })))
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || 'Failed to search users' })
+  }
+})
+
+app.get('/api/users/:id', (req, res) => {
+  try {
+    const user = userService.getUserById(req.params.id)
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' })
+    }
+    res.json({ id: user.id, name: user.name, email: user.email })
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || 'Failed to get user' })
+  }
+})
+
 app.post('/api/plans', (req, res) => {
   try {
     const plan = legacyPlanService.createPlan(req.body)
@@ -26,8 +91,14 @@ app.post('/api/plans', (req, res) => {
 
 app.get('/api/plans', (req, res) => {
   try {
-    const plans = legacyPlanService.getAllPlans()
-    res.json(plans)
+    const userId = req.query.userId as string
+    if (userId) {
+      const plans = legacyPlanService.getUserPlans(userId)
+      res.json(plans)
+    } else {
+      const plans = legacyPlanService.getAllPlans()
+      res.json(plans)
+    }
   } catch (error) {
     res.status(500).json({ error: 'Failed to get plans' })
   }
