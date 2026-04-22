@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Plus, Shield, Trash2, ArrowLeft } from 'lucide-react'
+import { Plus, Shield, Trash2, ArrowLeft, Users } from 'lucide-react'
 import { getLegacyPlan, addPlanAsset, removePlanAsset } from '../services/api'
 import { useNavigate, useParams } from 'react-router-dom'
 
@@ -162,42 +162,56 @@ export default function EditPlan() {
             管理资产
           </h2>
 
-          <div className="grid grid-cols-1 gap-4">
-            <select
-              className="input-field"
-              value={newAsset.type || ''}
-              onChange={(e) => setNewAsset({ ...newAsset, type: e.target.value as Asset['type'] })}
-            >
-              <option value="">选择资产类型</option>
-              <option value="crypto">加密货币</option>
-              <option value="cloud">云账号</option>
-              <option value="file">加密文件</option>
-              <option value="contract">智能合约</option>
-            </select>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">资产类型</label>
+                <select
+                  className="input-field"
+                  value={newAsset.type || ''}
+                  onChange={(e) => setNewAsset({ ...newAsset, type: e.target.value as Asset['type'] })}
+                >
+                  <option value="">选择资产类型</option>
+                  <option value="crypto">加密货币</option>
+                  <option value="cloud">云账号</option>
+                  <option value="file">加密文件</option>
+                  <option value="contract">智能合约</option>
+                </select>
+              </div>
 
-            <input
-              type="text"
-              className="input-field"
-              placeholder="资产名称"
-              value={newAsset.name || ''}
-              onChange={(e) => setNewAsset({ ...newAsset, name: e.target.value })}
-            />
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">资产名称</label>
+                <input
+                  type="text"
+                  className="input-field"
+                  placeholder="资产名称"
+                  value={newAsset.name || ''}
+                  onChange={(e) => setNewAsset({ ...newAsset, name: e.target.value })}
+                />
+              </div>
 
-            <input
-              type="text"
-              className="input-field"
-              placeholder={newAsset.type ? assetTypePlaceholders[newAsset.type] : "资产价值/地址"}
-              value={newAsset.value || ''}
-              onChange={(e) => setNewAsset({ ...newAsset, value: e.target.value })}
-            />
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">资产价值/地址</label>
+                <input
+                  type="text"
+                  className="input-field"
+                  placeholder={newAsset.type ? assetTypePlaceholders[newAsset.type] : "资产价值/地址"}
+                  value={newAsset.value || ''}
+                  onChange={(e) => setNewAsset({ ...newAsset, value: e.target.value })}
+                />
+              </div>
 
-            <input
-              type="text"
-              className="input-field"
-              placeholder="描述（可选）"
-              value={newAsset.description || ''}
-              onChange={(e) => setNewAsset({ ...newAsset, description: e.target.value })}
-            />
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">描述（可选）</label>
+                <input
+                  type="text"
+                  className="input-field"
+                  placeholder="描述（可选）"
+                  value={newAsset.description || ''}
+                  onChange={(e) => setNewAsset({ ...newAsset, description: e.target.value })}
+                />
+              </div>
+            </div>
           </div>
 
           <button onClick={addAsset} disabled={saving} className="btn-primary w-full flex items-center justify-center">
@@ -206,26 +220,36 @@ export default function EditPlan() {
           </button>
 
           {plan.assets && plan.assets.length > 0 && (
-            <div className="space-y-2">
-              <h3 className="font-semibold">已添加的资产：</h3>
-              {plan.assets.map((asset: Asset, index: number) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                >
-                  <div>
-                    <span className="font-medium">{asset.name}</span>
-                    <span className="text-gray-500 text-sm ml-2">({asset.type})</span>
-                  </div>
-                  <button
-                    onClick={() => removeAsset(index)}
-                    className="text-red-500 hover:text-red-700"
-                    disabled={saving}
+            <div className="space-y-4">
+              <h3 className="font-semibold text-gray-700 flex items-center">
+                <Shield className="h-5 w-5 mr-2 text-primary-600" />
+                已添加的资产
+              </h3>
+              <div className="space-y-3">
+                {plan.assets.map((asset: Asset, index: number) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow"
                   >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              ))}
+                    <div>
+                      <span className="font-medium text-gray-800">{asset.name}</span>
+                      <span className="text-gray-500 text-sm ml-2">({asset.type})</span>
+                      {asset.description && (
+                        <div className="text-xs text-gray-400 mt-1">{asset.description}</div>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => removeAsset(index)}
+                      className="p-2 rounded-full text-red-500 hover:bg-red-50 transition-colors"
+                      disabled={saving}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </motion.div>
+                ))}
+              </div>
             </div>
           )}
         </motion.div>
@@ -236,28 +260,43 @@ export default function EditPlan() {
           className="card space-y-6"
         >
           <h2 className="text-2xl font-semibold flex items-center">
+            <Users className="h-6 w-6 mr-2 text-primary-600" />
             监护人信息
           </h2>
 
-          <p className="text-gray-600">
-            监护人信息在计划创建时已经确定，无法在创建后添加或删除监护人。
-            这是为了确保份额分配的安全性和一致性。
-          </p>
+          <div className="p-4 bg-gradient-to-r from-blue-50 to-primary-50 rounded-xl border border-blue-100 shadow-sm">
+            <p className="text-sm text-gray-700">
+              监护人信息在计划创建时已经确定，无法在创建后添加或删除监护人。
+              这是为了确保份额分配的安全性和一致性。
+            </p>
+          </div>
 
           {plan.guardians && plan.guardians.length > 0 && (
-            <div className="space-y-2">
-              <h3 className="font-semibold">已添加的监护人：</h3>
-              {plan.guardians.map((guardian: any) => (
-                <div
-                  key={guardian.id}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                >
-                  <div>
-                    <span className="font-medium">{guardian.name}</span>
-                    <span className="text-gray-500 text-sm ml-2">({guardian.role})</span>
-                  </div>
-                </div>
-              ))}
+            <div className="space-y-4">
+              <h3 className="font-semibold text-gray-700 flex items-center">
+                <Users className="h-5 w-5 mr-2 text-primary-600" />
+                已添加的监护人
+              </h3>
+              <div className="space-y-3">
+                {plan.guardians.map((guardian: any) => (
+                  <motion.div
+                    key={guardian.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-4 bg-white rounded-xl border border-gray-100 shadow-sm"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className="font-medium text-gray-800">{guardian.name}</span>
+                        <span className="text-gray-500 text-sm ml-2">({guardian.role})</span>
+                      </div>
+                    </div>
+                    {guardian.email && (
+                      <div className="text-xs text-gray-400 mt-1">{guardian.email}</div>
+                    )}
+                  </motion.div>
+                ))}
+              </div>
             </div>
           )}
         </motion.div>

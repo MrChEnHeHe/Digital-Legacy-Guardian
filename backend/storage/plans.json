@@ -1,1 +1,94 @@
-{}
+{
+  "610cccbb-7454-4e88-90d9-584d58d54f6c": {
+    "id": "610cccbb-7454-4e88-90d9-584d58d54f6c",
+    "name": "计划 1",
+    "assets": [
+      {
+        "type": "file",
+        "file": {},
+        "value": "cache_simulator.cpp",
+        "name": "代码文件",
+        "description": "好康的"
+      }
+    ],
+    "guardians": [
+      {
+        "id": "0TRS",
+        "name": "陈雨柯",
+        "role": "father",
+        "email": "2153266563@qq.com",
+        "publicKey": "0xad50c4af071608"
+      },
+      {
+        "id": "7XIZ",
+        "name": "吕英硕",
+        "role": "me",
+        "email": "2152805144@qq.com",
+        "publicKey": "0xab023d8be5f9a8"
+      }
+    ],
+    "threshold": 2,
+    "totalShares": 3,
+    "triggerMode": "consensus",
+    "timeLock": 0,
+    "shares": [
+      {
+        "id": "fd8a3636-f1a1-4772-a250-52a7ca21efc8",
+        "index": 1,
+        "commitment": "96d21a167e09cd68859fb9e96cf4acb77878f530f3b765d38468ccebe46bd0ab"
+      },
+      {
+        "id": "19a64df3-9755-40b0-a3ca-fc2d9fd30c3a",
+        "index": 2,
+        "commitment": "b91b925722fbe0ac5644031b97ace377cbd333bbc99568a708c1207724de8a55"
+      },
+      {
+        "id": "49335bc0-c6a7-4f76-a26d-8f8698828f1c",
+        "index": 3,
+        "commitment": "9efbfd0c6ed684954da787d53c59680cf6749bda2a549aa14734a5573f0d8247"
+      }
+    ],
+    "encryptedAssets": "U2FsdGVkX18qe7iJuvsAY7/deeLuSp1z3pkJNrYYmo+o/V69GkSyVpjQoXUMYPmuNU/lGndwFBsMl0JCmqWUp9yb1HVQOkyTJvD66XjzxrixTI5p3XxyF2AwfMjjnE5ZBauZT6hueikZO+oMWAWSWrPjyNguqUdRKZ50semb7T4=",
+    "createdAt": "2026-04-22T09:55:42.036Z",
+    "updatedAt": "2026-04-22T10:13:25.245Z",
+    "status": "completed",
+    "creatorId": "7XIZ"
+  },
+  "ec7d5282-a94c-47dc-a913-5a8c80e13f36": {
+    "id": "ec7d5282-a94c-47dc-a913-5a8c80e13f36",
+    "name": "计划 3",
+    "assets": [
+      {
+        "type": "file",
+        "name": "hello",
+        "description": "ceshi",
+        "file": {}
+      }
+    ],
+    "guardians": [
+      {
+        "id": "0TRS",
+        "name": "陈雨柯",
+        "role": "me",
+        "email": "2153266563@qq.com",
+        "publicKey": "0x67933dc782d22"
+      }
+    ],
+    "threshold": 1,
+    "totalShares": 1,
+    "triggerMode": "consensus",
+    "timeLock": 0,
+    "shares": [
+      {
+        "id": "a43e8ea4-140e-4052-9f8c-299c23a9a423",
+        "index": 1,
+        "commitment": "a0217005a29ab126a11def6fd3971eb2fccd803f7aa9a47f6405299b9ae0d51b"
+      }
+    ],
+    "encryptedAssets": "U2FsdGVkX1+RF5sOKl2ELlm+DmKnFb37CJd1isOR3OGKYBCFpH+Hom1KEhk8wFXuml1iDLTgnF0YFrqvsnDxrZ2dcKiXn4+CkwbWn0d6CnluMWCwedvF61cz2v7iIAI/2AxFT9x7HBdx+yZqizxc1UVx6TxOQqqlvwoaAoFdc5MjwjyUDzEq4XMpnzfRhwu2pSBolO+Ns+UCz/Ps+Rx2xyEv4qDAQkG8ybGZWyHsNArMm4eOTKPL7fNzE+yf4rSZWapGaAq/QDEkNXuhtvg883PjMLJbZNxl8wJHHNKef/2oK7iDxRZuoVXSls/x9Kc1UrJUy8hS/CS7K0Ju+jvuh/ZMC6DBZCgZIHiTTeJYn9V5AvPdJ2XiOPImJhzbXTbgP9bJidNRerzSHNZHypAg+xwa+d4kC5kcnx4tXDT3t4V1O3nQMPU+4ZmdU22WFE5sqih64jO77/4r42B5j718OxGzZDmn/fUYt4pCyCMGwcX4o6xyLsL3edWB/TeJ9Pi9TsUgqfB/vdc7Je9pncybYMvZq84p+Qq7Ghfy3QaAA4EeVG9wP185DN043QwqzdnrgFqkPBcRnrPANFDN/sjBLNsv/yUBqXFF9TXhdQg6gicjQHJAoWQdtyIQ1ceMQpcDJGq0ZNDld1K1bNQ5M7exWFP3zblB7NJs+RPgqGOp5+tOEqISUkhdEvyV+8X80oIFXX8CnD7qHhd8fEeS6XFJWYdfagoVyzPnY5SJ1Y1wHzh2GklPr/BHPKjTQB28+/0BamEzXAGaYuL5UaNl+raOxTgkwjE8Qr5Db0DTA997w2iJRcZnQ3+b/y4CtkekNgKw9puaSQ2MUueu3qSnq5QdLVVuf85lwzQf/Zua4JRofsopVNoKvmuWn9pbAwKQbkmQT1sNpBW66JrgtENyB4+N0ek7fRAnxPQ4OQ80QgSNFJw3HUeGmQb9G4yWMwXRrvbwAHAL8Rvv+aVS4vTL//68gPYSi3sUePmwt+HB48WuzAVtwieEht/b6fvd/OHbmg0hXwbl/foeL4dF6fppX4Vnt0MWzPKgmOpGmUl0AOkQ25i0VqJSsHumoU0/omeW4Hv5HIIgTaCromSLwICyOd2KN2F3MlD8mJsLVHZl9KL3GTbGygqSXebLhcDCw+ve7ygxYX0SWn0jBFBrrYuRNsK2rxdrUlSqT5OOaWiUkTeDUYIURYPAA2kWqcwBzl5CD+uvSNuPCfSaXCHVsyDM8ujet+PLVjwLeYfWSmj62P2ZBeJwqmUw3GBzAr+SkMKLuysQHd2ZMFV/A9ApqIpfmfB7mlUId4JnCgjTpqi4a/AVoF6goZpAJdYp8p6xAEXmacArsAWbqIhE62ZkLdLTO8LWFEv5cn08fD76AL4QxEiuiFJ38fe2+A+n+svgMHNrHmEQqkTBidxZN2NZy0BmojkyTE5fV1Jl4DrBjczQ0FbAjKgr0SlY6i7Vxaqayvcxc5DP3eXG6uQcxc+eR+47EY3YaqWJNE1pNPHGYkBuGjGvgrSDXhqeDdYmOV/HCJIRL+dBk5l88lOm3NzLtGvz5ql7T+y/9qnkLtrcv5Pmql6FDv45pZHuFD4e5q3hCWefsXcCpkWUFTRjOqQqdnKb+f/ynsIka7e+tiArH6Cwyfm2U86j2I3ci6xlv3mOXEobvArkxksrTAGCkXQB9nS3Auw0jpgWFDKR0aN89hCjXGrjCcBEZ9bcbZFRgJF6BIMqWP4zYlzoSK3J+MCPW+gq20DEGjA0mhyUClx1cHPv3Gtm9KQ=",
+    "createdAt": "2026-04-22T11:19:24.901Z",
+    "updatedAt": "2026-04-22T11:19:24.901Z",
+    "status": "active",
+    "creatorId": "0TRS"
+  }
+}

@@ -237,9 +237,7 @@ class EmailService {
       
       <div class="share-box">
         <h3 style="margin-top: 0; color: #B45309;">🔑 您的份额信息</h3>
-        <p style="margin-bottom: 5px;"><strong>份额ID：</strong></p>
-        <div class="share-id">${data.shareId}</div>
-        <p style="margin-bottom: 5px; margin-top: 15px;"><strong>份额值（请妥善保管，提交时需要）：</strong></p>
+        <p style="margin-bottom: 5px;"><strong>份额值（请妥善保管，提交时需要）：</strong></p>
         <div class="share-id">${data.shareValue}</div>
         <p style="font-size: 12px; color: #92400E; margin-top: 10px;">
           ⚠️ 此份额值是恢复数字资产的关键，请勿泄露给他人！
@@ -353,6 +351,33 @@ class EmailService {
     planId: string
     assets: any[]
   }): Promise<boolean> {
+    // 处理资产，区分普通资产和文件资产
+    const normalAssets = []
+    const fileAttachments = []
+
+    for (const asset of data.assets) {
+      if (asset.type === 'file') {
+        try {
+          // 解析文件资产的 JSON 内容
+          const fileData = JSON.parse(asset.value)
+          if (fileData.content && fileData.name) {
+            // 提取 Base64 内容（去掉 data:xxx;base64, 前缀）
+            const base64Content = fileData.content.replace(/^data:.+;base64,/, '')
+            
+            fileAttachments.push({
+              filename: fileData.name,
+              content: Buffer.from(base64Content, 'base64'),
+              contentType: fileData.type || 'application/octet-stream'
+            })
+          }
+        } catch (error) {
+          console.error('Failed to parse file asset:', error)
+        }
+      } else {
+        normalAssets.push(asset)
+      }
+    }
+
     const emailContent = `
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -451,9 +476,10 @@ class EmailService {
         <p>数字遗产计划 <strong>${data.planName}</strong> 的继承流程已完成，您已成功获得以下数字资产。</p>
       </div>
       
+      ${normalAssets.length > 0 ? `
       <div class="assets-box">
         <h3 style="margin-top: 0; color: #4F46E5;">📋 遗产内容</h3>
-        ${data.assets.map((asset) => `
+        ${normalAssets.map((asset) => `
         <div class="asset-item">
           <div class="asset-name">${asset.name}</div>
           <div class="asset-type">类型：${asset.type}</div>
@@ -461,6 +487,19 @@ class EmailService {
         </div>
         `).join('')}
       </div>
+      ` : ''}
+      
+      ${fileAttachments.length > 0 ? `
+      <div class="assets-box">
+        <h3 style="margin-top: 0; color: #4F46E5;">📎 附件文件</h3>
+        <p>以下文件已作为附件发送：</p>
+        <ul>
+          ${fileAttachments.map((attachment) => `
+          <li>${attachment.filename}</li>
+          `).join('')}
+        </ul>
+      </div>
+      ` : ''}
       
       <p>请妥善保管这些资产信息，如需帮助，请联系系统管理员。</p>
     </div>
@@ -481,8 +520,10 @@ class EmailService {
           to: data.heirEmail,
           subject: `【数字遗产管家】继承成功通知 - ${data.planName}`,
           html: emailContent,
+          attachments: fileAttachments
         })
         console.log(`Heir notification email sent successfully to ${data.heirEmail}`)
+        console.log(`Sent ${fileAttachments.length} file attachments`)
         return true
       } catch (error) {
         console.error('Failed to send heir notification email:', error)
@@ -494,7 +535,14 @@ class EmailService {
       console.log('========================================')
       console.log(`收件人: ${data.heirEmail}`)
       console.log(`计划: ${data.planName}`)
-      console.log('资产数量:', data.assets.length)
+      console.log('普通资产数量:', normalAssets.length)
+      console.log('文件附件数量:', fileAttachments.length)
+      if (fileAttachments.length > 0) {
+        console.log('附件文件:')
+        fileAttachments.forEach((attachment, index) => {
+          console.log(`${index + 1}. ${attachment.filename}`)
+        })
+      }
       console.log('========================================\n')
       return true
     }

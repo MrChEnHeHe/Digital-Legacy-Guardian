@@ -179,12 +179,12 @@ export class ShamirSecretSharingImpl implements ShamirSecretSharing {
     return CryptoJS.enc.Hex.stringify(randomBytes)
   }
 
-  encryptAsset(asset: any, masterKey: string): string {
-    const assetString = JSON.stringify(asset)
-    return CryptoJS.AES.encrypt(assetString, masterKey).toString()
+  encryptAsset(assets: any[], masterKey: string): string {
+    const assetsString = JSON.stringify(assets)
+    return CryptoJS.AES.encrypt(assetsString, masterKey).toString()
   }
 
-  decryptAsset(encryptedAsset: string, masterKey: string): any {
+  decryptAsset(encryptedAsset: string, masterKey: string): any[] {
     const bytes = CryptoJS.AES.decrypt(encryptedAsset, masterKey)
     const decryptedString = bytes.toString(CryptoJS.enc.Utf8)
     return JSON.parse(decryptedString)

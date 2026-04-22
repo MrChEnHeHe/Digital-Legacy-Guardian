@@ -39,6 +39,8 @@ export default function Inheritance() {
       })
       setStatus(result)
       setStep('collect')
+      // 发起请求后立即检查状态，确保获取完整的状态信息
+      await handleCheckStatus()
     } catch (error) {
       alert('发起继承请求失败')
     } finally {
@@ -194,7 +196,7 @@ export default function Inheritance() {
                 <Clock className="h-5 w-5 text-yellow-600 mt-0.5" />
                 <div className="text-sm text-yellow-800">
                   <p className="font-semibold mb-1">等待监护人响应</p>
-                  <p>需要 {status?.threshold || 3} 位监护人提供他们的份额</p>
+                  <p>需要 {status?.threshold || '加载中...'} 位监护人提供他们的份额</p>
                 </div>
               </div>
             </div>
@@ -203,14 +205,14 @@ export default function Inheritance() {
               <div className="flex justify-between text-sm">
                 <span>已收集份额</span>
                 <span className="font-medium">
-                  {status?.sharesCollected || 0} / {status?.threshold || 3}
+                  {status?.sharesCollected || 0} / {status?.threshold || '加载中...'}
                 </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
                   className="bg-primary-600 h-2 rounded-full transition-all duration-300"
                   style={{
-                    width: `${((status?.sharesCollected || 0) / (status?.threshold || 3)) * 100}%`,
+                    width: status?.threshold ? `${((status?.sharesCollected || 0) / status.threshold) * 100}%` : '0%',
                   }}
                 />
               </div>

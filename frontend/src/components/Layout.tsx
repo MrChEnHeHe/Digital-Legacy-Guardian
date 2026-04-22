@@ -4,9 +4,9 @@ import { Shield, Home, PlusCircle, LayoutDashboard, Heart, Users } from 'lucide-
 const navItems = [
   { path: '/', icon: Home, label: '首页' },
   { path: '/create-plan', icon: PlusCircle, label: '创建计划' },
-  { path: '/dashboard', icon: LayoutDashboard, label: '控制台' },
   { path: '/inheritance', icon: Heart, label: '继承' },
   { path: '/guardian', icon: Users, label: '监护人' },
+  { path: '/dashboard', icon: LayoutDashboard, label: '个人信息' },
 ]
 
 export default function Layout({ children }: { children: React.ReactNode }) {

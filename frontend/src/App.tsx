@@ -1,4 +1,5 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { AnimatePresence, motion } from 'framer-motion'
 import Layout from './components/Layout'
 import Home from './pages/Home'
 import CreatePlan from './pages/CreatePlan'
@@ -17,52 +18,57 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function App() {
+  const location = useLocation()
+
   return (
     <Layout>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route
-          path="/create-plan"
-          element={
-            <ProtectedRoute>
-              <CreatePlan />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/edit-plan/:id"
-          element={
-            <ProtectedRoute>
-              <EditPlan />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/inheritance"
-          element={
-            <ProtectedRoute>
-              <Inheritance />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/guardian"
-          element={
-            <ProtectedRoute>
-              <Guardian />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
+      <div key={location.pathname}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Login />} />
+          <Route
+            path="/create-plan"
+            element={
+              <ProtectedRoute>
+                <CreatePlan />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/edit-plan/:id"
+            element={
+              <ProtectedRoute>
+                <EditPlan />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/inheritance"
+            element={
+              <ProtectedRoute>
+                <Inheritance />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/guardian"
+            element={
+              <ProtectedRoute>
+                <Guardian />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </div>
     </Layout>
   )
 }

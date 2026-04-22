@@ -69,8 +69,16 @@ export const authApi = {
 }
 
 export const createLegacyPlan = async (data: any): Promise<LegacyPlan> => {
-  const response = await api.post('/plans', data)
-  return response.data
+  try {
+    const response = await api.post('/plans', data)
+    return response.data
+  } catch (error: any) {
+    if (error.response && error.response.data && error.response.data.error) {
+      throw new Error(error.response.data.error)
+    } else {
+      throw new Error('创建遗产计划失败，请重试')
+    }
+  }
 }
 
 export const createDemoPlan = async (data: any): Promise<LegacyPlan> => {

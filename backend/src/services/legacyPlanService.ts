@@ -126,42 +126,85 @@ class LegacyPlanService {
     creatorId?: string
     heirId?: string
   }): LegacyPlan {
-    const masterKey = shamirSecretSharing.generateMasterKey()
-    const shares = shamirSecretSharing.split(masterKey, data.totalShares, data.threshold)
-    const encryptedAssets = shamirSecretSharing.encryptAsset(data.assets, masterKey)
+    try {
+      // 验证输入数据
+      if (!data.assets || data.assets.length === 0) {
+        throw new Error('至少需要添加一个资产')
+      }
+      if (!data.guardians || data.guardians.length === 0) {
+        throw new Error('至少需要添加一个监护人')
+      }
+      if (data.threshold < 1 || data.threshold > data.totalShares) {
+        throw new Error('门限阈值必须在 1 到总份额数之间')
+      }
+      if (data.totalShares > data.guardians.length) {
+        throw new Error('总份额数不能超过监护人数量')
+      }
 
-    // 将 Share 转换为 StoredShare（移除 value 字段）
-    const storedShares: StoredShare[] = shares.map(share => ({
-      id: share.id,
-      index: share.index,
-      commitment: share.commitment
-    }))
+      const masterKey = shamirSecretSharing.generateMasterKey()
+      const shares = shamirSecretSharing.split(masterKey, data.totalShares, data.threshold)
+      const encryptedAssets = shamirSecretSharing.encryptAsset(data.assets, masterKey)
 
-    const plan: LegacyPlan = {
-      id: uuidv4(),
-      name: data.name || `计划 ${this.plans.size + 1}`,
-      assets: data.assets,
-      guardians: data.guardians,
-      threshold: data.threshold,
-      totalShares: data.totalShares,
-      triggerMode: data.triggerMode,
-      timeLock: data.timeLock,
-      shares: storedShares,
-      encryptedAssets,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      status: 'active',
-      creatorId: data.creatorId,
-      heirId: data.heirId,
+      // 将 Share 转换为 StoredShare（移除 value 字段）
+      const storedShares: StoredShare[] = shares.map(share => ({
+        id: share.id,
+        index: share.index,
+        commitment: share.commitment
+      }))
+
+      // 处理资产数据，只保留非敏感信息
+      const processedAssets = data.assets.map(asset => {
+        if (asset.type === 'file') {
+          // 对于文件类型的资产，只保留基本信息
+          return {
+            type: asset.type,
+            name: asset.name,
+            description: asset.description || '',
+            file: asset.file ? {
+              name: asset.file.name,
+              type: asset.file.type,
+              size: asset.file.size
+            } : undefined
+          }
+        } else {
+          // 对于其他类型的资产，只保留基本信息
+          return {
+            type: asset.type,
+            name: asset.name,
+            description: asset.description || ''
+          }
+        }
+      })
+
+      const plan: LegacyPlan = {
+        id: uuidv4(),
+        name: data.name || `计划 ${this.plans.size + 1}`,
+        assets: processedAssets, // 只存储资产的基本信息
+        guardians: data.guardians,
+        threshold: data.threshold,
+        totalShares: data.totalShares,
+        triggerMode: data.triggerMode,
+        timeLock: data.timeLock,
+        shares: storedShares,
+        encryptedAssets,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        status: 'active',
+        creatorId: data.creatorId,
+        heirId: data.heirId,
+      }
+
+      this.plans.set(plan.id, plan)
+      this.saveData()
+
+      // 发送邮件时包含完整的份额值
+      this.sendShareEmails(plan, shares)
+
+      return plan
+    } catch (error: any) {
+      console.error('创建遗产计划失败:', error)
+      throw new Error(error.message || '创建遗产计划失败')
     }
-
-    this.plans.set(plan.id, plan)
-    this.saveData()
-
-    // 发送邮件时包含完整的份额值
-    this.sendShareEmails(plan, shares)
-
-    return plan
   }
 
   private async sendShareEmails(plan: LegacyPlan, sharesWithValue?: Share[]): Promise<void> {
