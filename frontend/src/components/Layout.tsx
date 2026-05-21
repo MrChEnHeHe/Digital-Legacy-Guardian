@@ -1,8 +1,9 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Shield, Home, PlusCircle, LayoutDashboard, Heart, Users } from 'lucide-react'
+import { Shield, Home, PlusCircle, LayoutDashboard, Heart, Users, Sparkles } from 'lucide-react'
 
 const navItems = [
   { path: '/', icon: Home, label: '首页' },
+  { path: '/ai', icon: Sparkles, label: 'AI助手' },
   { path: '/create-plan', icon: PlusCircle, label: '创建计划' },
   { path: '/inheritance', icon: Heart, label: '继承' },
   { path: '/guardian', icon: Users, label: '监护人' },

@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard'
 import Inheritance from './pages/Inheritance'
 import Guardian from './pages/Guardian'
 import Login from './pages/Login'
+import AIHelper from './pages/AIHelper'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const user = localStorage.getItem('user')
@@ -64,6 +65,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <Guardian />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ai"
+            element={
+              <ProtectedRoute>
+                <AIHelper />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
               </ProtectedRoute>
             }
           />

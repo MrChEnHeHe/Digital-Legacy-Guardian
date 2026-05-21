@@ -3,6 +3,7 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import { legacyPlanService } from './services/legacyPlanService'
 import { userService } from './services/userService'
+import { aiService } from './services/aiService'
 
 dotenv.config()
 
@@ -206,6 +207,56 @@ app.post('/api/inheritance/recover', (req, res) => {
     res.json({ assets })
   } catch (error: any) {
     res.status(500).json({ error: error.message || 'Failed to recover assets' })
+  }
+})
+
+// AI助手端点
+app.post('/api/ai/chat', async (req, res) => {
+  try {
+    const { message, userId, context } = req.body
+    
+    if (!message || !userId) {
+      return res.status(400).json({
+        response: '缺少必要参数',
+        intent: 'unknown',
+        params: {},
+        nextContext: context || {}
+      })
+    }
+
+    // 解析用户命令
+    const parsed = aiService.parseCommand(message)
+    
+    // 执行命令
+    const result = await aiService.executeCommand(
+      parsed.intent,
+      parsed.params,
+      userId,
+      context || {
+        currentStep: 'idle',
+        workingPlan: null,
+        collectedData: {},
+        history: []
+      }
+    )
+
+    res.json({
+      response: result.response,
+      intent: parsed.intent,
+      params: parsed.params,
+      confidence: parsed.confidence,
+      nextContext: result.nextContext,
+      actionResult: result.actionResult
+    })
+  } catch (error: any) {
+    console.error('AI chat error:', error)
+    res.status(500).json({
+      response: '服务器内部错误，请稍后重试。',
+      intent: 'unknown',
+      params: {},
+      nextContext: {},
+      actionResult: null
+    })
   }
 })
 

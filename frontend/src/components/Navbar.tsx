@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Shield, Lock, Home, PlusCircle, LayoutDashboard, Heart, LogIn, LogOut, User, RefreshCw } from 'lucide-react'
+import { Shield, Lock, Home, PlusCircle, LayoutDashboard, Heart, LogIn, LogOut, User, RefreshCw, Sparkles } from 'lucide-react'
 
 const Navbar = () => {
   const location = useLocation()
@@ -10,9 +10,10 @@ const Navbar = () => {
 
   const navItems = [
     { path: '/', label: '首页', icon: Home },
+    { path: '/ai', label: 'AI助手', icon: Sparkles },
     { path: '/create-plan', label: '创建计划', icon: PlusCircle },
-    { path: '/dashboard', label: '管理面板', icon: LayoutDashboard },
-    { path: '/inheritance', label: '继承流程', icon: Heart },
+    { path: '/dashboard', label: '个人信息', icon: LayoutDashboard },
+    { path: '/inheritance', label: '继承', icon: Heart },
     { path: '/guardian', label: '监护人', icon: User },
   ]
 
