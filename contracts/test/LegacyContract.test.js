@@ -17,6 +17,11 @@ describe("LegacyContract", function () {
     await contract.deployed();
   });
 
+
+
+
+  
+
   describe("Plan Creation", function () {
     it("Should create a new legacy plan", async function () {
       const planId = "test-plan-1";
