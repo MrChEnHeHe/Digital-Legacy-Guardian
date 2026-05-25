@@ -49,7 +49,8 @@ export default function CreatePlan() {
   const [heirSearching, setHeirSearching] = useState(false)
 
   const getCurrentUser = () => {
-    const userStr = localStorage.getItem('user')
+    // 使用sessionStorage读取登录状态
+    const userStr = sessionStorage.getItem('user')
     if (userStr) {
       return JSON.parse(userStr)
     }

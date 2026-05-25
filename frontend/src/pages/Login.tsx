@@ -14,6 +14,7 @@ export default function Login() {
     }
   }, [location.pathname])
   const [loading, setLoading] = useState(false)
+  const [codeLoading, setCodeLoading] = useState(false)
   const [message, setMessage] = useState('')
 
   const [registerForm, setRegisterForm] = useState({
@@ -80,7 +81,7 @@ export default function Login() {
       return
     }
 
-    setLoading(true)
+    setCodeLoading(true)
     try {
       const result = await authApi.sendVerificationCode(loginForm.email)
       if (result.success) {
@@ -101,7 +102,7 @@ export default function Login() {
     } catch (error: any) {
       setMessage(error.response?.data?.error || '发送验证码失败')
     } finally {
-      setLoading(false)
+      setCodeLoading(false)
     }
   }
 
@@ -114,15 +115,22 @@ export default function Login() {
       return
     }
 
+    if (!loginForm.verificationCode) {
+      setMessage('请输入验证码')
+      return
+    }
+
     setLoading(true)
     try {
       const result = await authApi.login({
         email: loginForm.email,
         password: loginForm.password,
+        verificationCode: loginForm.verificationCode,
       })
 
       if (result.success) {
-        localStorage.setItem('user', JSON.stringify(result.user))
+        // 使用sessionStorage存储登录状态（关闭浏览器后自动清除）
+        sessionStorage.setItem('user', JSON.stringify(result.user))
         setMessage('登录成功！')
         setTimeout(() => {
           navigate('/dashboard')
@@ -222,32 +230,33 @@ export default function Login() {
                 </div>
               </div>
 
-              {/* 暂时移除验证码输入字段，方便测试 */}
-              {/* <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">验证码</label>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">验证码</label>
                 <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={loginForm.verificationCode}
-                    onChange={(e) => setLoginForm({ ...loginForm, verificationCode: e.target.value })}
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                    placeholder="请输入验证码"
-                    maxLength={6}
-                  />
+                  <div className="relative flex-1">
+                    <input
+                      type="text"
+                      value={loginForm.verificationCode}
+                      onChange={(e) => setLoginForm({ ...loginForm, verificationCode: e.target.value })}
+                      className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 shadow-sm"
+                      placeholder="请输入验证码"
+                      maxLength={6}
+                    />
+                  </div>
                   <button
                     type="button"
                     onClick={handleSendCode}
-                    disabled={loading || countdown > 0}
-                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                      countdown > 0
+                    disabled={codeLoading || countdown > 0 || !loginForm.email}
+                    className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
+                      codeLoading || countdown > 0 || !loginForm.email
                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                        : 'bg-indigo-100 text-indigo-600 hover:bg-indigo-200'
+                        : 'bg-primary-100 text-primary-600 hover:bg-primary-200'
                     }`}
                   >
-                    {countdown > 0 ? `${countdown}秒` : '获取验证码'}
+                    {codeLoading ? '发送中...' : (countdown > 0 ? `${countdown}秒` : '获取验证码')}
                   </button>
                 </div>
-              </div> */}
+              </div>
 
               <button
                 type="submit"

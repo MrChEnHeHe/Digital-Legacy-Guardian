@@ -18,7 +18,8 @@ export default function Dashboard() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    const userStr = localStorage.getItem('user')
+    // 使用sessionStorage读取登录状态
+    const userStr = sessionStorage.getItem('user')
     if (userStr) {
       const user = JSON.parse(userStr)
       setCurrentUser(user)
@@ -57,7 +58,8 @@ export default function Dashboard() {
   }
 
   const handleLogout = () => {
-    localStorage.removeItem('user')
+    // 只清除登录状态，保留对话历史等数据
+    sessionStorage.removeItem('user')
     navigate('/login')
   }
 
@@ -435,20 +437,49 @@ export default function Dashboard() {
                           监护人信息
                         </h4>
                         <div className="space-y-3">
-                          {plan.guardians?.map((guardian: any, guardianIndex: number) => (
-                            <div key={guardianIndex} className="p-3 bg-white rounded-lg border border-gray-100">
-                              <div className="flex items-center space-x-2">
-                                <div className="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center">
-                                  <Users className="h-3 w-3 text-primary-600" />
+                          {inheritanceStatus?.guardians?.length > 0 
+                            ? inheritanceStatus.guardians.map((guardian: any, guardianIndex: number) => (
+                                <div key={guardianIndex} className="p-3 bg-white rounded-lg border border-gray-100">
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center space-x-2">
+                                      <div className="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center">
+                                        <Users className="h-3 w-3 text-primary-600" />
+                                      </div>
+                                      <div>
+                                        <span className="font-semibold text-gray-800">{guardian.name}</span>
+                                        <span className="text-xs text-gray-500 ml-2">({guardian.role})</span>
+                                      </div>
+                                    </div>
+                                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                                      guardian.hasSubmitted 
+                                        ? 'bg-green-100 text-green-700' 
+                                        : 'bg-gray-100 text-gray-600'
+                                    }`}>
+                                      {guardian.hasSubmitted ? '已提交份额' : '未提交份额'}
+                                    </span>
+                                  </div>
+                                  <p className="text-sm text-gray-600 mt-1">{guardian.email}</p>
                                 </div>
-                                <div>
-                                  <span className="font-semibold text-gray-800">{guardian.name}</span>
-                                  <span className="text-xs text-gray-500 ml-2">({guardian.role})</span>
+                              ))
+                            : plan.guardians?.map((guardian: any, guardianIndex: number) => (
+                                <div key={guardianIndex} className="p-3 bg-white rounded-lg border border-gray-100">
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center space-x-2">
+                                      <div className="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center">
+                                        <Users className="h-3 w-3 text-primary-600" />
+                                      </div>
+                                      <div>
+                                        <span className="font-semibold text-gray-800">{guardian.name}</span>
+                                        <span className="text-xs text-gray-500 ml-2">({guardian.role})</span>
+                                      </div>
+                                    </div>
+                                    <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-600">
+                                      未提交份额
+                                    </span>
+                                  </div>
+                                  <p className="text-sm text-gray-600 mt-1">{guardian.email}</p>
                                 </div>
-                              </div>
-                              <p className="text-sm text-gray-600 mt-1">{guardian.email}</p>
-                            </div>
-                          ))}
+                              ))}
                         </div>
                       </div>
                     </div>
@@ -593,20 +624,49 @@ export default function Dashboard() {
                           监护人信息
                         </h4>
                         <div className="space-y-3">
-                          {plan.guardians?.map((guardian: any, guardianIndex: number) => (
-                            <div key={guardianIndex} className="p-3 bg-white rounded-lg border border-gray-100">
-                              <div className="flex items-center space-x-2">
-                                <div className="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center">
-                                  <Users className="h-3 w-3 text-primary-600" />
+                          {inheritanceStatus?.guardians?.length > 0 
+                            ? inheritanceStatus.guardians.map((guardian: any, guardianIndex: number) => (
+                                <div key={guardianIndex} className="p-3 bg-white rounded-lg border border-gray-100">
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center space-x-2">
+                                      <div className="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center">
+                                        <Users className="h-3 w-3 text-primary-600" />
+                                      </div>
+                                      <div>
+                                        <span className="font-semibold text-gray-800">{guardian.name}</span>
+                                        <span className="text-xs text-gray-500 ml-2">({guardian.role})</span>
+                                      </div>
+                                    </div>
+                                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                                      guardian.hasSubmitted 
+                                        ? 'bg-green-100 text-green-700' 
+                                        : 'bg-gray-100 text-gray-600'
+                                    }`}>
+                                      {guardian.hasSubmitted ? '已提交份额' : '未提交份额'}
+                                    </span>
+                                  </div>
+                                  <p className="text-sm text-gray-600 mt-1">{guardian.email}</p>
                                 </div>
-                                <div>
-                                  <span className="font-semibold text-gray-800">{guardian.name}</span>
-                                  <span className="text-xs text-gray-500 ml-2">({guardian.role})</span>
+                              ))
+                            : plan.guardians?.map((guardian: any, guardianIndex: number) => (
+                                <div key={guardianIndex} className="p-3 bg-white rounded-lg border border-gray-100">
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center space-x-2">
+                                      <div className="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center">
+                                        <Users className="h-3 w-3 text-primary-600" />
+                                      </div>
+                                      <div>
+                                        <span className="font-semibold text-gray-800">{guardian.name}</span>
+                                        <span className="text-xs text-gray-500 ml-2">({guardian.role})</span>
+                                      </div>
+                                    </div>
+                                    <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-600">
+                                      未提交份额
+                                    </span>
+                                  </div>
+                                  <p className="text-sm text-gray-600 mt-1">{guardian.email}</p>
                                 </div>
-                              </div>
-                              <p className="text-sm text-gray-600 mt-1">{guardian.email}</p>
-                            </div>
-                          ))}
+                              ))}
                         </div>
                       </div>
                     </div>
@@ -751,20 +811,49 @@ export default function Dashboard() {
                           监护人信息
                         </h4>
                         <div className="space-y-3">
-                          {plan.guardians?.map((guardian: any, guardianIndex: number) => (
-                            <div key={guardianIndex} className="p-3 bg-white rounded-lg border border-gray-100">
-                              <div className="flex items-center space-x-2">
-                                <div className="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center">
-                                  <Users className="h-3 w-3 text-primary-600" />
+                          {inheritanceStatus?.guardians?.length > 0 
+                            ? inheritanceStatus.guardians.map((guardian: any, guardianIndex: number) => (
+                                <div key={guardianIndex} className="p-3 bg-white rounded-lg border border-gray-100">
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center space-x-2">
+                                      <div className="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center">
+                                        <Users className="h-3 w-3 text-primary-600" />
+                                      </div>
+                                      <div>
+                                        <span className="font-semibold text-gray-800">{guardian.name}</span>
+                                        <span className="text-xs text-gray-500 ml-2">({guardian.role})</span>
+                                      </div>
+                                    </div>
+                                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                                      guardian.hasSubmitted 
+                                        ? 'bg-green-100 text-green-700' 
+                                        : 'bg-gray-100 text-gray-600'
+                                    }`}>
+                                      {guardian.hasSubmitted ? '已提交份额' : '未提交份额'}
+                                    </span>
+                                  </div>
+                                  <p className="text-sm text-gray-600 mt-1">{guardian.email}</p>
                                 </div>
-                                <div>
-                                  <span className="font-semibold text-gray-800">{guardian.name}</span>
-                                  <span className="text-xs text-gray-500 ml-2">({guardian.role})</span>
+                              ))
+                            : plan.guardians?.map((guardian: any, guardianIndex: number) => (
+                                <div key={guardianIndex} className="p-3 bg-white rounded-lg border border-gray-100">
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center space-x-2">
+                                      <div className="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center">
+                                        <Users className="h-3 w-3 text-primary-600" />
+                                      </div>
+                                      <div>
+                                        <span className="font-semibold text-gray-800">{guardian.name}</span>
+                                        <span className="text-xs text-gray-500 ml-2">({guardian.role})</span>
+                                      </div>
+                                    </div>
+                                    <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-600">
+                                      未提交份额
+                                    </span>
+                                  </div>
+                                  <p className="text-sm text-gray-600 mt-1">{guardian.email}</p>
                                 </div>
-                              </div>
-                              <p className="text-sm text-gray-600 mt-1">{guardian.email}</p>
-                            </div>
-                          ))}
+                              ))}
                         </div>
                       </div>
                     </div>

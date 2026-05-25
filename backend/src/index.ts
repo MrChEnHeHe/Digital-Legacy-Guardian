@@ -4,6 +4,7 @@ import dotenv from 'dotenv'
 import { legacyPlanService } from './services/legacyPlanService'
 import { userService } from './services/userService'
 import { aiService } from './services/aiService'
+import { llmService } from './services/llmService'
 
 dotenv.config()
 
@@ -165,15 +166,6 @@ app.delete('/api/plans/:id/assets/:index', (req, res) => {
   }
 })
 
-app.post('/api/demo/create', async (req, res) => {
-  try {
-    const demoPlan = await legacyPlanService.createDemoPlan(req.body)
-    res.json(demoPlan)
-  } catch (error: any) {
-    res.status(500).json({ error: error.message || 'Failed to create demo plan' })
-  }
-})
-
 app.post('/api/inheritance/initiate', (req, res) => {
   try {
     const request = legacyPlanService.initiateInheritance(req.body)
@@ -210,7 +202,7 @@ app.post('/api/inheritance/recover', (req, res) => {
   }
 })
 
-// AI助手端点
+// AI助手端点（模糊匹配方式）
 app.post('/api/ai/chat', async (req, res) => {
   try {
     const { message, userId, context } = req.body
@@ -258,6 +250,78 @@ app.post('/api/ai/chat', async (req, res) => {
       actionResult: null
     })
   }
+})
+
+// 大模型AI助手端点
+app.post('/api/ai/llm-chat', async (req, res) => {
+  try {
+    const { message, userId, context } = req.body
+    
+    if (!message || !userId) {
+      return res.status(400).json({
+        response: '缺少必要参数',
+        intent: 'unknown',
+        nextContext: context || {}
+      })
+    }
+
+    // 检查API密钥
+    if (!llmService.hasApiKey()) {
+      return res.status(500).json({
+        response: '大模型API密钥未配置，请先设置OPENAI_API_KEY环境变量。',
+        intent: 'error',
+        nextContext: context || {}
+      })
+    }
+
+    // 调用大模型服务
+    const result = await llmService.processMessage(
+      message,
+      userId,
+      context || {
+        messages: [],
+        history: [],
+        workingPlan: null,
+        collectedData: {}
+      }
+    )
+
+    res.json({
+      response: result.response,
+      intent: result.intent,
+      nextContext: result.nextContext,
+      actionResult: result.actionResult
+    })
+  } catch (error: any) {
+    console.error('LLM chat error:', error)
+    res.status(500).json({
+      response: `大模型服务错误：${error.message}`,
+      intent: 'error',
+      nextContext: {},
+      actionResult: null
+    })
+  }
+})
+
+// 设置大模型API密钥（可选，用于运行时设置）
+app.post('/api/ai/llm/set-key', (req, res) => {
+  try {
+    const { apiKey } = req.body
+    if (!apiKey) {
+      return res.status(400).json({ success: false, message: 'API密钥不能为空' })
+    }
+    llmService.setApiKey(apiKey)
+    res.json({ success: true, message: 'API密钥设置成功' })
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message })
+  }
+})
+
+// 检查大模型配置状态
+app.get('/api/ai/llm/status', (req, res) => {
+  res.json({
+    hasApiKey: llmService.hasApiKey()
+  })
 })
 
 app.listen(PORT, () => {

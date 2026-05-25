@@ -15,7 +15,8 @@ export default function Inheritance() {
   const [step, setStep] = useState<'initiate' | 'collect' | 'verify' | 'complete'>('initiate')
 
   useEffect(() => {
-    const userStr = localStorage.getItem('user')
+    // 使用sessionStorage读取登录状态
+    const userStr = sessionStorage.getItem('user')
     if (!userStr) {
       navigate('/login')
       return

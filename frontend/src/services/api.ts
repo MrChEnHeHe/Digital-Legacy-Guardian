@@ -81,11 +81,6 @@ export const createLegacyPlan = async (data: any): Promise<LegacyPlan> => {
   }
 }
 
-export const createDemoPlan = async (data: any): Promise<LegacyPlan> => {
-  const response = await api.post('/demo/create', data)
-  return response.data
-}
-
 export const getLegacyPlans = async (userId?: string): Promise<LegacyPlan[]> => {
   const url = userId ? `/plans?userId=${userId}` : '/plans'
   const response = await api.get(url)

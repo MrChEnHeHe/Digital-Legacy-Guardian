@@ -5,7 +5,8 @@ const Navbar = () => {
   const location = useLocation()
   const navigate = useNavigate()
   
-  const userStr = typeof window !== 'undefined' ? localStorage.getItem('user') : null
+  // 使用sessionStorage存储登录状态（关闭浏览器后自动清除）
+  const userStr = typeof window !== 'undefined' ? sessionStorage.getItem('user') : null
   const user = userStr ? JSON.parse(userStr) : null
 
   const navItems = [
@@ -18,12 +19,14 @@ const Navbar = () => {
   ]
 
   const handleLogout = () => {
-    localStorage.removeItem('user')
+    // 只清除登录状态，保留对话历史等数据
+    sessionStorage.removeItem('user')
     navigate('/login')
   }
 
   const handleSwitchUser = () => {
-    localStorage.removeItem('user')
+    // 只清除登录状态，保留对话历史等数据
+    sessionStorage.removeItem('user')
     navigate('/login')
   }
 

@@ -2,7 +2,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Shield, Lock, Users, Clock, Zap, ShieldCheck, ArrowDown, CheckCircle } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useState, useEffect, useRef } from 'react'
-import { createDemoPlan } from '../services/api'
 
 const features = [
   {
@@ -51,7 +50,6 @@ const features = [
 
 export default function Home() {
   const navigate = useNavigate()
-  const [isLoading, setIsLoading] = useState(false)
   const [currentPage, setCurrentPage] = useState(0)
   const [autoPlayEnabled, setAutoPlayEnabled] = useState(true)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -59,71 +57,6 @@ export default function Home() {
 
   const totalPages = 8 // 首页 + 6个特点页 + 登录页
   const AUTO_PLAY_INTERVAL = 5000 // 5秒自动跳转
-
-  const generateDemoData = async () => {
-    try {
-      setIsLoading(true)
-      console.log('=== 开始生成演示数据 ===')
-      
-      // 检查模板文件是否存在
-      const response = await fetch('/demo-template.json')
-      console.log('模板文件请求状态:', response.status)
-      
-      if (!response.ok) {
-        throw new Error(`模板文件请求失败: ${response.status} ${response.statusText}`)
-      }
-      
-      const template = await response.json()
-      console.log('模板文件读取成功:', template)
-      
-      console.log('=== 演示模板文件位置 ===')
-      console.log('文件路径: c:/Users/36083/Desktop/digital_legacy/frontend/public/demo-template.json')
-      console.log('\n模板内容:')
-      console.log(JSON.stringify(template, null, 2))
-      
-      const planInfo = {
-        name: template.plan.name,
-        threshold: template.plan.threshold,
-        totalShares: template.plan.totalShares,
-        triggerMode: template.plan.triggerMode,
-        timeLock: template.plan.timeLock,
-        guardians: template.guardians,
-        assets: template.assets,
-      }
-
-      console.log('\n=== 准备创建演示计划 ===')
-      console.log('遗产计划信息:')
-      console.log(`- 计划名称: ${planInfo.name}`)
-      console.log(`- 门限配置: ${planInfo.threshold}-of-${planInfo.totalShares}`)
-      console.log(`- 触发模式: ${planInfo.triggerMode}`)
-      console.log(`- 时间锁: ${planInfo.timeLock}天`)
-      console.log('\n监护人信息:')
-      planInfo.guardians.forEach((g: any, i: number) => {
-        console.log(`${i + 1}. ${g.name} (${g.role})`)
-        console.log(`   - 监护人ID: ${g.id}`)
-        console.log(`   - 邮箱: ${g.email}`)
-      })
-      console.log('\n资产信息:')
-      planInfo.assets.forEach((a: any, i: number) => {
-        console.log(`${i + 1}. ${a.name} (${a.type})`)
-        console.log(`   - 详情: ${a.value}`)
-        console.log(`   - 描述: ${a.description}`)
-      })
-
-      console.log('\n=== 开始创建演示计划 ===')
-      const createdPlan = await createDemoPlan(planInfo)
-      console.log('\n=== 演示计划创建成功 ===')
-      console.log(`- 计划ID: ${createdPlan.id}`)
-      
-      // 直接跳转到控制台
-      navigate('/dashboard')
-    } catch (error) {
-      console.error('读取模板或创建演示计划失败:', error)
-      alert(`读取模板或创建演示计划失败: ${(error as Error).message}\n请检查控制台了解详情`)
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
   const nextPage = () => {
     if (currentPage < totalPages - 1) {
@@ -327,28 +260,6 @@ export default function Home() {
             </svg>
             创建遗产计划
           </Link>
-          <button
-            onClick={generateDemoData}
-            disabled={isLoading}
-            className="btn-secondary text-lg px-8 py-4 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-          >
-            {isLoading ? (
-              <>
-                <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                正在创建...
-              </>
-            ) : (
-              <>
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                生成演示数据
-              </>
-            )}
-          </button>
         </motion.div>
         
         <motion.div
@@ -415,14 +326,20 @@ export default function Home() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: currentPage === index + 1 ? 1 : 0, y: currentPage === index + 1 ? 0 : 30 }}
                 transition={{ delay: 0.6, duration: 0.8 }}
-                className="flex justify-center"
+                className="flex justify-center space-x-4"
               >
                 <button 
                   onClick={nextPage}
+                  className="btn-secondary px-8 py-3"
+                >
+                  {index === features.length - 1 ? '返回首页' : '了解下一个特点'}
+                </button>
+                <Link 
+                  to="/login"
                   className="btn-primary px-8 py-3"
                 >
-                  {index === features.length - 1 ? '立即开始' : '了解下一个特点'}
-                </button>
+                  立即开始
+                </Link>
               </motion.div>
             </motion.div>
           </motion.div>

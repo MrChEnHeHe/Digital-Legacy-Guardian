@@ -14,7 +14,8 @@ export default function Guardian() {
   const [submitted, setSubmitted] = useState(false)
 
   useEffect(() => {
-    const userStr = localStorage.getItem('user')
+    // 使用sessionStorage读取登录状态
+    const userStr = sessionStorage.getItem('user')
     if (!userStr) {
       navigate('/login')
       return

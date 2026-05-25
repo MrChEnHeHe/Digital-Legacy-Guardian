@@ -11,7 +11,8 @@ import Login from './pages/Login'
 import AIHelper from './pages/AIHelper'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const user = localStorage.getItem('user')
+  // 使用sessionStorage检查登录状态
+  const user = sessionStorage.getItem('user')
   if (!user) {
     return <Navigate to="/login" replace />
   }

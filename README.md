@@ -87,6 +87,57 @@ npm run dev
 
 打开浏览器访问：http://localhost:5173
 
+### 环境变量配置
+
+> **注意**：环境变量配置文件不包含在GitHub源码中，需要手动创建。
+
+#### 创建后端环境配置文件
+
+在 `backend/.env` 文件中添加以下配置：
+
+```env
+# 服务器配置
+PORT=3000
+NODE_ENV=development
+
+# Deepseek AI API配置（用于AI助手功能）
+DEEPSEEK_API_KEY=your-deepseek-api-key
+DEEPSEEK_API_URL=https://api.deepseek.com/v1
+DEEPSEEK_MODEL=deepseek-chat
+
+# 密码学配置
+PRIME_NUMBER=115792089237316195423570985008687907853269984665640564039457584007913129639747
+FIELD_SIZE=256
+
+# 智能合约配置
+CONTRACT_ADDRESS=0x0000000000000000000000000000000000000000
+CHAIN_ID=1
+
+# IPFS配置（模拟）
+IPFS_GATEWAY=https://ipfs.io/ipfs/
+
+# 邮件服务配置（用于发送份额通知和继承通知）
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_USER=your-email@example.com
+SMTP_PASS=your-email-password
+SMTP_FROM=your-email@example.com
+```
+
+#### 配置说明
+
+| 配置项 | 说明 | 必填 |
+|--------|------|------|
+| `PORT` | 后端服务端口 | 是 |
+| `DEEPSEEK_API_KEY` | Deepseek大模型API密钥 | AI助手功能需要 |
+| `SMTP_HOST` | SMTP邮件服务器地址 | 邮件通知功能需要 |
+| `SMTP_USER` | 邮件账号 | 邮件通知功能需要 |
+| `SMTP_PASS` | 邮件密码/授权码 | 邮件通知功能需要 |
+
+#### 获取API密钥
+
+1. **Deepseek API**：访问 [Deepseek官网](https://platform.deepseek.com/) 注册获取API密钥
+
 ### 快速演示
 
 1. **创建遗产计划**：添加数字资产、监护人，设置触发条件
@@ -310,7 +361,7 @@ digital_legacy/
 
 - 项目主页：[GitHub Repository](../../)
 - 问题反馈：[GitHub Issues](../../issues)
-- 邮箱：support@example.com
+- 邮箱：21532665643@qq.com
 
 ---
 

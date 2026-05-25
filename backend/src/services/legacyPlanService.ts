@@ -384,6 +384,11 @@ class LegacyPlanService {
       return { success: false, message: 'Plan not found' }
     }
 
+    // 验证份额值不为空
+    if (!data.shareValue || data.shareValue.trim() === '') {
+      return { success: false, message: '份额值不能为空' }
+    }
+
     const guardianIndex = plan.guardians.findIndex((g) => g.id === data.guardianId)
     if (guardianIndex === -1) {
       return { success: false, message: 'Guardian not found' }
@@ -485,70 +490,6 @@ class LegacyPlanService {
       planId: plan.id,
       assets: decryptedAssets,
     })
-  }
-
-  async createDemoPlan(data: {
-    name: string
-    threshold: number
-    totalShares: number
-    triggerMode: 'consensus' | 'timed'
-    timeLock: number
-    guardians: any[]
-    assets: any[]
-  }): Promise<LegacyPlan> {
-    const masterKey = shamirSecretSharing.generateMasterKey()
-    const shares = shamirSecretSharing.split(masterKey, data.totalShares, data.threshold)
-    const encryptedAssets = shamirSecretSharing.encryptAsset(data.assets, masterKey)
-    
-    // 将 Share 转换为 StoredShare（移除 value 字段）
-    const storedShares: StoredShare[] = shares.map(share => ({
-      id: share.id,
-      index: share.index,
-      commitment: share.commitment
-    }))
-    
-    const plan: LegacyPlan = {
-      id: data.name + '-' + Date.now(),
-      name: data.name,
-      assets: data.assets,
-      guardians: data.guardians,
-      threshold: data.threshold,
-      totalShares: data.totalShares,
-      triggerMode: data.triggerMode,
-      timeLock: data.timeLock,
-      shares: storedShares,
-      encryptedAssets,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      status: 'active',
-    }
-
-    this.plans.set(plan.id, plan)
-    this.saveData()
-
-    console.log('=== 演示计划创建成功 ===')
-    console.log('遗产计划信息:')
-    console.log(`- 计划ID: ${plan.id}`)
-    console.log(`- 计划名称: ${plan.name}`)
-    console.log(`- 门限配置: ${plan.threshold}-of-${plan.totalShares}`)
-    console.log(`- 触发模式: ${plan.triggerMode}`)
-    console.log(`- 时间锁: ${plan.timeLock}天`)
-    console.log('\n监护人信息:')
-    data.guardians.forEach((g, i) => {
-      console.log(`${i + 1}. ${g.name} (${g.role})`)
-      console.log(`   - 监护人ID: ${g.id}`)
-      console.log(`   - 邮箱: ${g.email}`)
-    })
-    console.log('\n资产信息:')
-    data.assets.forEach((a, i) => {
-      console.log(`${i + 1}. ${a.name} (${a.type})`)
-      console.log(`   - 详情: ${a.value}`)
-      console.log(`   - 描述: ${a.description}`)
-    })
-
-    await this.sendShareEmails(plan, shares)
-
-    return plan
   }
 
   getInheritanceStatus(planId: string): any {
