@@ -8,6 +8,20 @@
 
 ---
 
+## ZKP 可验证性
+
+本项目已为 Shamir Secret Sharing（SSS）加入可验证性机制：新建遗产计划时，系统不再只保存简单哈希承诺，而是为每个份额生成公开验证材料，包括：
+
+- `commitment`：份额值的椭圆曲线承诺 `Y_i = y_i * G`
+- `polynomialCommitments`：Feldman VSS 多项式系数承诺 `A_j = a_j * G`
+- `proof`：非交互式 Schnorr 证明，用于证明提交者知道该份额值，且不需要提前把份额明文存到服务端
+
+监护人提交份额时，后端会调用 `verifyShareProof` 校验三件事：份额值是否匹配承诺、份额是否符合原多项式承诺、Schnorr proof 是否有效。篡改任意一位 share value 都会被拒绝，只有通过验证的份额才能进入 master key 恢复流程。
+
+详细设计见：[SSS ZKP Verifiability](./docs/ZKP_VERIFIABILITY.md)。
+
+---
+
 ## 📋 目录
 
 - [项目概述](#项目概述)

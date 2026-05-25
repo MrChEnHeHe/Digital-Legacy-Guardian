@@ -1,4 +1,4 @@
-import { shamirSecretSharing, Share, StoredShare } from '../crypto/shamir'
+import { combineLegacyShares, shamirSecretSharing, Share, StoredShare } from '../crypto/shamir'
 import { v4 as uuidv4 } from 'uuid'
 import { emailService } from './emailService'
 import * as fs from 'fs'
@@ -149,7 +149,9 @@ class LegacyPlanService {
       const storedShares: StoredShare[] = shares.map(share => ({
         id: share.id,
         index: share.index,
-        commitment: share.commitment
+        commitment: share.commitment,
+        proof: share.proof,
+        polynomialCommitments: share.polynomialCommitments
       }))
 
       // 处理资产数据，只保留非敏感信息
@@ -404,9 +406,9 @@ class LegacyPlanService {
       commitment: storedShare.commitment
     }
     
-    const isValid = shamirSecretSharing.verifyCommitment(tempShare, storedShare.commitment)
+    const isValid = shamirSecretSharing.verifyShareProof(tempShare, storedShare)
     if (!isValid) {
-      return { success: false, message: 'Invalid share value' }
+      return { success: false, message: 'Invalid share value or zero-knowledge proof' }
     }
 
     // 查找最新的继承请求（状态不是 completed）
@@ -442,7 +444,10 @@ class LegacyPlanService {
         plan.updatedAt = new Date().toISOString()
         
         // 从提交的份额恢复主密钥
-        const masterKey = shamirSecretSharing.combine(request.submittedShares)
+        const masterKey = request.submittedShares.some((share) => {
+          const storedShare = plan.shares.find((s) => s.id === share.id && s.index === share.index)
+          return storedShare?.proof || storedShare?.polynomialCommitments?.length
+        }) ? shamirSecretSharing.combine(request.submittedShares) : combineLegacyShares(request.submittedShares)
         
         // 使用主密钥解密资产
         const decryptedAssets = shamirSecretSharing.decryptAsset(plan.encryptedAssets, masterKey)
@@ -496,6 +501,16 @@ class LegacyPlanService {
     guardians: any[]
     assets: any[]
   }): Promise<LegacyPlan> {
+    if (!data.guardians || data.guardians.length === 0) {
+      throw new Error('Demo plan requires at least one guardian')
+    }
+    if (data.threshold < 1 || data.threshold > data.totalShares) {
+      throw new Error('Demo threshold must be between 1 and totalShares')
+    }
+    if (data.totalShares > data.guardians.length) {
+      throw new Error('Demo totalShares cannot exceed guardian count')
+    }
+
     const masterKey = shamirSecretSharing.generateMasterKey()
     const shares = shamirSecretSharing.split(masterKey, data.totalShares, data.threshold)
     const encryptedAssets = shamirSecretSharing.encryptAsset(data.assets, masterKey)
@@ -504,7 +519,9 @@ class LegacyPlanService {
     const storedShares: StoredShare[] = shares.map(share => ({
       id: share.id,
       index: share.index,
-      commitment: share.commitment
+      commitment: share.commitment,
+      proof: share.proof,
+      polynomialCommitments: share.polynomialCommitments
     }))
     
     const plan: LegacyPlan = {
@@ -604,7 +621,17 @@ class LegacyPlanService {
     }
 
     // 从份额恢复主密钥
-    const masterKey = shamirSecretSharing.combine(shares)
+    for (const share of shares) {
+      const storedShare = plan.shares.find((s) => s.index === share.index && s.id === share.id)
+      if (!storedShare || !shamirSecretSharing.verifyShareProof(share, storedShare)) {
+        throw new Error(`Invalid share proof for share #${share.index}`)
+      }
+    }
+
+    const masterKey = shares.some((share) => {
+      const storedShare = plan.shares.find((s) => s.id === share.id && s.index === share.index)
+      return storedShare?.proof || storedShare?.polynomialCommitments?.length
+    }) ? shamirSecretSharing.combine(shares) : combineLegacyShares(shares)
     
     // 使用主密钥解密资产
     const assets = shamirSecretSharing.decryptAsset(plan.encryptedAssets, masterKey)

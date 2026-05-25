@@ -81,13 +81,26 @@ export default function Home() {
       console.log('\n模板内容:')
       console.log(JSON.stringify(template, null, 2))
       
+      const userStr = localStorage.getItem('user')
+      const currentUser = userStr ? JSON.parse(userStr) : null
+      const guardians = [...template.guardians]
+
+      if (currentUser) {
+        guardians[0] = {
+          ...guardians[0],
+          id: currentUser.id,
+          name: currentUser.name,
+          email: currentUser.email,
+        }
+      }
+
       const planInfo = {
         name: template.plan.name,
         threshold: template.plan.threshold,
         totalShares: template.plan.totalShares,
         triggerMode: template.plan.triggerMode,
         timeLock: template.plan.timeLock,
-        guardians: template.guardians,
+        guardians,
         assets: template.assets,
       }
 
