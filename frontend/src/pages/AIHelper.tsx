@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence, AnimateSharedLayout } from 'framer-motion';
-import { Send, Brain, User, ArrowLeft, Sparkles, MessageSquare, Plus, Trash2, ChevronRight } from 'lucide-react';
+import { Send, Brain, User, ArrowLeft, Sparkles, MessageSquare, Plus, Trash2, ChevronRight, Paperclip, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface ChatMessage {
@@ -38,6 +38,8 @@ export default function AIHelper() {
   const [editingTitle, setEditingTitle] = useState('');
   const [openMenuSessionId, setOpenMenuSessionId] = useState<string | null>(null);
   const [pinnedSessionId, setPinnedSessionId] = useState<string | null>(null);
+  const [uploadingFile, setUploadingFile] = useState(false);
+  const [uploadedFileInfo, setUploadedFileInfo] = useState<{ fileId: string; name: string; size: number } | null>(null);
   
   const navigate = useNavigate();
 
@@ -93,6 +95,7 @@ export default function AIHelper() {
   }, [sessions]);
 
   const createNewSession = () => {
+    setUploadedFileInfo(null);
     const newSession: ChatSession = {
       id: Date.now().toString(),
       title: '新对话',
@@ -189,6 +192,13 @@ export default function AIHelper() {
       newTitle = inputValue.substring(0, 30) + (inputValue.length > 30 ? '...' : '');
     }
 
+    // 处理待上传的文件
+    let fileDataToSend: any = null;
+    if (uploadedFileInfo) {
+      fileDataToSend = { fileId: uploadedFileInfo.fileId };
+      setUploadedFileInfo(null); // 发送后清除
+    }
+
     const updatedSession: ChatSession = {
       ...currentSession,
       title: newTitle,
@@ -202,14 +212,19 @@ export default function AIHelper() {
     setIsLoading(true);
 
     try {
+      const requestBody: any = {
+        message: inputValue,
+        userId: currentUser.id,
+        context: currentSession.context
+      };
+      if (fileDataToSend) {
+        requestBody.fileData = fileDataToSend;
+      }
+
       const response = await fetch('http://localhost:3000/api/ai/llm-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: inputValue,
-          userId: currentUser.id,
-          context: currentSession.context
-        })
+        body: JSON.stringify(requestBody)
       });
 
       const data = await response.json();
@@ -257,6 +272,64 @@ export default function AIHelper() {
       e.preventDefault();
       sendMessage();
     }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // 限制文件大小 10MB
+    const maxSize = 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+      alert('文件大小不能超过 10MB');
+      return;
+    }
+
+    // 限制文件类型
+    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'text/plain', 'application/json', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    if (!allowedTypes.includes(file.type)) {
+      alert('不支持的文件类型，请选择 PDF、图片、文本或文档文件');
+      return;
+    }
+
+    setUploadingFile(true);
+
+    try {
+      const reader = new FileReader();
+      const base64Content = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      // 上传文件到服务器
+      const response = await fetch('http://localhost:3000/api/ai/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          content: base64Content
+        })
+      });
+
+      const result = await response.json();
+      if (result.fileId) {
+        setUploadedFileInfo({ fileId: result.fileId, name: file.name, size: file.size });
+        // 清空文件输入
+        e.target.value = '';
+      }
+    } catch (error) {
+      console.error('文件上传失败:', error);
+      alert('文件上传失败，请重试');
+    } finally {
+      setUploadingFile(false);
+    }
+  };
+
+  const cancelFileUpload = () => {
+    setUploadedFileInfo(null);
   };
 
   useEffect(() => {
@@ -620,7 +693,43 @@ export default function AIHelper() {
 
             {/* 输入区域 */}
             <div className="bg-white rounded-2xl shadow-lg p-4">
+              {/* 已上传文件的提示条 */}
+              {uploadedFileInfo && (
+                <div className="flex items-center justify-between mb-3 px-4 py-2 bg-purple-50 rounded-lg border border-purple-100">
+                  <div className="flex items-center gap-2 text-sm text-purple-700">
+                    <Paperclip className="h-4 w-4" />
+                    <span className="font-medium">{uploadedFileInfo.name}</span>
+                    <span className="text-purple-400">({(uploadedFileInfo.size / 1024).toFixed(1)} KB)</span>
+                    <span className="text-purple-400">— 发送消息后自动添加到当前计划</span>
+                  </div>
+                  <button onClick={cancelFileUpload} className="p-1 hover:bg-purple-100 rounded transition-colors">
+                    <X className="h-4 w-4 text-purple-400" />
+                  </button>
+                </div>
+              )}
+
               <div className="flex gap-3">
+                {/* 文件上传按钮 */}
+                <input
+                  type="file"
+                  id="ai-file-upload"
+                  className="hidden"
+                  onChange={handleFileUpload}
+                  accept=".pdf,.jpg,.jpeg,.png,.txt,.json,.doc,.docx"
+                />
+                <button
+                  onClick={() => document.getElementById('ai-file-upload')?.click()}
+                  disabled={isLoading || uploadingFile}
+                  className="px-3 py-3 bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 disabled:opacity-50 transition-all flex items-center"
+                  title="上传文件"
+                >
+                  {uploadingFile ? (
+                    <div className="h-5 w-5 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Paperclip className="h-5 w-5 text-gray-500" />
+                  )}
+                </button>
+
                 <input
                   type="text"
                   value={inputValue}
@@ -639,7 +748,7 @@ export default function AIHelper() {
                   <span className="hidden sm:inline">发送</span>
                 </button>
               </div>
-              
+
               <div className="flex flex-wrap gap-2 mt-4">
                 {['创建一个名为"我的遗产"的计划', '帮我查看所有计划', '继承计划ID xxx', '提交份额', '帮助'].map((cmd) => (
                   <button

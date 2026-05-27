@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { getLegacyPlans, getInheritanceStatus, deleteLegacyPlan } from '../services/api'
+import { getLegacyPlans, getInheritedPlans, getInheritanceStatus, deleteLegacyPlan } from '../services/api'
 import { Activity, Shield, Clock, Users, AlertCircle, Edit, Trash2, LogOut, PlusCircle, Heart } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 export default function Dashboard() {
   const [plans, setPlans] = useState<any[]>([])
+  const [inheritedPlans, setInheritedPlans] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedPlans, setSelectedPlans] = useState<any>({
     created: null,
@@ -48,8 +49,12 @@ export default function Dashboard() {
 
   const loadPlans = async (userId?: string) => {
     try {
-      const data = await getLegacyPlans(userId)
+      const [data, inherited] = await Promise.all([
+        getLegacyPlans(userId),
+        userId ? getInheritedPlans(userId) : Promise.resolve([]),
+      ])
       setPlans(data)
+      setInheritedPlans(inherited)
     } catch (error) {
       console.error('Failed to load plans:', error)
     } finally {
@@ -202,7 +207,7 @@ export default function Dashboard() {
 
   // 分类计划
   const createdPlans = plans.filter(plan => plan.creatorId === currentUser?.id)
-  const inheritorPlans = plans.filter(plan => plan.heirId === currentUser?.id)
+  const inheritorPlans = inheritedPlans
   const guardianPlans = plans.filter(plan => plan.guardians?.some(guardian => guardian.id === currentUser?.id))
 
   return (

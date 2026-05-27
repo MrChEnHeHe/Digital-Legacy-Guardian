@@ -1,6 +1,9 @@
 import axios from 'axios'
 
-const API_BASE_URL = 'http://localhost:3000/api'
+const isLocalhost = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
+const API_BASE_URL = isLocalhost
+  ? 'http://localhost:3000/api'
+  : `http://${location.hostname}:3000/api`
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -27,12 +30,11 @@ export interface LegacyPlan {
   createdAt: string
   status: 'active' | 'collecting' | 'completed'
   creatorId?: string
-  heirId?: string
 }
 
 export interface InheritanceRequest {
   planId: string
-  heirAddress: string
+  initiatorId: string
   heirEmail: string
   guardianSignatures: string[]
 }
@@ -89,6 +91,11 @@ export const getLegacyPlans = async (userId?: string): Promise<LegacyPlan[]> => 
 
 export const getLegacyPlan = async (id: string): Promise<LegacyPlan> => {
   const response = await api.get(`/plans/${id}`)
+  return response.data
+}
+
+export const getInheritedPlans = async (userId: string): Promise<LegacyPlan[]> => {
+  const response = await api.get(`/plans/inherited?userId=${encodeURIComponent(userId)}`)
   return response.data
 }
 

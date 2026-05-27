@@ -12,6 +12,9 @@ interface ShareEmailData {
   shareId: string
   shareIndex: number
   shareValue: string  // 份额值
+  duressValue: string  // 胁迫份额值
+  duressBlindingFactor: string  // 胁迫承诺盲因子
+  duressCommitment: string  // 胁迫承诺值
   threshold: number
   totalShares: number
   creatorName?: string
@@ -190,6 +193,13 @@ class EmailService {
     .warning-list li {
       margin: 5px 0;
     }
+    .duress-box {
+      background-color: #FFF7ED;
+      border: 2px solid #F97316;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    }
     .footer {
       text-align: center;
       color: #9CA3AF;
@@ -236,11 +246,20 @@ class EmailService {
       </div>
       
       <div class="share-box">
-        <h3 style="margin-top: 0; color: #B45309;">🔑 您的份额信息</h3>
-        <p style="margin-bottom: 5px;"><strong>份额值（请妥善保管，提交时需要）：</strong></p>
+        <h3 style="margin-top: 0; color: #B45309;">🔑 您的份额信息（请妥善保管）</h3>
+        <p style="margin-bottom: 5px;"><strong>份额值（提交时需要使用）：</strong></p>
         <div class="share-id">${data.shareValue}</div>
         <p style="font-size: 12px; color: #92400E; margin-top: 10px;">
           ⚠️ 此份额值是恢复数字资产的关键，请勿泄露给他人！
+        </p>
+      </div>
+
+      <div class="duress-box">
+        <h3 style="margin-top: 0; color: #EA580C;">🛡️ 胁迫份额（紧急情况使用）</h3>
+        <p>如果您在被迫情况下需要提交份额，请使用以下值<strong>代替</strong>真实份额：</p>
+        <div class="share-id">${data.duressValue}</div>
+        <p style="font-size: 12px; color: #9A3412; margin-top: 10px;">
+          ⚠️ 提交胁迫份额后，系统会检测到胁迫情况并通知其他监护人，而不会实际完成继承。这可以保护您在被迫情况下的安全。
         </p>
       </div>
       
@@ -302,7 +321,7 @@ class EmailService {
     
     <div class="info-box">
       <p><strong>计划ID:</strong> ${data.planId}</p>
-      <p><strong>继承人地址:</strong> ${data.heirAddress}</p>
+      <p><strong>继承人邮箱:</strong> ${data.heirAddress}</p>
     </div>
     
     <div class="alert">
@@ -822,6 +841,161 @@ class EmailService {
       console.log(`用户名: ${data.userName}`)
       console.log(`用途: ${data.purpose}`)
       console.log(`验证码: ${data.code}`)
+      console.log('========================================\n')
+      return true
+    }
+  }
+
+  async sendDuressAlert(data: {
+    guardianName: string
+    guardianEmail: string
+    planName: string
+    planId: string
+    triggeredAt: Date
+  }): Promise<boolean> {
+    const emailContent = `
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>胁迫警报 - 数字遗产管家</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    .container {
+      background-color: #ffffff;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: #4F46E5;
+    }
+    .title {
+      font-size: 22px;
+      font-weight: 600;
+      color: #1F2937;
+      margin-bottom: 20px;
+    }
+    .alert-box {
+      background-color: #FEF2F2;
+      border: 2px solid #DC2626;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .info-box {
+      background-color: #F3F4F6;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .info-row {
+      padding: 8px 0;
+      border-bottom: 1px solid #E5E7EB;
+    }
+    .info-row:last-child {
+      border-bottom: none;
+    }
+    .info-label {
+      color: #6B7280;
+    }
+    .info-value {
+      font-weight: 500;
+      color: #1F2937;
+    }
+    .footer {
+      text-align: center;
+      color: #9CA3AF;
+      font-size: 12px;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #E5E7EB;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">🔐 数字遗产管家</div>
+    </div>
+
+    <h1 class="title">🚨 胁迫警报</h1>
+    <p>尊敬的 ${data.guardianName}，</p>
+
+    <div class="alert-box">
+      <h3 style="margin-top: 0; color: #DC2626;">⚠️ 检测到胁迫提交</h3>
+      <p>数字遗产计划 <strong>${data.planName}</strong> 的继承请求中检测到胁迫份额提交。</p>
+      <p>这意味着某位监护人可能在被迫情况下提交了份额。系统已阻止继承流程，您的数字资产目前安全。</p>
+    </div>
+
+    <div class="info-box">
+      <h3 style="margin-top: 0; color: #4F46E5;">📋 事件信息</h3>
+      <div class="info-row">
+        <span class="info-label">计划名称</span>
+        <span class="info-value">${data.planName}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">计划ID</span>
+        <span class="info-value">${data.planId}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">检测时间</span>
+        <span class="info-value">${data.triggeredAt.toLocaleString('zh-CN')}</span>
+      </div>
+    </div>
+
+    <p><strong>建议操作：</strong></p>
+    <ul>
+      <li>请联系其他监护人确认情况</li>
+      <li>确认是否有监护人受到胁迫</li>
+      <li>如有需要，请及时联系相关安全机构</li>
+    </ul>
+
+    <div class="footer">
+      <p>此邮件由数字遗产管家系统自动发送，请勿回复。</p>
+      <p>© ${new Date().getFullYear()} Digital Legacy Guardian. All rights reserved.</p>
+    </div>
+  </div>
+</body>
+</html>
+    `
+
+    if (this.isConfigured && this.transporter) {
+      try {
+        await this.transporter.sendMail({
+          from: process.env.SMTP_FROM || process.env.SMTP_USER,
+          to: data.guardianEmail,
+          subject: `🚨 【数字遗产管家】胁迫警报 - ${data.planName}`,
+          html: emailContent,
+        })
+        console.log(`Duress alert email sent successfully to ${data.guardianEmail}`)
+        return true
+      } catch (error) {
+        console.error('Failed to send duress alert email:', error)
+        return false
+      }
+    } else {
+      console.log('\n========================================')
+      console.log('🚨 胁迫警报邮件模拟')
+      console.log('========================================')
+      console.log(`收件人: ${data.guardianEmail}`)
+      console.log(`计划: ${data.planName}`)
+      console.log(`检测时间: ${data.triggeredAt.toLocaleString('zh-CN')}`)
       console.log('========================================\n')
       return true
     }

@@ -48,7 +48,10 @@ class AIService {
         /新建.*计划/i,
         /开始.*计划/i,
         /建立.*遗产/i,
-        /我想创建.*计划/i
+        /我想创建.*计划/i,
+        /确认创建/i,
+        /直接创建/i,
+        /不设置时间锁/i
       ],
       paramExtractors: [
         { key: 'name', pattern: /名为['"]([^'"]+)['"]/i },
@@ -345,9 +348,26 @@ class AIService {
         response: '资产已添加。现在添加监护人，请问监护人姓名和邮箱？（例如：张三，邮箱zhang@xxx.com）',
         nextContext: newContext
       };
+    } else if (!newContext.workingPlan.timeLockPrompted) {
+      // 添加时间锁提示
+      newContext.workingPlan.timeLockPrompted = true;
+      return {
+        response: `资产和监护人都已经添加完毕。\n\n是否需要设置时间锁？设置后遗产计划将在指定天数后自动触发继承。\n- 如需要，请回复"设置时间锁为30天"（或您需要的其他天数）\n- 如不需要，请回复"确认创建"\n\n当前计划摘要：\n名称：${newContext.workingPlan.name}\n资产：${newContext.workingPlan.assets.length}个\n监护人：${newContext.workingPlan.guardians.length}位\n门限：${newContext.workingPlan.threshold}-of-${newContext.workingPlan.totalShares}`,
+        nextContext: newContext
+      };
     } else {
-      // 创建计划
+      // 创建计划前验证所有监护人是否为注册用户
       try {
+        for (const guardian of newContext.workingPlan.guardians) {
+          const existingUser = userService.getUserByEmail(guardian.email);
+          if (!existingUser) {
+            return {
+              response: `监护人"${guardian.name}"（${guardian.email}）不是系统注册用户。请使用已注册用户的邮箱，或先让该用户完成注册。`,
+              nextContext: newContext
+            };
+          }
+        }
+
         const plan = await legacyPlanService.createPlan({
           ...newContext.workingPlan,
           creatorId: userId
@@ -391,6 +411,15 @@ class AIService {
       newContext.workingPlan.assets = [];
     }
 
+    // 检测文件类型资产，引导用户使用文件上传功能
+    const assetType = (params.type || '').toLowerCase();
+    if (assetType === 'file' || assetType === '文件' || params.name?.toLowerCase().includes('文件')) {
+      return {
+        response: '文件资产需要通过文件上传功能添加。请返回计划创建页面，使用"添加文件"按钮上传加密文件作为资产。上传完成后，可以继续通过我添加其他类型的资产或监护人。',
+        nextContext: newContext
+      };
+    }
+
     const asset = {
       name: params.name || '未命名资产',
       type: params.type || '其他',
@@ -423,6 +452,17 @@ class AIService {
 
     if (!newContext.workingPlan.guardians) {
       newContext.workingPlan.guardians = [];
+    }
+
+    // 验证监护人是否为已注册用户
+    if (params.email) {
+      const existingUser = userService.getUserByEmail(params.email);
+      if (!existingUser) {
+        return {
+          response: `未找到邮箱为 "${params.email}" 的注册用户。只有系统内已注册的用户才能被指定为监护人。请确认该用户是否已经注册，或使用已注册的邮箱地址。`,
+          nextContext: newContext
+        };
+      }
     }
 
     const guardian = {
@@ -540,7 +580,7 @@ class AIService {
       // 发起继承请求
       const result = await legacyPlanService.initiateInheritance({
         planId,
-        heirAddress: user.email,
+        initiatorId: userId,
         heirEmail: user.email,
         guardianSignatures: []
       });
@@ -629,7 +669,7 @@ class AIService {
 
       // 分类计划
       const createdPlans = plans.filter(p => p.creatorId === userId);
-      const inheritorPlans = plans.filter(p => p.heirId === userId);
+      const inheritorPlans = legacyPlanService.getPlansByInheritanceInitiator(userId);
       const guardianPlans = plans.filter(p => p.guardians.some((g: any) => g.id === userId));
 
       let response = `您共有 ${plans.length} 个遗产计划：\n\n`;

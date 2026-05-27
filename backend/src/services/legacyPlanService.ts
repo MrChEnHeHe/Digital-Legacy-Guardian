@@ -63,13 +63,14 @@ export interface LegacyPlan {
 export interface InheritanceRequest {
   id: string
   planId: string
-  heirAddress: string
-  heirEmail?: string
+  initiatorId: string  // 发起继承请求的用户ID
+  heirEmail: string     // 继承人邮箱
   guardianSignatures: string[]
   sharesCollected: number
   submittedGuardians: string[]
   submittedShares?: Share[]  // 存储提交的份额值（仅存在于内存中，不持久化）
-  status: 'pending' | 'collecting' | 'verifying' | 'completed'
+  hasDuress: boolean  // 是否检测到胁迫提交
+  status: 'pending' | 'collecting' | 'verifying' | 'completed' | 'duress'
   createdAt: string
   updatedAt: string
 }
@@ -145,12 +146,45 @@ class LegacyPlanService {
       const shares = shamirSecretSharing.split(masterKey, data.totalShares, data.threshold)
       const encryptedAssets = shamirSecretSharing.encryptAsset(data.assets, masterKey)
 
-      // 将 Share 转换为 StoredShare（移除 value 字段）
-      const storedShares: StoredShare[] = shares.map(share => ({
-        id: share.id,
-        index: share.index,
-        commitment: share.commitment
-      }))
+      // 将 Share 转换为 StoredShare（移除 value 字段），同时生成密码学材料
+      const storedShares: StoredShare[] = []
+      const shareEmailDataList: Array<{
+        guardian: any
+        shareValue: string
+        blindingFactor: string
+        duressValue: string
+        duressBlindingFactor: string
+        duressCommitment: string
+      }> = []
+
+      for (let i = 0; i < data.totalShares; i++) {
+        const share = shares[i]
+        const guardian = data.guardians[i]
+
+        // 1. 生成 Pedersen 承诺（完美隐藏 + 计算绑定）
+        const pedersen = shamirSecretSharing.generatePedersenCommitment(share.value)
+
+        // 2. 生成胁迫码信息（用于胁迫场景）
+        const duressInfo = shamirSecretSharing.generateDuressInfo()
+
+        storedShares.push({
+          id: share.id,
+          index: share.index,
+          commitment: pedersen.commitment,
+          blindingFactor: pedersen.blindingFactor,
+          duressCommitment: duressInfo.duressCommitment,
+          duressBlindingFactor: duressInfo.duressBlindingFactor,
+        })
+
+        shareEmailDataList.push({
+          guardian,
+          shareValue: share.value,
+          blindingFactor: pedersen.blindingFactor,
+          duressValue: duressInfo.duressValue,
+          duressBlindingFactor: duressInfo.duressBlindingFactor,
+          duressCommitment: duressInfo.duressCommitment,
+        })
+      }
 
       // 处理资产数据，只保留非敏感信息
       const processedAssets = data.assets.map(asset => {
@@ -197,8 +231,8 @@ class LegacyPlanService {
       this.plans.set(plan.id, plan)
       this.saveData()
 
-      // 发送邮件时包含完整的份额值
-      this.sendShareEmails(plan, shares)
+      // 发送邮件时包含完整的份额值及密码学材料（盲因子、私钥、胁迫码）
+      this.sendShareEmails(plan, shareEmailDataList)
 
       return plan
     } catch (error: any) {
@@ -207,13 +241,23 @@ class LegacyPlanService {
     }
   }
 
-  private async sendShareEmails(plan: LegacyPlan, sharesWithValue?: Share[]): Promise<void> {
+  private async sendShareEmails(
+    plan: LegacyPlan,
+    emailDataList: Array<{
+      guardian: any
+      shareValue: string
+      blindingFactor: string
+      duressValue: string
+      duressBlindingFactor: string
+      duressCommitment: string
+    }>
+  ): Promise<void> {
     for (let i = 0; i < plan.guardians.length; i++) {
       const guardian = plan.guardians[i]
       const storedShare = plan.shares[i]
-      const fullShare = sharesWithValue?.[i]
+      const emailData = emailDataList[i]
 
-      if (guardian.email && storedShare && fullShare) {
+      if (guardian.email && storedShare && emailData) {
         await emailService.sendShareEmail({
           guardianName: guardian.name,
           guardianEmail: guardian.email,
@@ -222,7 +266,10 @@ class LegacyPlanService {
           planId: plan.id,
           shareId: storedShare.id,
           shareIndex: storedShare.index,
-          shareValue: fullShare.value,  // 发送份额值给监护人
+          shareValue: emailData.shareValue,
+          duressValue: emailData.duressValue,
+          duressBlindingFactor: emailData.duressBlindingFactor,
+          duressCommitment: emailData.duressCommitment,
           threshold: plan.threshold,
           totalShares: plan.totalShares,
         })
@@ -241,11 +288,20 @@ class LegacyPlanService {
   getUserPlans(userId: string): LegacyPlan[] {
     return Array.from(this.plans.values()).filter(plan => {
       if (plan.creatorId === userId) return true
-      if (plan.heirId === userId) return true
       const isGuardian = plan.guardians.some((g: any) => g.id === userId)
       if (isGuardian) return true
       return false
     })
+  }
+
+  getPlansByInheritanceInitiator(userId: string): LegacyPlan[] {
+    const planIds = new Set<string>()
+    for (const request of this.inheritanceRequests.values()) {
+      if (request.initiatorId === userId) {
+        planIds.add(request.planId)
+      }
+    }
+    return Array.from(planIds).map(id => this.plans.get(id)).filter(Boolean) as LegacyPlan[]
   }
 
   updatePlan(id: string, updates: Partial<LegacyPlan>): LegacyPlan | undefined {
@@ -294,7 +350,7 @@ class LegacyPlanService {
 
   initiateInheritance(data: {
     planId: string
-    heirAddress: string
+    initiatorId: string
     heirEmail: string
     guardianSignatures: string[]
   }): InheritanceRequest {
@@ -303,8 +359,8 @@ class LegacyPlanService {
       throw new Error('Plan not found')
     }
 
-    if (plan.status !== 'active') {
-      throw new Error('Plan is not active')
+    if (plan.status === 'completed') {
+      throw new Error('该计划已完成继承，不能再发起新的继承请求')
     }
 
     // 检查时间锁是否到期
@@ -314,19 +370,19 @@ class LegacyPlanService {
         const now = new Date()
         const totalMilliseconds = plan.timeLock * 24 * 60 * 60 * 1000
         const elapsedMilliseconds = now.getTime() - createdAt.getTime()
-        
+
         if (elapsedMilliseconds < totalMilliseconds) {
           const remainingDays = Math.floor((totalMilliseconds - elapsedMilliseconds) / (24 * 60 * 60 * 1000))
           const remainingHours = Math.floor(((totalMilliseconds - elapsedMilliseconds) % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000))
           const remainingMinutes = Math.floor(((totalMilliseconds - elapsedMilliseconds) % (60 * 60 * 1000)) / (60 * 1000))
           const remainingSeconds = Math.floor(((totalMilliseconds - elapsedMilliseconds) % (60 * 1000)) / 1000)
-          
+
           let remainingTime = ''
           if (remainingDays > 0) remainingTime += `${remainingDays}天 `
           if (remainingHours > 0) remainingTime += `${remainingHours}小时 `
           if (remainingMinutes > 0) remainingTime += `${remainingMinutes}分钟 `
           if (remainingSeconds > 0) remainingTime += `${remainingSeconds}秒`
-          
+
           throw new Error(`时间锁未到期，剩余时间：${remainingTime.trim()}`)
         }
       }
@@ -335,28 +391,33 @@ class LegacyPlanService {
     const request: InheritanceRequest = {
       id: uuidv4(),
       planId: data.planId,
-      heirAddress: data.heirAddress,
+      initiatorId: data.initiatorId,
       heirEmail: data.heirEmail,
       guardianSignatures: data.guardianSignatures,
       sharesCollected: 0,
       submittedGuardians: [],
+      hasDuress: false,
       status: 'collecting',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     }
 
     this.inheritanceRequests.set(request.id, request)
-
-    plan.status = 'collecting'
     plan.updatedAt = new Date().toISOString()
     this.saveData()
 
-    this.notifyGuardians(plan, data.heirAddress)
+    // 只有首次继承请求时通知监护人，避免重复通知
+    const existingRequests = Array.from(this.inheritanceRequests.values()).filter(
+      (r) => r.planId === data.planId && r.id !== request.id
+    )
+    if (existingRequests.length === 0) {
+      this.notifyGuardians(plan, data.heirEmail)
+    }
 
     return request
   }
 
-  private async notifyGuardians(plan: LegacyPlan, heirAddress: string): Promise<void> {
+  private async notifyGuardians(plan: LegacyPlan, heirEmail: string): Promise<void> {
     for (const guardian of plan.guardians) {
       if (guardian.email) {
         await emailService.sendInheritanceNotification({
@@ -364,7 +425,7 @@ class LegacyPlanService {
           guardianEmail: guardian.email,
           planName: plan.name,
           planId: plan.id,
-          heirAddress,
+          heirAddress: heirEmail,
         })
       }
     }
@@ -400,23 +461,22 @@ class LegacyPlanService {
       return { success: false, message: 'Share not found for this guardian' }
     }
 
-    // 使用承诺值验证提交的份额值
-    // 构造临时Share对象用于验证
-    const tempShare: Share = {
-      id: storedShare.id,
-      index: storedShare.index,
-      value: data.shareValue,
-      commitment: storedShare.commitment
-    }
-    
-    const isValid = shamirSecretSharing.verifyCommitment(tempShare, storedShare.commitment)
-    if (!isValid) {
-      return { success: false, message: 'Invalid share value' }
+    // 使用 Pedersen 承诺验证提交的份额值（支持正常承诺和胁迫承诺）
+    const verificationResult = shamirSecretSharing.verifyShareAgainstCommitments(
+      data.shareValue,
+      storedShare.blindingFactor,
+      storedShare.commitment,
+      storedShare.duressBlindingFactor,
+      storedShare.duressCommitment
+    )
+
+    if (verificationResult === 'invalid') {
+      return { success: false, message: '份额值无效，请检查后重新提交' }
     }
 
-    // 查找最新的继承请求（状态不是 completed）
+    // 查找最新的继承请求（状态不是 completed 或 duress）
     const request = Array.from(this.inheritanceRequests.values()).find(
-      (r) => r.planId === data.planId && r.status !== 'completed'
+      (r) => r.planId === data.planId && r.status !== 'completed' && r.status !== 'duress'
     )
 
     if (!request) {
@@ -435,26 +495,51 @@ class LegacyPlanService {
     
     // 检查监护人是否已经提交过份额
     if (!request.submittedGuardians.includes(data.guardianId)) {
+      // 如果是胁迫提交，标记请求
+      if (verificationResult === 'duress') {
+        request.hasDuress = true
+      }
+
       request.sharesCollected += 1
       request.submittedGuardians.push(data.guardianId)
-      // 存储提交的份额值（用于后续恢复主密钥）
+
+      // 构建临时 Share 对象存储提交的份额值
+      const tempShare: Share = {
+        id: storedShare.id,
+        index: storedShare.index,
+        value: data.shareValue,
+        commitment: storedShare.commitment
+      }
       request.submittedShares.push(tempShare)
       request.updatedAt = new Date().toISOString()
 
       if (request.sharesCollected >= plan.threshold) {
-        request.status = 'verifying'
-        plan.status = 'completed'
-        plan.updatedAt = new Date().toISOString()
-        
-        // 从提交的份额恢复主密钥
-        const masterKey = shamirSecretSharing.combine(request.submittedShares)
-        
-        // 使用主密钥解密资产
-        const decryptedAssets = shamirSecretSharing.decryptAsset(plan.encryptedAssets, masterKey)
-        
-        // 发送继承成功邮件给继承人（包含解密后的资产）
-        if (request.heirEmail) {
-          this.sendHeirNotificationEmail(request, plan, decryptedAssets)
+        if (request.hasDuress) {
+          // 检测到胁迫提交：不恢复资产，通知所有监护人
+          request.status = 'duress'
+          this.sendDuressAlerts(plan)
+        } else {
+          request.status = 'verifying'
+          plan.status = 'completed'
+          plan.updatedAt = new Date().toISOString()
+
+          // 将该计划下的其他继承请求标记为已完成（避免堆积）
+          for (const otherRequest of this.inheritanceRequests.values()) {
+            if (otherRequest.planId === data.planId && otherRequest.id !== request.id && otherRequest.status !== 'completed') {
+              otherRequest.status = 'completed'
+            }
+          }
+
+          // 从提交的份额恢复主密钥
+          const masterKey = shamirSecretSharing.combine(request.submittedShares)
+
+          // 使用主密钥解密资产
+          const decryptedAssets = shamirSecretSharing.decryptAsset(plan.encryptedAssets, masterKey)
+
+          // 发送继承成功邮件给继承人（包含解密后的资产）
+          if (request.heirEmail) {
+            this.sendHeirNotificationEmail(request, plan, decryptedAssets)
+          }
         }
       }
 
@@ -483,13 +568,28 @@ class LegacyPlanService {
   }
 
   private async sendHeirNotificationEmail(request: InheritanceRequest, plan: LegacyPlan, decryptedAssets: any[]): Promise<void> {
+    const heirName = request.heirEmail.split('@')[0] || '继承人'
     await emailService.sendHeirNotification({
-      heirName: request.heirAddress.slice(0, 10) + '...',
-      heirEmail: request.heirEmail!,
+      heirName,
+      heirEmail: request.heirEmail,
       planName: plan.name,
       planId: plan.id,
       assets: decryptedAssets,
     })
+  }
+
+  private async sendDuressAlerts(plan: LegacyPlan): Promise<void> {
+    for (const guardian of plan.guardians) {
+      if (guardian.email) {
+        await emailService.sendDuressAlert({
+          guardianName: guardian.name,
+          guardianEmail: guardian.email,
+          planName: plan.name,
+          planId: plan.id,
+          triggeredAt: new Date(),
+        })
+      }
+    }
   }
 
   getInheritanceStatus(planId: string): any {
@@ -559,27 +659,12 @@ class LegacyPlanService {
     )
 
     // 发送继承成功通知给继承人（使用解密后的资产）
-    if (request && request.heirAddress) {
-      // 尝试从继承人地址中提取姓名和邮箱
-      // 假设 heirAddress 是邮箱格式，如 "name <email@example.com>"
-      let heirName = '继承人'
-      let heirEmail = request.heirAddress
-
-      // 简单的邮箱提取逻辑
-      const emailRegex = /<([^>]+)>/
-      const match = request.heirAddress.match(emailRegex)
-      if (match) {
-        heirEmail = match[1]
-        heirName = request.heirAddress.replace(emailRegex, '').trim()
-      } else if (request.heirAddress.includes('@')) {
-        // 如果直接是邮箱，使用邮箱前缀作为姓名
-        heirEmail = request.heirAddress
-        heirName = request.heirAddress.split('@')[0]
-      }
+    if (request && request.heirEmail) {
+      const heirName = request.heirEmail.split('@')[0] || '继承人'
 
       emailService.sendHeirNotification({
         heirName,
-        heirEmail,
+        heirEmail: request.heirEmail,
         planName: plan.name,
         planId: plan.id,
         assets

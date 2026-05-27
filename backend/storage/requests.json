@@ -265,5 +265,28 @@
         "commitment": "0f525a4c51392ac59e4d68c6ef9063ecb981af5a3c0c609ef4ba6e2acdad9661"
       }
     ]
+  },
+  "c87e83cd-f974-4f11-895a-5ef5602ad8fd": {
+    "id": "c87e83cd-f974-4f11-895a-5ef5602ad8fd",
+    "planId": "8fd773a9-a3c9-4325-9354-c1fa841beb8f",
+    "heirAddress": "2153266563@qq.com",
+    "heirEmail": "2153266563@qq.com",
+    "guardianSignatures": [],
+    "sharesCollected": 1,
+    "submittedGuardians": [
+      "0TRS"
+    ],
+    "hasDuress": false,
+    "status": "verifying",
+    "createdAt": "2026-05-27T16:28:41.864Z",
+    "updatedAt": "2026-05-27T16:31:57.025Z",
+    "submittedShares": [
+      {
+        "id": "577e9db6-8787-4a81-a798-d12c060e862a",
+        "index": 1,
+        "value": "3d8662937e09aa43af0c1816b1180718241e068a11be0b416bd11a358f11fcc8",
+        "commitment": "04a5b4babc38a109a0c51ee894e948c9d8b08f7ed96f98279b73512c004d71bed0fbb4811fdf93d668665310c6adaca2e9fa1697188cae32ba50dc24930bfc4dd4"
+      }
+    ]
   }
 }

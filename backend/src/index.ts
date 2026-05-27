@@ -106,6 +106,19 @@ app.get('/api/plans', (req, res) => {
   }
 })
 
+app.get('/api/plans/inherited', (req, res) => {
+  try {
+    const userId = req.query.userId as string
+    if (!userId) {
+      return res.status(400).json({ error: 'userId is required' })
+    }
+    const plans = legacyPlanService.getPlansByInheritanceInitiator(userId)
+    res.json(plans)
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to get inherited plans' })
+  }
+})
+
 app.get('/api/plans/:id', (req, res) => {
   try {
     const plan = legacyPlanService.getPlan(req.params.id)
@@ -202,6 +215,27 @@ app.post('/api/inheritance/recover', (req, res) => {
   }
 })
 
+// AI助手文件上传端点
+app.post('/api/ai/upload', (req, res) => {
+  try {
+    const { name, type, size, content } = req.body
+    if (!name || !content) {
+      return res.status(400).json({ error: '文件名和内容不能为空' })
+    }
+
+    // 限制文件大小为 10MB
+    const maxSize = 10 * 1024 * 1024
+    if (size > maxSize) {
+      return res.status(400).json({ error: '文件大小不能超过 10MB' })
+    }
+
+    const fileId = llmService.storeTempFile({ name, type, size, content })
+    res.json({ fileId, name, type, size })
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || '文件上传失败' })
+  }
+})
+
 // AI助手端点（模糊匹配方式）
 app.post('/api/ai/chat', async (req, res) => {
   try {
@@ -255,8 +289,8 @@ app.post('/api/ai/chat', async (req, res) => {
 // 大模型AI助手端点
 app.post('/api/ai/llm-chat', async (req, res) => {
   try {
-    const { message, userId, context } = req.body
-    
+    const { message, userId, context, fileData } = req.body
+
     if (!message || !userId) {
       return res.status(400).json({
         response: '缺少必要参数',
@@ -274,7 +308,7 @@ app.post('/api/ai/llm-chat', async (req, res) => {
       })
     }
 
-    // 调用大模型服务
+    // 调用大模型服务（传入可选的fileData）
     const result = await llmService.processMessage(
       message,
       userId,
@@ -283,7 +317,8 @@ app.post('/api/ai/llm-chat', async (req, res) => {
         history: [],
         workingPlan: null,
         collectedData: {}
-      }
+      },
+      fileData
     )
 
     res.json({

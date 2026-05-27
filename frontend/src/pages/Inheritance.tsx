@@ -8,7 +8,6 @@ export default function Inheritance() {
   const navigate = useNavigate()
   const [, setCurrentUser] = useState<any>(null)
   const [planId, setPlanId] = useState('')
-  const [heirAddress, setHeirAddress] = useState('')
   const [heirEmail, setHeirEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState<any>(null)
@@ -25,7 +24,10 @@ export default function Inheritance() {
   }, [navigate])
 
   const handleInitiate = async () => {
-    if (!planId || !heirAddress || !heirEmail) {
+    const userStr = sessionStorage.getItem('user')
+    const currentUser = userStr ? JSON.parse(userStr) : null
+
+    if (!planId || !heirEmail) {
       alert('请填写所有必填字段')
       return
     }
@@ -34,7 +36,7 @@ export default function Inheritance() {
     try {
       const result = await initiateInheritance({
         planId,
-        heirAddress,
+        initiatorId: currentUser?.id,
         heirEmail,
         guardianSignatures: [],
       })
@@ -133,17 +135,6 @@ export default function Inheritance() {
                 placeholder="输入遗产计划ID"
                 value={planId}
                 onChange={(e) => setPlanId(e.target.value)}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">继承人地址</label>
-              <input
-                type="text"
-                className="input-field"
-                placeholder="输入接收资产的地址"
-                value={heirAddress}
-                onChange={(e) => setHeirAddress(e.target.value)}
               />
             </div>
 
@@ -347,8 +338,8 @@ export default function Inheritance() {
                 <span className="font-medium">{planId}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">接收地址</span>
-                <span className="font-medium font-mono">{heirAddress.slice(0, 10)}...{heirAddress.slice(-8)}</span>
+                <span className="text-gray-600">继承人邮箱</span>
+                <span className="font-medium">{heirEmail}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">资产数量</span>
@@ -365,7 +356,7 @@ export default function Inheritance() {
             onClick={() => {
               setStep('initiate')
               setPlanId('')
-              setHeirAddress('')
+              setHeirEmail('')
               setStatus(null)
             }}
             className="btn-secondary w-full"

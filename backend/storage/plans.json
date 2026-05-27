@@ -54,152 +54,41 @@
     "status": "completed",
     "creatorId": "7XIZ"
   },
-  "ec7d5282-a94c-47dc-a913-5a8c80e13f36": {
-    "id": "ec7d5282-a94c-47dc-a913-5a8c80e13f36",
-    "name": "计划 3",
-    "assets": [
-      {
-        "type": "file",
-        "name": "hello",
-        "description": "ceshi",
-        "file": {}
-      }
-    ],
-    "guardians": [
-      {
-        "id": "0TRS",
-        "name": "陈雨柯",
-        "role": "me",
-        "email": "2153266563@qq.com",
-        "publicKey": "0x67933dc782d22"
-      }
-    ],
-    "threshold": 1,
-    "totalShares": 1,
-    "triggerMode": "consensus",
-    "timeLock": 0,
-    "shares": [
-      {
-        "id": "a43e8ea4-140e-4052-9f8c-299c23a9a423",
-        "index": 1,
-        "commitment": "a0217005a29ab126a11def6fd3971eb2fccd803f7aa9a47f6405299b9ae0d51b"
-      }
-    ],
-    "encryptedAssets": "U2FsdGVkX1+RF5sOKl2ELlm+DmKnFb37CJd1isOR3OGKYBCFpH+Hom1KEhk8wFXuml1iDLTgnF0YFrqvsnDxrZ2dcKiXn4+CkwbWn0d6CnluMWCwedvF61cz2v7iIAI/2AxFT9x7HBdx+yZqizxc1UVx6TxOQqqlvwoaAoFdc5MjwjyUDzEq4XMpnzfRhwu2pSBolO+Ns+UCz/Ps+Rx2xyEv4qDAQkG8ybGZWyHsNArMm4eOTKPL7fNzE+yf4rSZWapGaAq/QDEkNXuhtvg883PjMLJbZNxl8wJHHNKef/2oK7iDxRZuoVXSls/x9Kc1UrJUy8hS/CS7K0Ju+jvuh/ZMC6DBZCgZIHiTTeJYn9V5AvPdJ2XiOPImJhzbXTbgP9bJidNRerzSHNZHypAg+xwa+d4kC5kcnx4tXDT3t4V1O3nQMPU+4ZmdU22WFE5sqih64jO77/4r42B5j718OxGzZDmn/fUYt4pCyCMGwcX4o6xyLsL3edWB/TeJ9Pi9TsUgqfB/vdc7Je9pncybYMvZq84p+Qq7Ghfy3QaAA4EeVG9wP185DN043QwqzdnrgFqkPBcRnrPANFDN/sjBLNsv/yUBqXFF9TXhdQg6gicjQHJAoWQdtyIQ1ceMQpcDJGq0ZNDld1K1bNQ5M7exWFP3zblB7NJs+RPgqGOp5+tOEqISUkhdEvyV+8X80oIFXX8CnD7qHhd8fEeS6XFJWYdfagoVyzPnY5SJ1Y1wHzh2GklPr/BHPKjTQB28+/0BamEzXAGaYuL5UaNl+raOxTgkwjE8Qr5Db0DTA997w2iJRcZnQ3+b/y4CtkekNgKw9puaSQ2MUueu3qSnq5QdLVVuf85lwzQf/Zua4JRofsopVNoKvmuWn9pbAwKQbkmQT1sNpBW66JrgtENyB4+N0ek7fRAnxPQ4OQ80QgSNFJw3HUeGmQb9G4yWMwXRrvbwAHAL8Rvv+aVS4vTL//68gPYSi3sUePmwt+HB48WuzAVtwieEht/b6fvd/OHbmg0hXwbl/foeL4dF6fppX4Vnt0MWzPKgmOpGmUl0AOkQ25i0VqJSsHumoU0/omeW4Hv5HIIgTaCromSLwICyOd2KN2F3MlD8mJsLVHZl9KL3GTbGygqSXebLhcDCw+ve7ygxYX0SWn0jBFBrrYuRNsK2rxdrUlSqT5OOaWiUkTeDUYIURYPAA2kWqcwBzl5CD+uvSNuPCfSaXCHVsyDM8ujet+PLVjwLeYfWSmj62P2ZBeJwqmUw3GBzAr+SkMKLuysQHd2ZMFV/A9ApqIpfmfB7mlUId4JnCgjTpqi4a/AVoF6goZpAJdYp8p6xAEXmacArsAWbqIhE62ZkLdLTO8LWFEv5cn08fD76AL4QxEiuiFJ38fe2+A+n+svgMHNrHmEQqkTBidxZN2NZy0BmojkyTE5fV1Jl4DrBjczQ0FbAjKgr0SlY6i7Vxaqayvcxc5DP3eXG6uQcxc+eR+47EY3YaqWJNE1pNPHGYkBuGjGvgrSDXhqeDdYmOV/HCJIRL+dBk5l88lOm3NzLtGvz5ql7T+y/9qnkLtrcv5Pmql6FDv45pZHuFD4e5q3hCWefsXcCpkWUFTRjOqQqdnKb+f/ynsIka7e+tiArH6Cwyfm2U86j2I3ci6xlv3mOXEobvArkxksrTAGCkXQB9nS3Auw0jpgWFDKR0aN89hCjXGrjCcBEZ9bcbZFRgJF6BIMqWP4zYlzoSK3J+MCPW+gq20DEGjA0mhyUClx1cHPv3Gtm9KQ=",
-    "createdAt": "2026-04-22T11:19:24.901Z",
-    "updatedAt": "2026-05-25T14:19:45.841Z",
-    "status": "collecting",
-    "creatorId": "0TRS"
-  },
-  "94fb88ec-27c0-45b2-b964-3eace9871cb0": {
-    "id": "94fb88ec-27c0-45b2-b964-3eace9871cb0",
-    "name": "陈雨柯AI测试",
-    "assets": [
-      {
-        "type": "数字资产",
-        "name": "QQ账号",
-        "description": ""
-      }
-    ],
-    "guardians": [
-      {
-        "name": "陈呵呵",
-        "email": "2153266563@qq.com",
-        "id": "guardian_1779715407925"
-      },
-      {
-        "name": "吕英硕",
-        "email": "2152805144@qq.com",
-        "id": "guardian_1779715407925"
-      }
-    ],
-    "threshold": 1,
-    "totalShares": 1,
-    "triggerMode": "consensus",
-    "timeLock": 0,
-    "shares": [
-      {
-        "id": "138b675e-6795-4716-b5fc-b7f8676bd8b8",
-        "index": 1,
-        "commitment": "72019c0bdb10b06cb2767d952014de60329adaf256005c217081eb500c94fa94"
-      }
-    ],
-    "encryptedAssets": "U2FsdGVkX18YxVLl6SRC55P6/5fhj46BRcrRXrv00rvtVknkMxQm8jAntMVWPRo+rVmpvSXik9m8P964mgDu0BG+3IFHvxBylbdxISyjqpolG63ODhu6h3QzsXM6HLxP",
-    "createdAt": "2026-05-25T13:23:27.929Z",
-    "updatedAt": "2026-05-25T13:29:55.817Z",
-    "status": "collecting",
-    "creatorId": "0TRS"
-  },
-  "4be9dc98-9d63-4b57-b0f1-7507cf877f93": {
-    "id": "4be9dc98-9d63-4b57-b0f1-7507cf877f93",
+  "3083cdb5-6b3d-4036-a01b-b4fb62cf7899": {
+    "id": "3083cdb5-6b3d-4036-a01b-b4fb62cf7899",
     "name": "测试2",
     "assets": [
       {
-        "type": "数字资产",
-        "name": "QQ账号",
-        "description": ""
-      }
-    ],
-    "guardians": [
-      {
-        "name": "陈呵呵",
-        "email": "2153266563@qq.com",
-        "id": "guardian_1779720247835_0"
-      }
-    ],
-    "threshold": 1,
-    "totalShares": 1,
-    "triggerMode": "consensus",
-    "timeLock": 0,
-    "shares": [
-      {
-        "id": "3ee032a7-402c-4206-a994-edd3ec30031b",
-        "index": 1,
-        "commitment": "0f525a4c51392ac59e4d68c6ef9063ecb981af5a3c0c609ef4ba6e2acdad9661"
-      }
-    ],
-    "encryptedAssets": "U2FsdGVkX18xazK9uUhxk9ZAQgC3/JyNdIC47O/gcopUrJgFQ4d/BT/sVCAz+sfpIntfdHTE7BOoY7YK6M7i+pMcIKP6N35YxskxxkViigs2NL4w/DA0ey9Ti0STvw2nNsrCMmtEWehzKfxI5TIJoA==",
-    "createdAt": "2026-05-25T14:44:07.839Z",
-    "updatedAt": "2026-05-25T15:47:36.883Z",
-    "status": "completed",
-    "creatorId": "0TRS"
-  },
-  "99bea1fa-cd9c-4c20-b5d5-18e82291c6b9": {
-    "id": "99bea1fa-cd9c-4c20-b5d5-18e82291c6b9",
-    "name": "计划 5",
-    "assets": [
-      {
         "type": "file",
-        "name": "测试3",
-        "description": "测试",
-        "file": {}
+        "name": "keys.txt",
+        "description": "通过AI助手上传的文件：keys.txt"
       }
     ],
     "guardians": [
       {
-        "id": "0TRS",
         "name": "陈雨柯",
-        "role": "me",
         "email": "2153266563@qq.com",
-        "publicKey": "0xcfef1fd32c9f6"
+        "id": "guardian_1779900742812_0"
       }
     ],
     "threshold": 1,
     "totalShares": 1,
-    "triggerMode": "consensus",
-    "timeLock": 0,
+    "triggerMode": "timed",
+    "timeLock": 1,
     "shares": [
       {
-        "id": "b4f8aecd-80a4-4fde-9c1d-d0d741a337bc",
+        "id": "4b64a839-e71d-4ee5-a386-c86d581f3b12",
         "index": 1,
-        "commitment": "10bdf672dde2e6876e18e575eaf6d98213e7e5c279641fa09cb0535d52e45a06"
+        "commitment": "0455d0baca8c146f7738db8334538c0251b66af343bac585a528b72a94c136d9249bce389a6a4d0842b5b6a31c0533a7ff9319604bc43e6e71f481932ca1ffba01",
+        "blindingFactor": "7c49eb03d72273f5c4ea98c539b001bb84fa3e284c450b3783ec025f60df4357",
+        "duressCommitment": "042cc84669fc885e677f3f3de149eac986bac060c3ffa1064b3ee53f2e3a7d5386ae770eaa5c34779591ac745d83558660f3950abaec059c3da88d59c76336b431",
+        "duressBlindingFactor": "e5e4318afefc05654423c71b1802c4f0d2e28ad60c2c3f7157660b1ed33eb44c"
       }
     ],
-    "encryptedAssets": "U2FsdGVkX1+DJdl/BnabsOBYAMxkoxGo2L44tiYTROvMd7NGcQ8W2SjyRuIeDfjCt9opg2N8D+OYXOZTWipMPqM90SPkc/TPf6JEm2KUmNV57HSU++jF4f/lKPaPc5e9b97NFN6qGYD2AU0b485fGXI87w4WxwRe7W/UUEy9lkRXR2lFDRBDzV7yOoiHv25WUYpUaib2ynNd1xohvh/HTfmcB8jtg0nQgQCjNpggonIE6ljjPwVDgtpjRp99Q6/UbWuDWeyqPQu4EFE3JGpJwnhEIAZO0YmlhPMyXqfG0ni7bBnpcax8wI+XJnBczqILN//1Lso/O/1khcynq99tvA==",
-    "createdAt": "2026-05-25T15:46:11.339Z",
-    "updatedAt": "2026-05-25T15:46:11.339Z",
+    "encryptedAssets": "U2FsdGVkX18/hxEJ3sr/QBBlC29BD1GNDuJBzGpYNkVT2fr9lAARx9JKL4IU9b6LxGv6HHLYwP1SNf70irO/em0D0lQ97BYNdHuNCv8L0VxPVHI2ItQt9qteWpJd1MUEVidpKSANWWfcGaQrvi5nYyZOSyXXNgMLeGcxVFdErfi6IA54F9q5fHxmhLvBgw21h9GGTNAuuAWR29iXs+KGS6NI6QjzSNnVuF9bSA++2T5BUVFvBnx13nL2QtiHqOTuhHEvCp1yRAS5n+D/eQgbNRtiegeophQMgcLtFJXVT9D5wSd8nn3GaCAT1MWjky65DBnPHsvKwsoTPXzXgshC0mgWqhZgp+oLWoOmlGczIDDZzfE0eq+g3F02OfWZ1jVI",
+    "createdAt": "2026-05-27T16:52:22.865Z",
+    "updatedAt": "2026-05-27T16:52:22.865Z",
     "status": "active",
-    "creatorId": "0TRS",
-    "heirId": "0TRS"
+    "creatorId": "0TRS"
   }
 }

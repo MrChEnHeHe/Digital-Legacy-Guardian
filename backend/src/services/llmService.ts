@@ -33,11 +33,22 @@ export interface LLMContext {
   collectedData: Record<string, any>;
 }
 
+// 临时文件存储
+interface TempFile {
+  id: string;
+  name: string;
+  type: string;
+  size: number;
+  content: string; // base64
+  createdAt: Date;
+}
+
 // 大模型服务
 class LLMService {
   private apiKey: string = '';
   private apiBaseUrl: string = 'https://api.deepseek.com/v1';
   private model: string = 'deepseek-chat';
+  private tempFiles: Map<string, TempFile> = new Map();
   
   // 系统提示词 - 让模型了解项目功能
   private systemPrompt = `
@@ -68,12 +79,37 @@ class LLMService {
 - 如果缺少必要的参数（如提交份额时缺少份额值），先询问用户提供，不要直接调用工具
 - 用户已登录，不需要询问用户ID，使用"CURRENT_USER"作为userId参数值
 
+## 重要约束
+
+### 时间锁
+- 创建计划时，**必须主动询问用户**是否需要设置时间锁
+- 时间锁使遗产计划在指定天数后自动触发继承
+- 如果用户选择设置，调用 createPlan 时传入 timeLock 参数
+- 如果用户选择不设置，timeLock 不传或设为 0
+
+### 总份额数
+- 总份额数应等于监护人数量，每个监护人持有1份份额
+- 不要单独询问用户"总份额数是多少"，直接使用监护人数量作为总份额数
+- 例如：如果有3个监护人，则 totalShares = 3
+
+### 监护人必须是注册用户
+- 只有系统内已注册的用户才能被指定为监护人
+- 添加监护人时必须确保其邮箱在系统内注册
+- 如果用户提供的监护人邮箱未注册，告知用户先让该用户完成注册
+- 询问监护人时，直接说"请提供监护人的姓名和注册邮箱"，不要问"你想指定谁作为监护人"
+
+### 文件资产
+- 用户可以通过AI助手界面上的"上传文件"按钮上传加密文件
+- 上传的文件会自动作为加密文件资产添加到当前工作计划中
+- 文件上传后，告知用户文件已添加为资产，不需要再引导用户使用"添加文件"按钮
+- 用户在创建计划时上传的文件，会在创建计划时自动合并到资产列表中
+
 ## 示例
 用户：查询我的计划
 助手：{"tool":"queryPlans","args":{"userId":"CURRENT_USER"}}
 
 用户：创建计划"我的遗产"
-助手：{"tool":"createPlan","args":{"name":"我的遗产","assets":[{"name":"存款","type":"金融","value":"10000"}],"guardians":[{"name":"张三","email":"zhang@test.com"}],"threshold":2,"totalShares":3}}
+助手：{"tool":"createPlan","args":{"name":"我的遗产","assets":[{"name":"存款","type":"金融","value":"10000"}],"guardians":[{"name":"张三","email":"zhang@test.com"},{"name":"李四","email":"li@test.com"},{"name":"王五","email":"wang@test.com"}],"threshold":2,"totalShares":3}}
 
 用户：继承计划 ID123
 助手：{"tool":"inheritPlan","args":{"planId":"ID123"}}
@@ -113,6 +149,36 @@ class LLMService {
     return this.apiKey !== '';
   }
 
+  // 存储临时文件
+  storeTempFile(file: { name: string; type: string; size: number; content: string }): string {
+    const fileId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`;
+    this.tempFiles.set(fileId, {
+      id: fileId,
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      content: file.content,
+      createdAt: new Date()
+    });
+
+    // 1小时后自动清理
+    setTimeout(() => {
+      this.tempFiles.delete(fileId);
+    }, 60 * 60 * 1000);
+
+    return fileId;
+  }
+
+  // 获取临时文件
+  getTempFile(fileId: string): TempFile | undefined {
+    return this.tempFiles.get(fileId);
+  }
+
+  // 删除临时文件
+  deleteTempFile(fileId: string): void {
+    this.tempFiles.delete(fileId);
+  }
+
   // 获取工具定义列表
   private getTools(): ToolDefinition[] {
     return [
@@ -124,7 +190,7 @@ class LLMService {
           assets: { type: 'array', description: '资产列表', required: false },
           guardians: { type: 'array', description: '监护人列表', required: false },
           threshold: { type: 'integer', description: '门限值', required: false },
-          totalShares: { type: 'integer', description: '总份额', required: false },
+          totalShares: { type: 'integer', description: '总份额（应等于监护人数量，不填则默认为监护人数量）', required: false },
           timeLock: { type: 'integer', description: '时间锁天数', required: false }
         }
       },
@@ -153,7 +219,7 @@ class LLMService {
         parameters: {
           planId: { type: 'string', description: '计划ID', required: true },
           threshold: { type: 'integer', description: '门限值', required: true },
-          totalShares: { type: 'integer', description: '总份额', required: true }
+          totalShares: { type: 'integer', description: '总份额（应等于监护人数量）', required: true }
         }
       },
       {
@@ -273,16 +339,40 @@ class LLMService {
   }
 
   // 执行工具调用
-  private async executeTool(toolName: string, args: Record<string, any>, userId: string): Promise<string> {
+  private async executeTool(toolName: string, args: Record<string, any>, userId: string, context?: LLMContext): Promise<string> {
     try {
       switch (toolName) {
         case 'createPlan': {
+          // 验证所有监护人是否为注册用户
+          if (args.guardians && Array.isArray(args.guardians)) {
+            for (const g of args.guardians) {
+              if (g.email) {
+                const existingUser = userService.getUserByEmail(g.email);
+                if (!existingUser) {
+                  return JSON.stringify({ success: false, message: `监护人"${g.name || g.email}"（${g.email}）不是系统注册用户。请使用已注册用户的邮箱。` });
+                }
+              }
+            }
+          }
+
+          // 合并上下文中的文件资产（通过AI上传的文件）
+          let mergedAssets = [...(args.assets || [])];
+          if (context?.workingPlan?.assets) {
+            const fileAssets = context.workingPlan.assets.filter((a: any) => a.type === 'file');
+            for (const fileAsset of fileAssets) {
+              const alreadyExists = mergedAssets.some((a: any) => a.name === fileAsset.name && a.type === 'file');
+              if (!alreadyExists) {
+                mergedAssets.push(fileAsset);
+              }
+            }
+          }
+
           const plan = await legacyPlanService.createPlan({
             name: args.name || '未命名计划',
-            assets: args.assets || [],
+            assets: mergedAssets,
             guardians: args.guardians?.map((g: any, index: number) => ({ ...g, id: `guardian_${Date.now()}_${index}` })) || [],
             threshold: args.threshold || 2,
-            totalShares: args.totalShares || Math.max((args.guardians?.length || 3), 3),
+            totalShares: args.totalShares || (args.guardians?.length || 3),
             timeLock: args.timeLock || 0,
             triggerMode: args.timeLock ? 'timed' : 'consensus',
             creatorId: userId
@@ -306,6 +396,11 @@ class LLMService {
           if (!plan) {
             return JSON.stringify({ success: false, message: '计划不存在' });
           }
+          // 文件类型资产需通过页面上传
+          const assetType = (args.type || '').toLowerCase();
+          if (assetType === 'file' || assetType === '文件' || (args.name || '').toLowerCase().includes('file')) {
+            return JSON.stringify({ success: false, message: '文件资产需要通过页面上的"添加文件"功能上传，AI助手不支持文件上传。请返回计划详情页面完成文件上传。' });
+          }
           plan.assets.push({
             name: args.name,
             type: args.type,
@@ -323,6 +418,13 @@ class LLMService {
           const plan = legacyPlanService.getPlan(args.planId);
           if (!plan) {
             return JSON.stringify({ success: false, message: '计划不存在' });
+          }
+          // 验证监护人是否为注册用户
+          if (args.email) {
+            const existingUser = userService.getUserByEmail(args.email);
+            if (!existingUser) {
+              return JSON.stringify({ success: false, message: `未找到邮箱为 "${args.email}" 的注册用户。只有系统内已注册的用户才能被指定为监护人。` });
+            }
           }
           plan.guardians.push({
             id: `guardian_${Date.now()}`,
@@ -380,7 +482,7 @@ class LLMService {
           }
           const result = await legacyPlanService.initiateInheritance({
             planId: args.planId,
-            heirAddress: user.email,
+            initiatorId: userId,
             heirEmail: user.email,
             guardianSignatures: []
           });
@@ -485,7 +587,7 @@ class LLMService {
         case 'queryPlans': {
           const plans = legacyPlanService.getUserPlans(userId);
           const createdPlans = plans.filter(p => p.creatorId === userId);
-          const inheritorPlans = plans.filter(p => p.heirId === userId);
+          const inheritorPlans = legacyPlanService.getPlansByInheritanceInitiator(userId);
           const guardianPlans = plans.filter(p => p.guardians.some((g: any) => g.id === userId));
           return JSON.stringify({
             success: true,
@@ -645,7 +747,8 @@ class LLMService {
       history: [],
       workingPlan: null,
       collectedData: {}
-    }
+    },
+    fileData?: { fileId?: string; name?: string; type?: string; size?: number; content?: string }
   ): Promise<{
     response: string;
     intent: string;
@@ -661,7 +764,59 @@ class LLMService {
     }
 
     try {
-      // 添加用户消息到历史
+      // 处理文件上传数据
+      let fileAsset: any = null;
+
+      if (fileData) {
+        let fileContent: string | undefined;
+        let fileName = fileData.name || '未命名文件';
+        let fileType = fileData.type || 'application/octet-stream';
+        let fileSize = fileData.size || 0;
+
+        // 如果有fileId，从临时存储中获取文件
+        if (fileData.fileId) {
+          const stored = this.getTempFile(fileData.fileId);
+          if (stored) {
+            fileContent = stored.content;
+            fileName = stored.name;
+            fileType = stored.type;
+            fileSize = stored.size;
+          }
+        } else if (fileData.content) {
+          fileContent = fileData.content;
+        }
+
+        if (fileContent) {
+          fileAsset = {
+            type: 'file',
+            name: fileName,
+            description: `通过AI助手上传的文件：${fileName}`,
+            value: JSON.stringify({
+              name: fileName,
+              type: fileType,
+              size: fileSize,
+              content: fileContent
+            })
+          };
+
+          // 将文件资产添加到工作计划的资产列表中
+          if (!context.workingPlan) {
+            context.workingPlan = { assets: [] };
+          }
+          if (!context.workingPlan.assets) {
+            context.workingPlan.assets = [];
+          }
+          context.workingPlan.assets.push(fileAsset);
+
+          // 添加系统消息告知LLM文件已上传
+          context.messages.push({
+            role: 'system',
+            content: `系统通知：用户上传了文件"${fileName}"（类型：${fileType}，大小：${(fileSize / 1024).toFixed(1)}KB），该文件已作为加密文件资产添加到当前工作计划中。如果用户正在创建计划，回复告知用户文件已添加。如果用户没有在创建计划，告知用户文件已保存。`
+          });
+        }
+      }
+
+      // 构建消息列表
       const newMessages: LLMMessage[] = [
         ...context.messages,
         { role: 'user', content: userMessage }
@@ -697,7 +852,7 @@ class LLMService {
                 
                 // 执行工具
                 console.log(`执行工具: ${parsed.tool}, 参数:`, argsWithUserId);
-                const toolResponse = await this.executeTool(parsed.tool, argsWithUserId, userId);
+                const toolResponse = await this.executeTool(parsed.tool, argsWithUserId, userId, context);
                 console.log('工具执行结果:', toolResponse);
                 
                 // 格式化响应

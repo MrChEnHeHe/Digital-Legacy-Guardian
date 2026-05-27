@@ -36,6 +36,7 @@ export default function CreatePlan() {
   const [totalShares, setTotalShares] = useState(5)
   const [enableTimeLock, setEnableTimeLock] = useState(false)
   const [timeLock, setTimeLock] = useState(180)
+  const [planName, setPlanName] = useState('我的遗产计划')
   const [currentAsset, setCurrentAsset] = useState<Partial<Asset>>({})
   const [currentAssetIndex, setCurrentAssetIndex] = useState(0)
   const [newGuardian, setNewGuardian] = useState<Partial<Guardian>>({})
@@ -43,10 +44,6 @@ export default function CreatePlan() {
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<any[]>([])
   const [searching, setSearching] = useState(false)
-  const [heirId, setHeirId] = useState('')
-  const [heirSearchQuery, setHeirSearchQuery] = useState('')
-  const [heirSearchResults, setHeirSearchResults] = useState<any[]>([])
-  const [heirSearching, setHeirSearching] = useState(false)
 
   const getCurrentUser = () => {
     // 使用sessionStorage读取登录状态
@@ -57,37 +54,21 @@ export default function CreatePlan() {
     return null
   }
 
-  const searchUsers = async (query: string, type: 'guardian' | 'heir') => {
+  const searchUsers = async (query: string) => {
     if (!query.trim()) {
-      if (type === 'guardian') {
-        setSearchResults([])
-      } else {
-        setHeirSearchResults([])
-      }
+      setSearchResults([])
       return
     }
 
-    if (type === 'guardian') {
-      setSearching(true)
-    } else {
-      setHeirSearching(true)
-    }
+    setSearching(true)
 
     try {
       const results = await authApi.searchUsers(query)
-      if (type === 'guardian') {
-        setSearchResults(results)
-      } else {
-        setHeirSearchResults(results)
-      }
+      setSearchResults(results)
     } catch (error) {
       console.error('搜索用户失败:', error)
     } finally {
-      if (type === 'guardian') {
-        setSearching(false)
-      } else {
-        setHeirSearching(false)
-      }
+      setSearching(false)
     }
   }
 
@@ -100,12 +81,6 @@ export default function CreatePlan() {
     })
     setSearchResults([])
     setSearchQuery('')
-  }
-
-  const selectHeir = (user: any) => {
-    setHeirId(user.id)
-    setHeirSearchResults([])
-    setHeirSearchQuery('')
   }
 
   const addAsset = () => {
@@ -159,6 +134,7 @@ export default function CreatePlan() {
     try {
       const currentUser = getCurrentUser()
       await createLegacyPlan({
+        name: planName,
         assets,
         guardians,
         threshold,
@@ -166,7 +142,6 @@ export default function CreatePlan() {
         triggerMode: enableTimeLock ? 'timed' : 'consensus',
         timeLock: enableTimeLock ? timeLock : 0,
         creatorId: currentUser?.id,
-        heirId: heirId || undefined,
       })
       alert('遗产计划创建成功！')
       navigate('/dashboard')
@@ -186,6 +161,17 @@ export default function CreatePlan() {
       <div className="text-center">
         <h1 className="text-3xl font-bold text-gradient mb-2">创建数字遗产计划</h1>
         <p className="text-gray-600">按照步骤设置您的数字资产继承方案</p>
+      </div>
+
+      <div className="card">
+        <label className="block text-sm font-medium text-gray-700 mb-2">计划名称</label>
+        <input
+          type="text"
+          className="input-field text-lg font-semibold"
+          placeholder="输入遗产计划名称"
+          value={planName}
+          onChange={(e) => setPlanName(e.target.value)}
+        />
       </div>
 
       <div className="flex justify-center space-x-8 mb-8">
@@ -426,7 +412,7 @@ export default function CreatePlan() {
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value)
-                  searchUsers(e.target.value, 'guardian')
+                  searchUsers(e.target.value)
                 }}
               />
             </div>
@@ -524,51 +510,6 @@ export default function CreatePlan() {
               ))}
             </div>
           )}
-
-          <div className="space-y-4">
-            <h3 className="font-semibold text-gray-700 flex items-center">
-              <Users className="h-5 w-5 mr-2 text-primary-600" />
-              指定继承人（可选）
-            </h3>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-              <input
-                type="text"
-                className="input-field pl-10"
-                placeholder="输入用户ID搜索继承人..."
-                value={heirSearchQuery}
-                onChange={(e) => {
-                  setHeirSearchQuery(e.target.value)
-                  searchUsers(e.target.value, 'heir')
-                }}
-              />
-            </div>
-            {heirSearching && (
-              <div className="mt-2 text-sm text-gray-500">搜索中...</div>
-            )}
-            {heirSearchResults.length > 0 && (
-              <div className="mt-2 border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-                {heirSearchResults.map((user) => (
-                  <button
-                    key={user.id}
-                    onClick={() => selectHeir(user)}
-                    className="w-full p-3 text-left hover:bg-gray-50 border-b last:border-b-0 transition-colors"
-                  >
-                    <div className="font-medium">{user.name}</div>
-                    <div className="text-sm text-gray-500">ID: {user.id} | {user.email}</div>
-                  </button>
-                ))}
-              </div>
-            )}
-            {heirId && (
-              <div className="mt-2 p-3 bg-gradient-to-r from-primary-50 to-blue-50 rounded-lg border border-primary-100 shadow-sm">
-                <div className="flex items-center text-sm">
-                  <CheckCircle className="h-4 w-4 text-primary-600 mr-2" />
-                  已选择继承人ID: {heirId}
-                </div>
-              </div>
-            )}
-          </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
