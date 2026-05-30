@@ -179,6 +179,16 @@ app.delete('/api/plans/:id/assets/:index', (req, res) => {
   }
 })
 
+// 刷新计划份额（重新生成 Shamir 参数，主密钥不变）
+app.post('/api/plans/:id/refresh', (req, res) => {
+  try {
+    const plan = legacyPlanService.refreshPlanShares(req.params.id)
+    res.json({ success: true, plan })
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || 'Failed to refresh shares' })
+  }
+})
+
 app.post('/api/inheritance/initiate', (req, res) => {
   try {
     const request = legacyPlanService.initiateInheritance(req.body)

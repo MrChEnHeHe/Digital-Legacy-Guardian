@@ -128,18 +128,13 @@ export const removePlanAsset = async (planId: string, assetIndex: number): Promi
   return response.data
 }
 
-export const addPlanGuardian = async (planId: string, guardian: any): Promise<LegacyPlan> => {
-  const response = await api.post(`/plans/${planId}/guardians`, guardian)
-  return response.data
-}
-
-export const removePlanGuardian = async (planId: string, guardianId: string): Promise<LegacyPlan> => {
-  const response = await api.delete(`/plans/${planId}/guardians/${guardianId}`)
-  return response.data
-}
-
 export const deleteLegacyPlan = async (planId: string): Promise<{ success: boolean }> => {
   const response = await api.delete(`/plans/${planId}`)
+  return response.data
+}
+
+export const refreshPlanShares = async (planId: string): Promise<{ success: boolean; plan: LegacyPlan }> => {
+  const response = await api.post(`/plans/${planId}/refresh`)
   return response.data
 }
 

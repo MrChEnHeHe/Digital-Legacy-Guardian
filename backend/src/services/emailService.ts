@@ -20,6 +20,22 @@ interface ShareEmailData {
   creatorName?: string
 }
 
+interface RefreshEmailData {
+  guardianName: string
+  guardianEmail: string
+  guardianId: string
+  planName: string
+  planId: string
+  shareIndex: number
+  valueDelta: string      // 份额值增量
+  blindingDelta: string   // 盲因子增量
+  duressValue: string
+  duressBlindingFactor: string
+  duressCommitment: string
+  threshold: number
+  totalShares: number
+}
+
 class EmailService {
   private transporter: nodemailer.Transporter | null = null
   private isConfigured: boolean = false
@@ -85,6 +101,38 @@ class EmailService {
       console.log(`收件人: ${data.guardianEmail}`)
       console.log(`收件人姓名: ${data.guardianName}`)
       console.log(`主题: 【数字遗产管家】您已被指定为监护人 - ${data.planName}`)
+      console.log('----------------------------------------')
+      console.log('邮件内容:')
+      console.log(emailContent)
+      console.log('========================================\n')
+      return true
+    }
+  }
+
+  async sendRefreshEmail(data: RefreshEmailData): Promise<boolean> {
+    const emailContent = this.generateRefreshEmailContent(data)
+
+    if (this.isConfigured && this.transporter) {
+      try {
+        await this.transporter.sendMail({
+          from: process.env.SMTP_FROM || process.env.SMTP_USER,
+          to: data.guardianEmail,
+          subject: `【数字遗产管家】份额已刷新 - ${data.planName}`,
+          html: emailContent,
+        })
+        console.log(`Refresh email sent successfully to ${data.guardianEmail}`)
+        return true
+      } catch (error) {
+        console.error('Failed to send refresh email:', error)
+        return false
+      }
+    } else {
+      console.log('\n========================================')
+      console.log('📧 份额刷新邮件模拟（SMTP未配置）')
+      console.log('========================================')
+      console.log(`收件人: ${data.guardianEmail}`)
+      console.log(`收件人姓名: ${data.guardianName}`)
+      console.log(`主题: 【数字遗产管家】份额已刷新 - ${data.planName}`)
       console.log('----------------------------------------')
       console.log('邮件内容:')
       console.log(emailContent)
@@ -284,6 +332,181 @@ class EmailService {
       </ol>
     </div>
     
+    <div class="footer">
+      <p>此邮件由数字遗产管家系统自动发送，请勿回复。</p>
+      <p>© ${new Date().getFullYear()} Digital Legacy Guardian. All rights reserved.</p>
+    </div>
+  </div>
+</body>
+</html>
+    `
+  }
+
+  private generateRefreshEmailContent(data: RefreshEmailData): string {
+    return `
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>份额刷新 - 数字遗产管家</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    .container {
+      background-color: #ffffff;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: #4F46E5;
+    }
+    .title {
+      font-size: 22px;
+      font-weight: 600;
+      color: #1F2937;
+      margin-bottom: 20px;
+    }
+    .info-box {
+      background-color: #F3F4F6;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #E5E7EB;
+    }
+    .info-row:last-child {
+      border-bottom: none;
+    }
+    .info-label {
+      color: #6B7280;
+    }
+    .info-value {
+      font-weight: 500;
+      color: #1F2937;
+    }
+    .delta-box {
+      background-color: #EEF2FF;
+      border: 2px solid #4F46E5;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .delta-id {
+      font-family: monospace;
+      font-size: 14px;
+      word-break: break-all;
+      background-color: #E0E7FF;
+      padding: 10px;
+      border-radius: 4px;
+      margin-top: 10px;
+    }
+    .duress-box {
+      background-color: #FFF7ED;
+      border: 2px solid #F97316;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .warning-box {
+      background-color: #FEE2E2;
+      border: 1px solid #EF4444;
+      border-radius: 8px;
+      padding: 15px;
+      margin: 20px 0;
+    }
+    .footer {
+      text-align: center;
+      color: #9CA3AF;
+      font-size: 12px;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #E5E7EB;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">🔐 数字遗产管家</div>
+    </div>
+
+    <h1 class="title">尊敬的 ${data.guardianName}，您好！</h1>
+
+    <div class="content">
+      <p>数字遗产计划 <strong>${data.planName}</strong> 的份额已完成刷新。</p>
+
+      <div class="info-box">
+        <h3 style="margin-top: 0; color: #4F46E5;">📋 计划信息</h3>
+        <div class="info-row">
+          <span class="info-label">计划名称</span>
+          <span class="info-value">${data.planName}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">计划ID</span>
+          <span class="info-value">${data.planId}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">门限配置</span>
+          <span class="info-value">${data.threshold}-of-${data.totalShares}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">您的份额序号</span>
+          <span class="info-value">#${data.shareIndex}</span>
+        </div>
+      </div>
+
+      <div class="delta-box">
+        <h3 style="margin-top: 0; color: #4338CA;">🔄 份额刷新增量</h3>
+        <p>请在您本地保存的原份额值基础上加上以下增量，得到新份额：</p>
+        <p style="margin-top: 15px; margin-bottom: 5px;"><strong>份额值增量：</strong></p>
+        <div class="delta-id">${data.valueDelta}</div>
+        <p style="margin-top: 15px; margin-bottom: 5px;"><strong>盲因子增量：</strong></p>
+        <div class="delta-id">${data.blindingDelta}</div>
+        <p style="font-size: 12px; color: #3730A3; margin-top: 10px;">
+          ⚠️ 新份额值 = 原份额值 + 增量值。请更新您本地保存的份额信息。
+        </p>
+      </div>
+
+      <div class="duress-box">
+        <h3 style="margin-top: 0; color: #EA580C;">🛡️ 新胁迫份额（替换旧的）</h3>
+        <p>请在本地用以下值<strong>替换</strong>旧的胁迫份额信息：</p>
+        <p style="margin-top: 15px; margin-bottom: 5px;"><strong>胁迫份额值：</strong></p>
+        <div class="delta-id">${data.duressValue}</div>
+        <p style="font-size: 12px; color: #9A3412; margin-top: 10px;">
+          ⚠️ 旧的胁迫份额已失效，请务必使用新值。
+        </p>
+      </div>
+
+      <div class="warning-box">
+        <h3 style="margin-top: 0; color: #DC2626;">⚠️ 重要提示</h3>
+        <ul style="color: #991B1B; margin: 0; padding-left: 20px;">
+          <li>请及时更新您本地保存的份额值</li>
+          <li>旧的份额值已失效，请勿继续使用</li>
+          <li>新胁迫份额已替代旧胁迫份额</li>
+          <li>如有疑问，请联系计划创建者</li>
+        </ul>
+      </div>
+    </div>
+
     <div class="footer">
       <p>此邮件由数字遗产管家系统自动发送，请勿回复。</p>
       <p>© ${new Date().getFullYear()} Digital Legacy Guardian. All rights reserved.</p>

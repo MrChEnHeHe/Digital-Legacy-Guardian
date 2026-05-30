@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { getLegacyPlans, getInheritedPlans, getInheritanceStatus, deleteLegacyPlan } from '../services/api'
-import { Activity, Shield, Clock, Users, AlertCircle, Edit, Trash2, LogOut, PlusCircle, Heart } from 'lucide-react'
+import { getLegacyPlans, getInheritedPlans, getInheritanceStatus, deleteLegacyPlan, refreshPlanShares } from '../services/api'
+import { Activity, Shield, Clock, Users, AlertCircle, Edit, Trash2, LogOut, PlusCircle, Heart, RefreshCw } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 export default function Dashboard() {
@@ -16,6 +16,7 @@ export default function Dashboard() {
   const [inheritanceStatus, setInheritanceStatus] = useState<any>(null)
   const [currentTime, setCurrentTime] = useState(new Date())
   const [currentUser, setCurrentUser] = useState<any>(null)
+  const [refreshingPlan, setRefreshingPlan] = useState<string | null>(null)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -75,6 +76,24 @@ export default function Dashboard() {
     } catch (error) {
       console.error('Failed to load inheritance status:', error)
       setInheritanceStatus(null)
+    }
+  }
+
+  const handleRefreshShares = async (planId: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (!confirm('刷新份额后所有监护人会收到新邮件，确定继续吗？')) return
+
+    setRefreshingPlan(planId)
+    try {
+      const result = await refreshPlanShares(planId)
+      if (result.success) {
+        await loadPlans(currentUser?.id)
+        alert('份额刷新成功！新份额已发送到监护人邮箱。')
+      }
+    } catch (error: any) {
+      alert('刷新失败: ' + (error.message || '请重试'))
+    } finally {
+      setRefreshingPlan(null)
     }
   }
 
@@ -208,7 +227,7 @@ export default function Dashboard() {
   // 分类计划
   const createdPlans = plans.filter(plan => plan.creatorId === currentUser?.id)
   const inheritorPlans = inheritedPlans
-  const guardianPlans = plans.filter(plan => plan.guardians?.some(guardian => guardian.id === currentUser?.id))
+  const guardianPlans = plans.filter(plan => plan.guardians?.some((guardian: any) => guardian.id === currentUser?.id))
 
   return (
     <motion.div
@@ -320,6 +339,16 @@ export default function Dashboard() {
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
+                      {plan.status === 'active' && (
+                        <button
+                          onClick={(e) => handleRefreshShares(plan.id, e)}
+                          disabled={refreshingPlan === plan.id}
+                          className="p-2 text-gray-500 hover:text-purple-600 hover:bg-gray-100 rounded-full transition-colors"
+                          title="刷新份额"
+                        >
+                          <RefreshCw className={`h-4 w-4 ${refreshingPlan === plan.id ? 'animate-spin' : ''}`} />
+                        </button>
+                      )}
                       {plan.status === 'active' && (plan.triggerMode === 'consensus' || calculateTimeLockRemaining(plan).isExpired) && (
                         <button
                           onClick={(e) => {
@@ -442,7 +471,7 @@ export default function Dashboard() {
                           监护人信息
                         </h4>
                         <div className="space-y-3">
-                          {inheritanceStatus?.guardians?.length > 0 
+                          {inheritanceStatus?.guardians?.length > 0
                             ? inheritanceStatus.guardians.map((guardian: any, guardianIndex: number) => (
                                 <div key={guardianIndex} className="p-3 bg-white rounded-lg border border-gray-100">
                                   <div className="flex items-center justify-between">
@@ -456,8 +485,8 @@ export default function Dashboard() {
                                       </div>
                                     </div>
                                     <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                                      guardian.hasSubmitted 
-                                        ? 'bg-green-100 text-green-700' 
+                                      guardian.hasSubmitted
+                                        ? 'bg-green-100 text-green-700'
                                         : 'bg-gray-100 text-gray-600'
                                     }`}>
                                       {guardian.hasSubmitted ? '已提交份额' : '未提交份额'}

@@ -51,13 +51,13 @@ export interface LegacyPlan {
   totalShares: number
   triggerMode: 'consensus' | 'timed'
   timeLock: number
-  shares: StoredShare[]  // 使用 StoredShare，不存储份额值
+  shares: StoredShare[]
   encryptedAssets: string
+  masterCommitment: string     // C_master = R*G + s*H（同态验证用）
   createdAt: string
   updatedAt: string
   status: 'active' | 'collecting' | 'completed'
   creatorId?: string
-  heirId?: string
 }
 
 export interface InheritanceRequest {
@@ -125,7 +125,6 @@ class LegacyPlanService {
     triggerMode: 'consensus' | 'timed'
     timeLock: number
     creatorId?: string
-    heirId?: string
   }): LegacyPlan {
     try {
       // 验证输入数据
@@ -143,10 +142,15 @@ class LegacyPlanService {
       }
 
       const masterKey = shamirSecretSharing.generateMasterKey()
-      const shares = shamirSecretSharing.split(masterKey, data.totalShares, data.threshold)
+
+      // 使用双多项式结构生成份额和盲因子
+      const pedersenShares = shamirSecretSharing.generatePedersenShares(masterKey, data.totalShares, data.threshold)
       const encryptedAssets = shamirSecretSharing.encryptAsset(data.assets, masterKey)
 
-      // 将 Share 转换为 StoredShare（移除 value 字段），同时生成密码学材料
+      // 计算主承诺 C_master = R*G + s*H
+      const masterCommitmentObj = shamirSecretSharing.generatePedersenCommitment(masterKey, pedersenShares.masterBlindingFactor)
+
+      // 生成存储份额和邮件数据
       const storedShares: StoredShare[] = []
       const shareEmailDataList: Array<{
         guardian: any
@@ -158,28 +162,28 @@ class LegacyPlanService {
       }> = []
 
       for (let i = 0; i < data.totalShares; i++) {
-        const share = shares[i]
+        const ps = pedersenShares.shares[i]
         const guardian = data.guardians[i]
 
-        // 1. 生成 Pedersen 承诺（完美隐藏 + 计算绑定）
-        const pedersen = shamirSecretSharing.generatePedersenCommitment(share.value)
+        // 用已分配好的盲因子生成承诺
+        const commitmentResult = shamirSecretSharing.generatePedersenCommitment(ps.value, ps.blindingFactor)
 
-        // 2. 生成胁迫码信息（用于胁迫场景）
+        // 生成胁迫码信息
         const duressInfo = shamirSecretSharing.generateDuressInfo()
 
         storedShares.push({
-          id: share.id,
-          index: share.index,
-          commitment: pedersen.commitment,
-          blindingFactor: pedersen.blindingFactor,
+          id: ps.id,
+          index: ps.index,
+          commitment: commitmentResult.commitment,
+          blindingFactor: ps.blindingFactor,
           duressCommitment: duressInfo.duressCommitment,
           duressBlindingFactor: duressInfo.duressBlindingFactor,
         })
 
         shareEmailDataList.push({
           guardian,
-          shareValue: share.value,
-          blindingFactor: pedersen.blindingFactor,
+          shareValue: ps.value,
+          blindingFactor: ps.blindingFactor,
           duressValue: duressInfo.duressValue,
           duressBlindingFactor: duressInfo.duressBlindingFactor,
           duressCommitment: duressInfo.duressCommitment,
@@ -189,7 +193,6 @@ class LegacyPlanService {
       // 处理资产数据，只保留非敏感信息
       const processedAssets = data.assets.map(asset => {
         if (asset.type === 'file') {
-          // 对于文件类型的资产，只保留基本信息
           return {
             type: asset.type,
             name: asset.name,
@@ -201,7 +204,6 @@ class LegacyPlanService {
             } : undefined
           }
         } else {
-          // 对于其他类型的资产，只保留基本信息
           return {
             type: asset.type,
             name: asset.name,
@@ -213,7 +215,7 @@ class LegacyPlanService {
       const plan: LegacyPlan = {
         id: uuidv4(),
         name: data.name || `计划 ${this.plans.size + 1}`,
-        assets: processedAssets, // 只存储资产的基本信息
+        assets: processedAssets,
         guardians: data.guardians,
         threshold: data.threshold,
         totalShares: data.totalShares,
@@ -221,17 +223,16 @@ class LegacyPlanService {
         timeLock: data.timeLock,
         shares: storedShares,
         encryptedAssets,
+        masterCommitment: masterCommitmentObj.commitment,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         status: 'active',
         creatorId: data.creatorId,
-        heirId: data.heirId,
       }
 
       this.plans.set(plan.id, plan)
       this.saveData()
 
-      // 发送邮件时包含完整的份额值及密码学材料（盲因子、私钥、胁迫码）
       this.sendShareEmails(plan, shareEmailDataList)
 
       return plan
@@ -239,6 +240,99 @@ class LegacyPlanService {
       console.error('创建遗产计划失败:', error)
       throw new Error(error.message || '创建遗产计划失败')
     }
+  }
+
+  /**
+   * 刷新计划份额（零和多项式方法，不涉及主密钥）
+   *
+   * 利用 Pedersen 承诺的同态加法性质：
+   * - 生成两个 t-1 次零和多项式 Z_v(x)、Z_r(x)，满足 Z_v(0)=Z_r(0)=0
+   * - 新份额值 v'_i = v_i + Z_v(i)，新盲因子 r'_i = r_i + Z_r(i)
+   * - 新承诺 C'_i = C_i + Z_r(i)*G + Z_v(i)*H（纯 EC 点运算）
+   * - 主承诺 C_master 不变（因为 Z_v(0)=Z_r(0)=0）
+   *
+   * server 全程不接触主密钥，仅通过 EC 点运算更新承诺
+   */
+  refreshPlanShares(planId: string): LegacyPlan {
+    const plan = this.plans.get(planId)
+    if (!plan) {
+      throw new Error('Plan not found')
+    }
+    if (plan.status !== 'active') {
+      throw new Error('只有活跃状态的计划才能刷新份额')
+    }
+
+    const n = plan.guardians.length
+    const t = plan.threshold
+
+    // 生成零和多项式增量
+    const deltas = shamirSecretSharing.generateRefreshDeltas(n, t)
+
+    const storedShares: StoredShare[] = []
+    for (let i = 0; i < n; i++) {
+      const guardian = plan.guardians[i]
+      const existingShare = plan.shares[i]
+      const delta = deltas[i]
+
+      // 利用同态计算新承诺：C' = C + δ_r*G + δ_v*H
+      const newCommitment = shamirSecretSharing.computeRefreshedCommitment(
+        existingShare.commitment,
+        delta.valueDelta,
+        delta.blindingDelta
+      )
+
+      // 生成新的胁迫码
+      const duressInfo = shamirSecretSharing.generateDuressInfo()
+
+      // 保存刷新后的份额信息
+      storedShares.push({
+        id: existingShare.id,
+        index: existingShare.index,
+        commitment: newCommitment,
+        blindingFactor: existingShare.blindingFactor, // 保持不变，存储用
+        duressCommitment: duressInfo.duressCommitment,
+        duressBlindingFactor: duressInfo.duressBlindingFactor,
+      })
+
+      // 发送刷新邮件（包含增量值和新的胁迫码）
+      emailService.sendRefreshEmail({
+        guardianName: guardian.name,
+        guardianEmail: guardian.email,
+        guardianId: guardian.id,
+        planName: plan.name,
+        planId: plan.id,
+        shareIndex: existingShare.index,
+        valueDelta: delta.valueDelta,
+        blindingDelta: delta.blindingDelta,
+        duressValue: duressInfo.duressValue,
+        duressBlindingFactor: duressInfo.duressBlindingFactor,
+        duressCommitment: duressInfo.duressCommitment,
+        threshold: t,
+        totalShares: n,
+      })
+    }
+
+    // 更新计划（主承诺不变！）
+    plan.shares = storedShares
+    plan.updatedAt = new Date().toISOString()
+
+    this.saveData()
+
+    return plan
+  }
+
+  /**
+   * 添加监护人 — 因 server 不存储主密钥，无法为新份额分配有效值，已禁用
+   */
+  addGuardianWithRefresh(planId: string, guardianData: any): LegacyPlan {
+    throw new Error('server 不存储主密钥，无法在计划创建后修改监护人。请在创建计划时设置好所有监护人。')
+  }
+
+  /**
+   * 删除监护人 — 因 server 不存储主密钥，无法重新分配份额，已禁用
+   */
+  removeGuardianWithRefresh(planId: string, guardianId: string): LegacyPlan {
+    throw new Error('server 不存储主密钥，无法在计划创建后修改监护人。请在创建计划时设置好所有监护人。')
   }
 
   private async sendShareEmails(
