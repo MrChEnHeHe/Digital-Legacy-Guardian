@@ -322,15 +322,15 @@ digital_legacy/
 ### 遗产计划完整流程
 
 ```mermaid
-flowchart TB
+graph TB
     subgraph 创建阶段
-        A[用户创建计划] --> B[生成主密钥<br/>masterKey]
+        A[用户创建计划] --> B[生成主密钥 masterKey]
         B --> C[用主密钥加密资产]
-        B --> D[双多项式结构<br/>P(x): 份额多项式<br/>Q(x): 盲因子多项式]
-        D --> E[计算 n 个份额<br/>v_i = P(i), r_i = Q(i)]
-        D --> F[计算主承诺<br/>C_master = R*G + s*H]
-        E --> G[通过邮件发送份额给监护人]
-        C --> H[存储加密资产和承诺<br/>主密钥立即销毁]
+        B --> D[双多项式结构<br>Px 份额多项式 / Qx 盲因子多项式]
+        D --> E[计算 n 个份额<br>vi = Pi, ri = Qi]
+        D --> F[计算主承诺<br>Cmaster = RxG + sxH]
+        E --> G[邮件发送份额给监护人]
+        C --> H[存储加密资产和承诺<br>主密钥立即销毁]
         F --> H
     end
 
@@ -340,19 +340,19 @@ flowchart TB
         J -->|已到期| L[通知监护人提交份额]
         L --> M{监护人提交份额}
         M -->|正常份额| N[收集份额]
-        M -->|胁迫份额| O[触发胁迫警报<br/>继承终止]
-        N --> P{份额数 ≥ 门限 t?}
+        M -->|胁迫份额| O[触发胁迫警报 继承终止]
+        N --> P{份额数 >= 门限 t}
         P -->|否| M
-        P -->|是| Q[拉格朗日插值<br/>恢复主密钥]
+        P -->|是| Q[拉格朗日插值 恢复主密钥]
         Q --> R[用主密钥解密资产]
         R --> S[资产发送给继承人]
     end
 
     subgraph 刷新阶段
-        T[份额可能泄露] --> U[生成零和多项式<br/>Z_v(x), Z_r(x)]
-        U --> V[计算增量 δ_v(i), δ_r(i)]
-        V --> W[同态计算新承诺<br/>C'_i = C_i + δ_r*G + δ_v*H]
-        V --> X[发送增量给监护人<br/>监护人本地更新份额]
+        T[份额可能泄露] --> U[生成零和多项式 Zvx Zrx]
+        U --> V[计算增量 dv_i dr_i]
+        V --> W[同态计算新承诺<br>Ci_new = Ci + drxG + dvxH]
+        V --> X[发送增量给监护人 本地更新份额]
     end
 
     style A fill:#4F46E5,color:#fff
