@@ -323,42 +323,73 @@ digital_legacy/
 
 ```mermaid
 graph TB
+    %% 样式定义
+    classDef phase fill:#EEF2FF,stroke:#4F46E5,stroke-width:2px,color:#1F2937
+    classDef userAction fill:#4F46E5,stroke:#3730A3,stroke-width:1px,color:#fff
+    classDef crypto fill:#FEF3C7,stroke:#D97706,stroke-width:1px,color:#92400E
+    classDef system fill:#ECFDF5,stroke:#059669,stroke-width:1px,color:#065F46
+    classDef decision fill:#FFF7ED,stroke:#EA580C,stroke-width:1px,color:#9A3412
+    classDef duress fill:#FEF2F2,stroke:#DC2626,stroke-width:2px,color:#991B1B
+    classDef complete fill:#10B981,stroke:#047857,stroke-width:1px,color:#fff
+    classDef storage fill:#F3F4F6,stroke:#6B7280,stroke-width:1px,color:#374151
+
     subgraph 创建阶段
-        A[用户创建计划] --> B[生成主密钥 masterKey]
-        B --> C[用主密钥加密资产]
-        B --> D[双多项式结构<br>Px 份额多项式 / Qx 盲因子多项式]
-        D --> E[计算 n 个份额<br>vi = Pi, ri = Qi]
-        D --> F[计算主承诺<br>Cmaster = RxG + sxH]
-        E --> G[邮件发送份额给监护人]
-        C --> H[存储加密资产和承诺<br>主密钥立即销毁]
-        F --> H
+        direction TB
+        A([用户创建遗产计划]) --> B[生成随机主密钥 masterKey]
+        B --> C[使用主密钥 AES 加密资产数据]
+        B --> D[构造 Shamir 双多项式]
+        D --> D1[值多项式 Px 常数项 = masterKey]
+        D --> D2[盲因子多项式 Qx 常数项 = 随机R]
+        D1 --> E[计算 n 个份额值 vi = Pi]
+        D2 --> F[计算 n 个盲因子 ri = Qi]
+        E --> G[计算 Pedersen 承诺 Ci = rixG + vixH]
+        F --> G
+        D --> H[计算主承诺 Cmaster = RxG + sxH]
+        C --> I[加密资产 + 份额承诺 + 主承诺]
+        G --> I
+        H --> I
+        I --> J[(持久化存储)]
+        J --> K[邮件分发份额值 vi, ri 给监护人]
+        K --> L[内存中销毁主密钥]
     end
 
     subgraph 继承阶段
-        I[继承人发起请求] --> J{时间锁检查}
-        J -->|未到期| K[拒绝请求]
-        J -->|已到期| L[通知监护人提交份额]
-        L --> M{监护人提交份额}
-        M -->|正常份额| N[收集份额]
-        M -->|胁迫份额| O[触发胁迫警报 继承终止]
-        N --> P{份额数 >= 门限 t}
-        P -->|否| M
-        P -->|是| Q[拉格朗日插值 恢复主密钥]
-        Q --> R[用主密钥解密资产]
-        R --> S[资产发送给继承人]
+        direction TB
+        M[继承人输入计划ID发起请求] --> N{时间锁检查}
+        N -->|时间锁未到期| O[拒绝请求 返回剩余时间]
+        N -->|时间锁已到期或无时间锁| P[通知所有监护人]
+        P --> Q[监护人在线提交份额]
+        Q --> R{Pedersen 承诺验证}
+        R -->|验证失败| Q
+        R -->|匹配胁迫承诺| S[触发胁迫警报]
+        S --> T[通知所有监护人 继承终止]
+        R -->|匹配正常承诺| U[收集并通过门槛数量检查]
+        U -->|份额数 < 门限 t| Q
+        U -->|份额数 >= 门限 t| V[拉格朗日插值恢复主密钥]
+        V --> W[使用主密钥 AES 解密资产]
+        W --> X[资产发送给继承人]
     end
 
-    subgraph 刷新阶段
-        T[份额可能泄露] --> U[生成零和多项式 Zvx Zrx]
-        U --> V[计算增量 dv_i dr_i]
-        V --> W[同态计算新承诺<br>Ci_new = Ci + drxG + dvxH]
-        V --> X[发送增量给监护人 本地更新份额]
+    subgraph 同态份额刷新
+        direction TB
+        Y[份额可能泄露或需定期刷新] --> Z[server 生成零和多项式]
+        Z --> Z1[Zvx 值增量多项式 Zv0 = 0]
+        Z --> Z2[Zrx 盲因子增量多项式 Zr0 = 0]
+        Z1 --> AA[对每个份额 i 计算增量]
+        Z2 --> AA
+        AA --> AB[dvi = Zvi  dri = Zri]
+        AB --> AC[server 计算新承诺<br>Ci_new = Ci + rixG + vixH]
+        AC --> AD[server 更新存储的承诺]
+        AB --> AE[邮件发送增量 dvi dri 给监护人]
+        AE --> AF[监护人本地更新 vi += dvi  ri += dri]
     end
 
     style A fill:#4F46E5,color:#fff
-    style Q fill:#10B981,color:#fff
-    style S fill:#10B981,color:#fff
-    style O fill:#EF4444,color:#fff
+    style V fill:#10B981,color:#fff
+    style X fill:#10B981,color:#fff
+    style S fill:#DC2626,color:#fff
+    style T fill:#DC2626,color:#fff
+    style L fill:#EF4444,color:#fff,stroke:#991B1B
 ```
 
 ### 核心技术
