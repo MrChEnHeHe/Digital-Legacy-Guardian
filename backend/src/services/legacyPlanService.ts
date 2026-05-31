@@ -398,41 +398,6 @@ class LegacyPlanService {
     return Array.from(planIds).map(id => this.plans.get(id)).filter(Boolean) as LegacyPlan[]
   }
 
-  updatePlan(id: string, updates: Partial<LegacyPlan>): LegacyPlan | undefined {
-    const plan = this.plans.get(id)
-    if (!plan) return undefined
-
-    const updatedPlan = { ...plan, ...updates, updatedAt: new Date().toISOString() }
-    this.plans.set(id, updatedPlan)
-    this.saveData()
-    return updatedPlan
-  }
-
-  addAsset(planId: string, asset: any): LegacyPlan | undefined {
-    const plan = this.plans.get(planId)
-    if (!plan) return undefined
-
-    plan.assets.push(asset)
-    plan.updatedAt = new Date().toISOString()
-    this.saveData()
-    return plan
-  }
-
-  removeAsset(planId: string, assetIndex: number): LegacyPlan | undefined {
-    const plan = this.plans.get(planId)
-    if (!plan) return undefined
-
-    if (assetIndex < 0 || assetIndex >= plan.assets.length) {
-      return undefined
-    }
-
-    plan.assets.splice(assetIndex, 1)
-    plan.updatedAt = new Date().toISOString()
-    this.saveData()
-    return plan
-  }
-
-
 
   deletePlan(id: string): boolean {
     const result = this.plans.delete(id)

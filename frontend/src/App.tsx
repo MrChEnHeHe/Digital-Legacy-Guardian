@@ -3,7 +3,6 @@ import { AnimatePresence, motion } from 'framer-motion'
 import Layout from './components/Layout'
 import Home from './pages/Home'
 import CreatePlan from './pages/CreatePlan'
-import EditPlan from './pages/EditPlan'
 import Dashboard from './pages/Dashboard'
 import Inheritance from './pages/Inheritance'
 import Guardian from './pages/Guardian'
@@ -34,14 +33,6 @@ function App() {
             element={
               <ProtectedRoute>
                 <CreatePlan />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/edit-plan/:id"
-            element={
-              <ProtectedRoute>
-                <EditPlan />
               </ProtectedRoute>
             }
           />

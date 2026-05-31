@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { getLegacyPlans, getInheritedPlans, getInheritanceStatus, deleteLegacyPlan, refreshPlanShares } from '../services/api'
-import { Activity, Shield, Clock, Users, AlertCircle, Edit, Trash2, LogOut, PlusCircle, Heart, RefreshCw } from 'lucide-react'
+import { Activity, Shield, Clock, Users, AlertCircle, Trash2, LogOut, PlusCircle, Heart, RefreshCw } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 export default function Dashboard() {
@@ -347,18 +347,6 @@ export default function Dashboard() {
                           title="刷新份额"
                         >
                           <RefreshCw className={`h-4 w-4 ${refreshingPlan === plan.id ? 'animate-spin' : ''}`} />
-                        </button>
-                      )}
-                      {plan.status === 'active' && (plan.triggerMode === 'consensus' || calculateTimeLockRemaining(plan).isExpired) && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            navigate(`/edit-plan/${plan.id}`)
-                          }}
-                          className="p-2 text-gray-500 hover:text-primary-600 hover:bg-gray-100 rounded-full transition-colors"
-                          title="编辑计划"
-                        >
-                          <Edit className="h-4 w-4" />
                         </button>
                       )}
                       <button

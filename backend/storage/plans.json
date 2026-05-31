@@ -62,6 +62,12 @@
         "type": "file",
         "name": "keys.txt",
         "description": "通过AI助手上传的文件：keys.txt"
+      },
+      {
+        "type": "file",
+        "name": "测试资产",
+        "value": "账号密码",
+        "description": "无"
       }
     ],
     "guardians": [
@@ -81,13 +87,13 @@
         "index": 1,
         "commitment": "0455d0baca8c146f7738db8334538c0251b66af343bac585a528b72a94c136d9249bce389a6a4d0842b5b6a31c0533a7ff9319604bc43e6e71f481932ca1ffba01",
         "blindingFactor": "7c49eb03d72273f5c4ea98c539b001bb84fa3e284c450b3783ec025f60df4357",
-        "duressCommitment": "042cc84669fc885e677f3f3de149eac986bac060c3ffa1064b3ee53f2e3a7d5386ae770eaa5c34779591ac745d83558660f3950abaec059c3da88d59c76336b431",
-        "duressBlindingFactor": "e5e4318afefc05654423c71b1802c4f0d2e28ad60c2c3f7157660b1ed33eb44c"
+        "duressCommitment": "04994161b0b545342c9d1c2378362116c6aca05387b0aa25f4330e48b8d465476b2d0c273d1f5287025a0711692de0fa178311a2ef0e4e799d0a7186b6c67f7665",
+        "duressBlindingFactor": "76b43dc9a071da438c7e56cba021282f05c19af5762fb39a61b25916f0a41545"
       }
     ],
     "encryptedAssets": "U2FsdGVkX18/hxEJ3sr/QBBlC29BD1GNDuJBzGpYNkVT2fr9lAARx9JKL4IU9b6LxGv6HHLYwP1SNf70irO/em0D0lQ97BYNdHuNCv8L0VxPVHI2ItQt9qteWpJd1MUEVidpKSANWWfcGaQrvi5nYyZOSyXXNgMLeGcxVFdErfi6IA54F9q5fHxmhLvBgw21h9GGTNAuuAWR29iXs+KGS6NI6QjzSNnVuF9bSA++2T5BUVFvBnx13nL2QtiHqOTuhHEvCp1yRAS5n+D/eQgbNRtiegeophQMgcLtFJXVT9D5wSd8nn3GaCAT1MWjky65DBnPHsvKwsoTPXzXgshC0mgWqhZgp+oLWoOmlGczIDDZzfE0eq+g3F02OfWZ1jVI",
     "createdAt": "2026-05-27T16:52:22.865Z",
-    "updatedAt": "2026-05-27T16:52:22.865Z",
+    "updatedAt": "2026-05-31T04:33:38.281Z",
     "status": "active",
     "creatorId": "0TRS"
   }

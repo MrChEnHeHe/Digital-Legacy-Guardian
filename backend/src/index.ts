@@ -131,18 +131,6 @@ app.get('/api/plans/:id', (req, res) => {
   }
 })
 
-app.put('/api/plans/:id', (req, res) => {
-  try {
-    const plan = legacyPlanService.updatePlan(req.params.id, req.body)
-    if (!plan) {
-      return res.status(404).json({ error: 'Plan not found' })
-    }
-    res.json(plan)
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to update plan' })
-  }
-})
-
 app.delete('/api/plans/:id', (req, res) => {
   try {
     const deleted = legacyPlanService.deletePlan(req.params.id)
@@ -155,31 +143,7 @@ app.delete('/api/plans/:id', (req, res) => {
   }
 })
 
-app.post('/api/plans/:id/assets', (req, res) => {
-  try {
-    const plan = legacyPlanService.addAsset(req.params.id, req.body)
-    if (!plan) {
-      return res.status(404).json({ error: 'Plan not found' })
-    }
-    res.json(plan)
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to add asset' })
-  }
-})
-
-app.delete('/api/plans/:id/assets/:index', (req, res) => {
-  try {
-    const plan = legacyPlanService.removeAsset(req.params.id, parseInt(req.params.index))
-    if (!plan) {
-      return res.status(404).json({ error: 'Plan or asset not found' })
-    }
-    res.json(plan)
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to remove asset' })
-  }
-})
-
-// 刷新计划份额（重新生成 Shamir 参数，主密钥不变）
+// 刷新计划份额（同态增量刷新，server 不接触主密钥）
 app.post('/api/plans/:id/refresh', (req, res) => {
   try {
     const plan = legacyPlanService.refreshPlanShares(req.params.id)
