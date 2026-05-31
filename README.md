@@ -119,15 +119,19 @@ digital_legacy/
 ├── frontend/              # React 前端应用
 │   ├── src/
 │   │   ├── components/   # React 组件
-│   │   │   └── Layout.tsx
+│   │   │   ├── AIAssistant/  # AI 助手组件
+│   │   │   ├── Layout.tsx    # 主布局组件
+│   │   │   └── Navbar.tsx    # 导航栏组件
 │   │   ├── pages/        # 页面
-│   │   │   ├── Home.tsx
-│   │   │   ├── CreatePlan.tsx
-│   │   │   ├── Dashboard.tsx
-│   │   │   ├── Inheritance.tsx
-│   │   │   └── Guardian.tsx
+│   │   │   ├── Home.tsx      # 首页
+│   │   │   ├── CreatePlan.tsx # 创建计划页面
+│   │   │   ├── EditPlan.tsx  # 编辑计划页面
+│   │   │   ├── Dashboard.tsx # 控制台
+│   │   │   ├── Inheritance.tsx # 继承页面
+│   │   │   ├── Guardian.tsx  # 监护人门户
+│   │   │   └── AIHelper.tsx  # AI 助手页面
 │   │   ├── services/     # API 服务
-│   │   │   └── api.ts
+│   │   │   └── api.ts     # API 封装
 │   │   ├── App.tsx
 │   │   ├── main.tsx
 │   │   └── index.css
@@ -137,10 +141,18 @@ digital_legacy/
 ├── backend/              # Node.js 后端服务
 │   ├── src/
 │   │   ├── crypto/       # 密码学模块
-│   │   │   └── shamir.ts
+│   │   │   └── shamir.ts # Shamir 秘密共享实现
 │   │   ├── services/     # 业务逻辑
-│   │   │   └── legacyPlanService.ts
+│   │   │   ├── aiService.ts      # AI 服务
+│   │   │   ├── emailService.ts   # 邮件服务
+│   │   │   ├── legacyPlanService.ts  # 遗产计划服务
+│   │   │   └── userService.ts    # 用户服务
 │   │   └── index.ts      # API 入口
+│   ├── storage/          # 数据存储
+│   │   ├── plans.json
+│   │   ├── requests.json
+│   │   ├── users.json
+│   │   └── verificationCodes.json
 │   ├── package.json
 │   └── tsconfig.json
 ├── contracts/            # 智能合约
@@ -151,9 +163,13 @@ digital_legacy/
 │   └── test/
 │       └── LegacyContract.test.js
 ├── docs/                 # 文档
-│   ├── API.md
-│   ├── ARCHITECTURE.md
-│   └── DEPLOYMENT.md
+│   ├── API.md            # API 文档
+│   ├── ARCHITECTURE.md   # 架构文档
+│   ├── DEPLOYMENT.md     # 部署文档
+│   ├── PROJECT_STRUCTURE.md  # 项目结构
+│   ├── PROJECT_SUMMARY.md    # 项目总结
+│   ├── QUICKSTART.md      # 快速启动
+│   └── ZKP_VERIFIABILITY.md  # ZKP 可验证性
 ├── README.md            # 项目说明
 ├── QUICKSTART.md        # 快速启动指南
 └── package.json         # 根配置

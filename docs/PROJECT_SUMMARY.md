@@ -11,9 +11,11 @@
 **页面组件：**
 - [x] 首页（Home）- 项目介绍和功能展示
 - [x] 创建计划（CreatePlan）- 4步向导式创建流程
+- [x] 编辑计划（EditPlan）- 计划编辑和修改
 - [x] 控制台（Dashboard）- 遗产计划管理和监控
 - [x] 继承（Inheritance）- 继承流程发起和跟踪
 - [x] 监护人门户（Guardian）- 监护人份额提交
+- [x] AI助手（AIHelper）- 智能辅助遗产规划
 
 **技术特性：**
 - 使用 React 18 + TypeScript
@@ -30,6 +32,9 @@
 - [x] 监护人份额验证
 - [x] 资产恢复功能
 - [x] RESTful API设计
+- [x] AI服务集成
+- [x] 邮件通知服务
+- [x] 用户管理服务
 
 **API端点：**
 ```
@@ -85,7 +90,9 @@ POST /api/inheritance/recover       - 恢复资产
 - [x] docs/API.md - API详细文档
 - [x] docs/ARCHITECTURE.md - 系统架构文档
 - [x] docs/DEPLOYMENT.md - 部署文档
-- [x] PROJECT_STRUCTURE.md - 项目结构说明
+- [x] docs/PROJECT_STRUCTURE.md - 项目结构说明
+- [x] docs/PROJECT_SUMMARY.md - 项目完成总结
+- [x] docs/ZKP_VERIFIABILITY.md - ZKP可验证性说明
 
 ## 项目文件树
 
@@ -94,45 +101,61 @@ digital_legacy/
 ├── frontend/                    # React 前端应用
 │   ├── src/
 │   │   ├── components/
-│   │   │   └── Layout.tsx       # 主布局组件
+│   │   │   ├── AIAssistant/       # AI 助手组件
+│   │   │   ├── Layout.tsx          # 主布局组件
+│   │   │   └── Navbar.tsx          # 导航栏组件
 │   │   ├── pages/
-│   │   │   ├── Home.tsx         # 首页
-│   │   │   ├── CreatePlan.tsx   # 创建计划页面
-│   │   │   ├── Dashboard.tsx    # 控制台
-│   │   │   ├── Inheritance.tsx   # 继承页面
-│   │   │   └── Guardian.tsx     # 监护人门户
+│   │   │   ├── Home.tsx           # 首页
+│   │   │   ├── CreatePlan.tsx      # 创建计划页面
+│   │   │   ├── EditPlan.tsx        # 编辑计划页面
+│   │   │   ├── Dashboard.tsx       # 控制台
+│   │   │   ├── Inheritance.tsx     # 继承页面
+│   │   │   ├── Guardian.tsx        # 监护人门户
+│   │   │   └── AIHelper.tsx        # AI 助手页面
 │   │   ├── services/
-│   │   │   └── api.ts           # API服务
-│   │   ├── App.tsx              # 主应用组件
-│   │   ├── main.tsx             # 应用入口
-│   │   └── index.css            # 全局样式
+│   │   │   └── api.ts             # API服务
+│   │   ├── App.tsx                # 主应用组件
+│   │   ├── main.tsx               # 应用入口
+│   │   └── index.css              # 全局样式
+│   ├── public/
+│   │   └── demo-template.json
 │   ├── package.json
 │   ├── vite.config.ts
 │   └── tailwind.config.js
 ├── backend/                     # Node.js 后端服务
 │   ├── src/
 │   │   ├── crypto/
-│   │   │   └── shamir.ts        # Shamir秘密共享实现
+│   │   │   └── shamir.ts          # Shamir秘密共享实现
 │   │   ├── services/
-│   │   │   └── legacyPlanService.ts  # 业务逻辑
-│   │   └── index.ts             # API入口
+│   │   │   ├── aiService.ts       # AI服务
+│   │   │   ├── emailService.ts     # 邮件服务
+│   │   │   ├── legacyPlanService.ts # 遗产计划服务
+│   │   │   └── userService.ts     # 用户服务
+│   │   └── index.ts               # API入口
+│   ├── storage/                  # 数据存储
+│   │   ├── plans.json
+│   │   ├── requests.json
+│   │   ├── users.json
+│   │   └── verificationCodes.json
 │   ├── package.json
-│   ├── tsconfig.json
-│   └── .env
+│   └── tsconfig.json
 ├── contracts/                   # 智能合约
-│   ├── LegacyContract.sol       # 主合约
+│   ├── LegacyContract.sol        # 主合约
 │   ├── hardhat.config.js
 │   ├── scripts/
-│   │   └── deploy.js            # 部署脚本
+│   │   └── deploy.js             # 部署脚本
 │   └── test/
-│       └── LegacyContract.test.js  # 合约测试
+│       └── LegacyContract.test.js # 合约测试
 ├── docs/                        # 文档
 │   ├── API.md
 │   ├── ARCHITECTURE.md
-│   └── DEPLOYMENT.md
+│   ├── DEPLOYMENT.md
+│   ├── PROJECT_STRUCTURE.md
+│   ├── PROJECT_SUMMARY.md
+│   ├── QUICKSTART.md
+│   └── ZKP_VERIFIABILITY.md
 ├── README.md                    # 项目主文档
 ├── QUICKSTART.md                # 快速启动指南
-├── PROJECT_STRUCTURE.md         # 项目结构说明
 └── package.json                 # 根配置
 ```
 
@@ -155,6 +178,7 @@ digital_legacy/
 - crypto-js 4.2.0
 - elliptic 6.5.4
 - uuid 9.0.1
+- nodemailer 8.0.2
 
 ### 智能合约
 - Solidity 0.8.19
