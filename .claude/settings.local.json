@@ -2,7 +2,17 @@
   "permissions": {
     "allow": [
       "Bash(grep -v \"^--$\")",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(xargs wc -l)",
+      "Bash(python3 -c ' *)",
+      "Bash(python3 -c \"import docx; print\\('docx available'\\)\")",
+      "Bash(pip3 list *)",
+      "Bash(/d/python/Scripts/python.exe -c ' *)",
+      "Bash(/c/Users/36083/AppData/Local/Microsoft/WindowsApps/python3.exe --version)",
+      "Bash(/d/python/python -c ' *)",
+      "Bash(xelatex -interaction=nonstopmode main.tex)",
+      "Bash(bibtex main *)",
+      "Bash(npx ts-node *)"
     ]
   }
 }

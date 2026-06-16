@@ -69,11 +69,13 @@ export class ShamirSecretSharingImpl implements ShamirSecretSharing {
   private H_point: any = null
 
   constructor(prime?: string) {
+    this.ec = new EC.ec('secp256k1')
+    // 默认使用 secp256k1 的曲线阶（order）作为 Shamir 运算域
+    // 确保 Shamir BigInt 运算与 EC 标量乘法 BN 运算使用同一模数
     this.prime = BigInt(
       prime ||
-        '115792089237316195423570985008687907853269984665640564039457584007913129639747'
+        this.ec.curve.n.toString(10)
     )
-    this.ec = new EC.ec('secp256k1')
   }
 
   /** 获取 Pedersen 承诺的第二个生成点 H = G * SHA256(seed) */
@@ -137,10 +139,18 @@ export class ShamirSecretSharingImpl implements ShamirSecretSharing {
       for (let j = 0; j < t; j++) {
         if (i !== j) {
           const xj = BigInt(sortedShares[j].index)
-          numerator = (numerator * (-xj)) % this.prime
-          denominator = (denominator * (x - xj)) % this.prime
+          // JavaScript BigInt % 对被除数为负数时返回负值，需要手动修正
+          let num_term = (-xj) % this.prime
+          if (num_term < 0) num_term += this.prime
+          numerator = (numerator * num_term) % this.prime
+
+          const denom_term = (x - xj) % this.prime
+          denominator = (denominator * denom_term) % this.prime
         }
       }
+
+      // 确保分母为正
+      if (denominator < 0) denominator += this.prime
 
       const denominatorInverse = this.modInverse(denominator, this.prime)
       const lagrangeCoefficient = (numerator * denominatorInverse) % this.prime
@@ -278,15 +288,14 @@ export class ShamirSecretSharingImpl implements ShamirSecretSharing {
         const point = this.ec.keyFromPublic(sorted[i].commitment, 'hex').getPublic()
 
         // 计算 Lagrange 系数 λᵢ = Πⱼ≠ᵢ (0 - xⱼ) / (xᵢ - xⱼ) (mod curveN)
+        // 注意：bn.js 的 .mod() 保留负数符号，需使用 .umod() 获取非负余数
         let lambda = new BN(1)
         for (let j = 0; j < t; j++) {
           if (i !== j) {
             const xj = new BN(sorted[j].index)
             const xi = new BN(idx)
-            // (-xj) mod n
-            const num = new BN(0).sub(xj).mod(curveN)
-            // (xi - xj) mod n
-            const den = xi.sub(xj).mod(curveN)
+            const num = new BN(0).sub(xj).umod(curveN)   // (-xj) mod n
+            const den = xi.sub(xj).umod(curveN)            // (xi - xj) mod n
             lambda = lambda.mul(num).mul(den.invm(curveN)).mod(curveN)
           }
         }
@@ -295,6 +304,8 @@ export class ShamirSecretSharingImpl implements ShamirSecretSharing {
         sum = sum.add(point.mul(lambda))
       }
 
+      // 无穷远点编码为空字符串，不可能等于有效的 masterCommitment，故直接返回 false
+      if (sum.isInfinity()) return false
       return sum.encode('hex', false) === masterCommitment
     } catch (error) {
       console.error('Master commitment verification failed:', error)

@@ -1,0 +1,60 @@
+% 第三章 系统设计
+\section{系统设计}
+
+\subsection{设计目标}
+
+本系统的设计遵循以下核心目标：
+
+\begin{enumerate}[label=(\arabic*)]
+    \item \textbf{零信任 Server}：server 不存储主密钥、不持有份额值，仅基于椭圆曲线点运算完成验证和刷新。即使 server 被完全攻破，攻击者无法恢复主密钥或解密资产。
+    \item \textbf{可验证性}：任何操作（份额提交、刷新）均应可被密码学验证，无需信任任何单一实体。
+    \item \textbf{抗胁迫}：在用户被胁迫的情况下，提供隐蔽的求救机制。
+    \item \textbf{灵活性}：支持多种触发模式（时间锁、社会共识），满足不同场景的继承需求。
+    \item \textbf{可用性}：提供 Web 前端用户界面和 AI 助手，降低使用门槛。
+\end{enumerate}
+
+\subsection{系统架构}
+
+系统采用前后端分离的三层架构：
+
+\textbf{前端层}（React 18 + TypeScript + TailwindCSS 3）：提供用户交互界面，包括遗产计划创建、控制台管理、继承发起、监护人份额提交和 AI 助手对话等功能。
+
+\textbf{后端服务层}（Express 4 + TypeScript）：实现业务逻辑和密码学运算，包含五个核心模块——密码学引擎（shamir.ts）、遗产计划服务（legacyPlanService.ts）、邮件服务（emailService.ts）、用户服务（userService.ts）和大模型服务（llmService.ts）。
+
+\textbf{密码学引擎层}：独立封装于 shamir.ts 中，提供 Shamir 秘密共享、Pedersen 承诺生成与验证、双多项式份额生成、零和同态刷新、胁迫码生成、ECIES 加密等基础密码学原语。
+
+\subsection{安全模型}
+
+\begin{table}[H]
+    \centering
+    \caption{系统安全模型}
+    \label{tab:security_model}
+    \begin{tabularx}{\textwidth}{lX}
+        \toprule
+        \textbf{类别} & \textbf{内容} \\
+        \midrule
+        Server 公开存储 & 加密资产密文（AES 加密，无密钥可解密）、Pedersen 承诺 $C_i = r_iG + v_iH$（EC 点）、主承诺 $C_{\text{master}} = RG + sH$（EC 点）、胁迫承诺 $C_{\text{duress},i}$ \\
+        \midrule
+        Server 不存储 & 主密钥 masterKey（创建后立即销毁）、份额值 $v_i$（仅监护人持有）、盲因子 $r_i$（仅监护人持有）、AES 加密密钥 \\
+        \midrule
+        核心保障 & Server 被完全攻破后，攻击者最多看到加密后的资产和公开承诺，无法恢复主密钥或解密资产 \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+\subsection{协议流程}
+
+系统核心协议分为三个阶段：
+
+\textbf{创建阶段}：（1）用户创建计划，添加资产和监护人信息；（2）server 生成随机 256 位主密钥 masterKey；（3）使用主密钥 AES 加密资产数据；（4）构造 Shamir 双多项式 $P(x)$（值多项式）和 $Q(x)$（盲因子多项式）；（5）计算 $n$ 个份额值 $v_i = P(i)$ 和盲因子 $r_i = Q(i)$；（6）计算 Pedersen 承诺 $C_i = r_iG + v_iH$ 和主承诺 $C_{\text{master}} = RG + sH$；（7）加密资产和承诺持久化存储至 server；（8）通过加密邮件将 $(v_i, r_i)$ 分发给各监护人；（9）server 内存中销毁主密钥。
+
+\textbf{继承阶段}：（1）继承人输入计划 ID 发起请求；（2）系统检查时间锁状态，未到期则拒绝；（3）通知所有监护人；（4）监护人提交份额值 $v_i$ 和盲因子 $r_i$；（5）server 通过 Pedersen 承诺验证份额真实性；（6）收集达到门限 $t$ 个有效份额后，使用 Lagrange 插值恢复主密钥；（7）使用主密钥解密资产，交付给继承人。
+
+\textbf{刷新阶段}：（1）server 生成两个 $t-1$ 次零和多项式 $Z_v(x)$ 和 $Z_r(x)$，满足 $Z_v(0) = Z_r(0) = 0$；（2）计算每个份额的增量 $\delta_{v,i} = Z_v(i)$、$\delta_{r,i} = Z_r(i)$；（3）server 计算新承诺 $C'_i = C_i + \delta_{r,i}G + \delta_{v,i}H$（纯 EC 点运算）；（4）邮件发送增量 $(\delta_{v,i}, \delta_{r,i})$ 给监护人；（5）监护人本地更新份额 $v'_i = v_i + \delta_{v,i}$、$r'_i = r_i + \delta_{r,i}$。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/flowchart.png}
+    \caption{系统完整协议流程（创建—继承—刷新三阶段）}
+    \label{fig:flowchart}
+\end{figure}

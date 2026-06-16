@@ -1,0 +1,122 @@
+% !TEX program = xelatex
+\documentclass[12pt,a4paper,UTF8]{ctexart}
+
+% ========== 页面设置 ==========
+\usepackage[top=2.54cm, bottom=2.54cm, left=3.17cm, right=3.17cm]{geometry}
+\usepackage{setspace}
+\setstretch{1.625}  % 约 25 磅行距（12pt * 1.625 ≈ 25 磅）
+
+% ========== 字体设置 ==========
+\setCJKmainfont{SimSun}        % 正文宋体
+\setCJKsansfont{SimHei}        % 无衬线黑体
+\setCJKmonofont{FangSong}      % 等宽仿宋
+\setmainfont{Times New Roman}  % 英文 Times New Roman
+
+% ========== 宏包 ==========
+\usepackage[font=footnotesize,labelsep=space]{caption}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{longtable}
+\usepackage[colorlinks=false, hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{courier}
+
+% ========== 代码块样式 ==========
+\lstdefinelanguage{TypeScript}{
+    keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break, const, let, for, await, async},
+    keywordstyle=\color{blue}\bfseries,
+    ndkeywords={class, export, boolean, throw, implements, import, this, string, number, bigint, BN, Map, Array, Promise},
+    ndkeywordstyle=\color{darkgray}\bfseries,
+    identifierstyle=\color{black},
+    sensitive=false,
+    comment=[l]{//},
+    morecomment=[s]{/*}{*/},
+    commentstyle=\color{purple}\ttfamily,
+    stringstyle=\color{red}\ttfamily,
+    morestring=[b]',
+    morestring=[b]"
+}
+\lstset{
+    basicstyle=\small\ttfamily,
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=5pt,
+    frame=single,
+    breaklines=true,
+    tabsize=4,
+    language=TypeScript,
+    backgroundcolor=\color{gray!5},
+    xleftmargin=2em,
+    framexleftmargin=2em,
+}
+
+% ========== 章节标题格式 ==========
+\titleformat{\section}{\centering\heiti\large}{\thesection}{1em}{}
+\titleformat{\subsection}{\heiti\normalsize}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\heiti\small}{\thesubsubsection}{1em}{}
+
+% ========== 页眉页脚 ==========
+\setlength{\headheight}{14pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[C]{\small 数字遗产管家——基于门限密码与同态承诺的可验证数字资产继承协议}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ========== 图片路径 ==========
+\graphicspath{{figures/}}
+
+% ========== 文档信息 ==========
+\title{\heiti\Large 数字遗产管家\\[8pt]
+       \small 基于门限密码与同态承诺的可验证数字资产继承协议}
+\author{
+    刘博瑞$^{1}$\quad 陈雨柯$^{1}$\quad 王佑宸$^{1}$\quad 吕英硕$^{1}$ \\
+    \small $^{1}$（网络空间安全学院，山东大学，青岛 266237） \\[4pt]
+    \small \textbf{指导教师}：付仕辉
+}
+\date{}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{fancy}
+
+% ========== 摘要 ==========
+\begin{center}
+    \heiti\large 摘要
+\end{center}
+
+\noindent 随着数字化程度不断提高，个人数字资产（加密货币、云账号凭证、加密文件等）在财富结构中的占比持续攀升。然而，这类资产普遍存在持有者去世后永久丢失、平台隐私政策导致继承困难、以及持有人遭受胁迫攻击等严峻安全问题。针对上述挑战，本文提出并实现了一种基于门限密码学与同态承诺的可验证数字资产继承协议——数字遗产管家（Digital Legacy Guardian）。该系统采用 Shamir 秘密共享将主密钥拆分为多份份额，分布式托管给多位监护人，并创新性地引入 Pedersen 同态承诺双多项式结构，在 server 不存储主密钥的前提下实现了可验证的份额分发与零和多项式同态刷新。同时，系统设计了胁迫码机制以抵抗胁迫攻击，支持时间锁与社会共识两种触发模式。实验结果表明，该方案在 3-of-5 门限配置下，份额拆分计算耗时 58ms，同态刷新计算耗时 12ms\footnote{此处为占位数据，需补充实际测试结果}，主密钥恢复正确率 100\%\footnote{需补充实际测试验证}，具备良好的实用性和安全性。与 Ledger Recover、Safe\{Wallet\} 等现有方案相比，本方案在零信任 server、隐私保护和抗胁迫能力方面具有显著优势。
+
+\vspace{0.5em}
+\noindent \textbf{关键词}：门限秘密共享；Pedersen 承诺；同态刷新；数字遗产；抗胁迫
+
+% ========== 目录 ==========
+\newpage
+\tableofcontents
+\newpage
+
+% ========== 正文 ==========
+\include{chapters/introduction}
+\include{chapters/background}
+\include{chapters/system_design}
+\include{chapters/implementation}
+\include{chapters/security_analysis}
+\include{chapters/experiments}
+\include{chapters/conclusion}
+
+% ========== 参考文献 ==========
+\newpage
+\bibliographystyle{unsrt}
+\bibliography{ref}
+
+\end{document}

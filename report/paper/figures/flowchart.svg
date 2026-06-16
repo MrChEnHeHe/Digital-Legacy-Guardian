@@ -1,0 +1,224 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1500" font-family="Microsoft YaHei, SimHei, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#6B7280"/>
+    </marker>
+    <marker id="arrow-red" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#DC2626"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#059669"/>
+    </marker>
+    <linearGradient id="phase1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#EEF2FF"/>
+      <stop offset="100%" style="stop-color:#E0E7FF"/>
+    </linearGradient>
+    <linearGradient id="phase2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#FEF3C7"/>
+      <stop offset="100%" style="stop-color:#FDE68A"/>
+    </linearGradient>
+    <linearGradient id="phase3" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ECFDF5"/>
+      <stop offset="100%" style="stop-color:#D1FAE5"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 标题 -->
+  <text x="500" y="40" text-anchor="middle" font-size="22" font-weight="bold" fill="#1F2937">数字遗产管家 — 完整协议流程</text>
+
+  <!-- ====== 阶段一：创建阶段 ====== -->
+  <rect x="50" y="60" width="900" height="400" rx="12" fill="url(#phase1)" stroke="#4F46E5" stroke-width="2"/>
+  <rect x="50" y="60" width="900" height="32" rx="12" fill="#4F46E5"/>
+  <rect x="50" y="80" width="900" height="12" fill="#4F46E5"/>
+  <text x="500" y="82" text-anchor="middle" font-size="14" font-weight="bold" fill="#fff">阶段一：创建阶段</text>
+
+  <!-- 第一行 -->
+  <rect x="100" y="115" width="220" height="45" rx="8" fill="#4F46E5"/>
+  <text x="210" y="143" text-anchor="middle" font-size="13" fill="#fff" font-weight="bold">用户创建遗产计划</text>
+
+  <rect x="390" y="115" width="220" height="45" rx="8" fill="#FEF3C7" stroke="#D97706"/>
+  <text x="500" y="143" text-anchor="middle" font-size="12" fill="#92400E">生成随机主密钥 masterKey</text>
+
+  <rect x="680" y="115" width="220" height="45" rx="8" fill="#F3F4F6" stroke="#6B7280"/>
+  <text x="790" y="143" text-anchor="middle" font-size="12" fill="#374151">AES 加密资产数据</text>
+
+  <line x1="320" y1="137" x2="385" y2="137" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="610" y1="137" x2="675" y2="137" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 下行箭头 -->
+  <line x1="210" y1="160" x2="210" y2="188" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="500" y1="160" x2="500" y2="188" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="790" y1="160" x2="790" y2="240" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 第二行：双多项式 -->
+  <rect x="100" y="195" width="220" height="65" rx="8" fill="#FEF3C7" stroke="#D97706"/>
+  <text x="210" y="216" text-anchor="middle" font-size="12" fill="#92400E" font-weight="bold">构造双多项式</text>
+  <text x="210" y="235" text-anchor="middle" font-size="11" fill="#92400E">P(x): 值多项式</text>
+  <text x="210" y="250" text-anchor="middle" font-size="11" fill="#92400E">Q(x): 盲因子多项式</text>
+
+  <rect x="390" y="195" width="220" height="65" rx="8" fill="#FEF3C7" stroke="#D97706"/>
+  <text x="500" y="216" text-anchor="middle" font-size="12" fill="#92400E" font-weight="bold">计算份额与承诺</text>
+  <text x="500" y="235" text-anchor="middle" font-size="11" fill="#92400E">v_i = P(i), r_i = Q(i)</text>
+  <text x="500" y="250" text-anchor="middle" font-size="11" fill="#92400E">C_i = r_i·G + v_i·H</text>
+
+  <line x1="320" y1="227" x2="385" y2="227" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 主承诺单独放一行 -->
+  <rect x="680" y="250" width="220" height="45" rx="8" fill="#FEF3C7" stroke="#D97706"/>
+  <text x="790" y="270" text-anchor="middle" font-size="12" fill="#92400E" font-weight="bold">计算主承诺</text>
+  <text x="790" y="286" text-anchor="middle" font-size="11" fill="#92400E">C_master = R·G + s·H</text>
+
+  <line x1="500" y1="260" x2="500" y2="272" stroke="#6B7280" stroke-width="1"/>
+  <line x1="500" y1="272" x2="675" y2="272" stroke="#6B7280" stroke-width="1"/>
+  <line x1="675" y1="272" x2="675" y2="295" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 合并存储 -->
+  <line x1="210" y1="260" x2="210" y2="305" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="500" y1="260" x2="500" y2="305" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="300" y="310" width="400" height="40" rx="8" fill="#F3F4F6" stroke="#6B7280"/>
+  <text x="500" y="330" text-anchor="middle" font-size="12" fill="#374151" font-weight="bold">持久化存储（加密资产 + 承诺 + 主承诺）</text>
+
+  <line x1="500" y1="350" x2="500" y2="375" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="300" y="380" width="400" height="40" rx="8" fill="#4F46E5"/>
+  <text x="500" y="405" text-anchor="middle" font-size="13" fill="#fff" font-weight="bold">📧 邮件分发份额 v_i, r_i 给监护人</text>
+
+  <line x1="500" y1="420" x2="500" y2="435" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="350" y="440" width="300" height="22" rx="4" fill="#FEE2F2" stroke="#EF4444" stroke-width="1.5"/>
+  <text x="500" y="455" text-anchor="middle" font-size="12" fill="#DC2626" font-weight="bold">🗑️ 内存中销毁主密钥</text>
+
+  <!-- ====== 阶段间箭头 ====== -->
+  <line x1="500" y1="462" x2="500" y2="495" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- ====== 阶段二：继承阶段 ====== -->
+  <rect x="50" y="500" width="900" height="450" rx="12" fill="url(#phase2)" stroke="#D97706" stroke-width="2"/>
+  <rect x="50" y="500" width="900" height="32" rx="12" fill="#D97706"/>
+  <rect x="50" y="520" width="900" height="12" fill="#D97706"/>
+  <text x="500" y="522" text-anchor="middle" font-size="14" font-weight="bold" fill="#fff">阶段二：继承阶段</text>
+
+  <!-- 发起请求 -->
+  <rect x="100" y="550" width="220" height="40" rx="8" fill="#4F46E5"/>
+  <text x="210" y="575" text-anchor="middle" font-size="13" fill="#fff" font-weight="bold">继承人发起请求</text>
+
+  <!-- 时间锁判断 -->
+  <polygon points="500,550 600,570 500,590 400,570" fill="#FFF7ED" stroke="#EA580C" stroke-width="2"/>
+  <text x="500" y="574" text-anchor="middle" font-size="12" fill="#9A3412" font-weight="bold">时间锁?</text>
+
+  <line x1="320" y1="570" x2="395" y2="570" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 未到期分支 -->
+  <text x="620" y="564" font-size="11" fill="#DC2626">未到期</text>
+  <line x1="600" y1="570" x2="670" y2="570" stroke="#DC2626" stroke-width="1.5"/>
+  <rect x="680" y="555" width="230" height="30" rx="6" fill="#FEE2F2" stroke="#EF4444"/>
+  <text x="795" y="575" text-anchor="middle" font-size="12" fill="#DC2626">拒绝请求，返回剩余时间</text>
+
+  <!-- 到期分支 -->
+  <text x="535" y="610" font-size="12" fill="#059669" font-weight="bold">到期</text>
+  <line x1="500" y1="590" x2="500" y2="620" stroke="#059669" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="340" y="625" width="320" height="40" rx="8" fill="#4F46E5"/>
+  <text x="500" y="650" text-anchor="middle" font-size="13" fill="#fff" font-weight="bold">📧 通知所有监护人提交份额</text>
+
+  <line x1="500" y1="665" x2="500" y2="690" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="340" y="695" width="320" height="40" rx="8" fill="#4F46E5"/>
+  <text x="500" y="720" text-anchor="middle" font-size="13" fill="#fff" font-weight="bold">监护人在线提交份额</text>
+
+  <line x1="500" y1="735" x2="500" y2="755" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Pedersen 验证菱形 -->
+  <polygon points="500,760 600,780 500,800 400,780" fill="#FFF7ED" stroke="#EA580C" stroke-width="2"/>
+  <text x="500" y="778" text-anchor="middle" font-size="11" fill="#9A3412">Pedersen</text>
+  <text x="500" y="792" text-anchor="middle" font-size="11" fill="#9A3412">承诺验证</text>
+
+  <!-- 胁迫分支 -->
+  <text x="620" y="775" font-size="11" fill="#DC2626">匹配胁迫</text>
+  <line x1="600" y1="780" x2="670" y2="780" stroke="#DC2626" stroke-width="1.5"/>
+  <rect x="680" y="765" width="230" height="30" rx="6" fill="#FEE2F2" stroke="#EF4444"/>
+  <text x="795" y="785" text-anchor="middle" font-size="12" fill="#DC2626">🚨 触发胁迫警报，继承终止</text>
+
+  <!-- 正常分支 → 直下 -->
+  <text x="475" y="822" font-size="12" fill="#059669" font-weight="bold">✓ 正常</text>
+  <line x1="500" y1="800" x2="500" y2="835" stroke="#059669" stroke-width="2" marker-end="url(#arrow-green)"/>
+
+  <!-- 居中判断 -->
+  <polygon points="500,840 640,865 500,890 360,865" fill="#FFF7ED" stroke="#EA580C" stroke-width="2"/>
+  <text x="500" y="863" text-anchor="middle" font-size="12" fill="#9A3412">收集份额</text>
+  <text x="500" y="878" text-anchor="middle" font-size="12" fill="#9A3412">≥ 门限 t?</text>
+
+  <!-- 否 → 右折回退 -->
+  <text x="660" y="860" font-size="12" fill="#DC2626" font-weight="bold">否</text>
+  <line x1="640" y1="865" x2="700" y2="865" stroke="#DC2626" stroke-width="1.5"/>
+  <line x1="700" y1="865" x2="700" y2="715" stroke="#DC2626" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <line x1="700" y1="715" x2="660" y2="715" stroke="#DC2626" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrow-red)"/>
+  <text x="720" y="795" font-size="10" fill="#DC2626">继续等待</text>
+
+  <!-- 是 → 直下 -->
+  <text x="530" y="905" font-size="12" fill="#059669" font-weight="bold">✓ 是</text>
+  <line x1="500" y1="890" x2="500" y2="915" stroke="#059669" stroke-width="2" marker-end="url(#arrow-green)"/>
+
+  <rect x="330" y="920" width="340" height="40" rx="8" fill="#10B981"/>
+  <text x="500" y="945" text-anchor="middle" font-size="13" fill="#fff" font-weight="bold">🔑 Lagrange 插值恢复主密钥</text>
+
+  <line x1="500" y1="960" x2="500" y2="975" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="380" y="980" width="240" height="35" rx="8" fill="#10B981"/>
+  <text x="500" y="1003" text-anchor="middle" font-size="13" fill="#fff" font-weight="bold">📤 资产交付给继承人</text>
+
+  <!-- ====== 阶段间箭头 ====== -->
+  <line x1="500" y1="1015" x2="500" y2="1040" stroke="#6B7280" stroke-width="2"/>
+
+  <!-- ====== 阶段三：刷新阶段 ====== -->
+  <rect x="50" y="1040" width="900" height="400" rx="12" fill="url(#phase3)" stroke="#059669" stroke-width="2"/>
+  <rect x="50" y="1040" width="900" height="32" rx="12" fill="#059669"/>
+  <rect x="50" y="1060" width="900" height="12" fill="#059669"/>
+  <text x="500" y="1062" text-anchor="middle" font-size="14" font-weight="bold" fill="#fff">阶段三：同态份额刷新</text>
+
+  <rect x="320" y="1105" width="360" height="40" rx="8" fill="#4F46E5"/>
+  <text x="500" y="1130" text-anchor="middle" font-size="13" fill="#fff" font-weight="bold">份额可能泄露或需定期刷新</text>
+
+  <line x1="500" y1="1145" x2="500" y2="1165" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 两列 -->
+  <rect x="100" y="1170" width="380" height="65" rx="8" fill="#FEF3C7" stroke="#D97706"/>
+  <text x="290" y="1192" text-anchor="middle" font-size="12" fill="#92400E" font-weight="bold">生成零和多项式</text>
+  <text x="290" y="1210" text-anchor="middle" font-size="11" fill="#92400E">Z_v(x): 值增量，Z_v(0) = 0</text>
+  <text x="290" y="1225" text-anchor="middle" font-size="11" fill="#92400E">Z_r(x): 盲因子增量，Z_r(0) = 0</text>
+
+  <line x1="500" y1="1165" x2="290" y2="1165" stroke="#6B7280" stroke-width="1"/>
+  <line x1="290" y1="1145" x2="290" y2="1165" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="520" y="1170" width="380" height="65" rx="8" fill="#FEF3C7" stroke="#D97706"/>
+  <text x="710" y="1192" text-anchor="middle" font-size="12" fill="#92400E" font-weight="bold">计算每份增量及新承诺</text>
+  <text x="710" y="1210" text-anchor="middle" font-size="11" fill="#92400E">δ_v(i), δ_r(i) 通过邮件发送</text>
+  <text x="710" y="1225" text-anchor="middle" font-size="11" fill="#92400E">C'_i = C_i + δ_r·G + δ_v·H</text>
+
+  <line x1="480" y1="1203" x2="515" y2="1203" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <line x1="290" y1="1235" x2="290" y2="1265" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="710" y1="1235" x2="710" y2="1265" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 并行操作 -->
+  <rect x="100" y="1270" width="380" height="40" rx="8" fill="#4F46E5"/>
+  <text x="290" y="1295" text-anchor="middle" font-size="13" fill="#fff" font-weight="bold">📧 邮件发送增量给监护人</text>
+
+  <rect x="520" y="1270" width="380" height="40" rx="8" fill="#ECFDF5" stroke="#059669"/>
+  <text x="710" y="1295" text-anchor="middle" font-size="12" fill="#065F46" font-weight="bold">Server 更新存储的承诺（EC点运算）</text>
+
+  <line x1="290" y1="1310" x2="290" y2="1335" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="100" y="1340" width="380" height="40" rx="8" fill="#10B981"/>
+  <text x="290" y="1365" text-anchor="middle" font-size="13" fill="#fff" font-weight="bold">监护人本地更新份额</text>
+
+  <!-- 主承诺不变标注 -->
+  <rect x="560" y="1340" width="300" height="30" rx="6" fill="#D1FAE5" stroke="#059669"/>
+  <text x="710" y="1360" text-anchor="middle" font-size="13" fill="#059669" font-weight="bold">主承诺 C_master 不变 ✅</text>
+
+  <line x1="710" y1="1310" x2="710" y2="1335" stroke="#6B7280" stroke-width="2"/>
+
+  <!-- 底栏 -->
+  <rect x="250" y="1415" width="500" height="35" rx="8" fill="#F3F4F6" stroke="#6B7280"/>
+  <text x="500" y="1437" text-anchor="middle" font-size="12" fill="#374151">安全保障：全程不接触主密钥 · 零和多项式一次有效 · 纯EC点运算</text>
+</svg>
