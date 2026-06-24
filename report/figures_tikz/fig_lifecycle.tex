@@ -1,0 +1,54 @@
+\documentclass[border=12pt]{standalone}
+\usepackage{ctex}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,calc,fit,backgrounds,shapes.multipart}
+
+\newcommand{\project}{数字遗产管家}
+\newcommand{\englishname}{Digital Legacy Guardian}
+\newcommand{\riskline}[3]{#1 & #2 & #3\\}
+\newcommand{\apiline}[3]{#1 & #2 & #3\\}
+
+\begin{document}
+\begin{tikzpicture}[
+  entity/.style={draw,rounded corners,minimum width=2.8cm,minimum height=1.0cm,align=center,font=\small,inner sep=5pt,fill=white},
+  dflow/.style={-{Stealth},thick},
+  dflowd/.style={-{Stealth},thick,dashed}
+]
+% ===== 创建阶段（上半部分） =====
+\node[font=\small\bfseries,text=blue!50!black] at (0,0.3) {【创建阶段：实线】};
+
+\node[entity,fill=blue!8,draw=blue!40!black] at (-4,0) (owner) {资产持有人\\Alice};
+\node[entity,fill=green!8,draw=green!40!black] at (0,0) (backend) {后端服务\\密码学引擎};
+\node[entity,fill=orange!8,draw=orange!50!black] at (4,0) (storage) {持久化存储\\StoredShare};
+\node[entity,fill=purple!8,draw=purple!50!black] at (8,0) (contract) {智能合约\\链上记录};
+
+\draw[dflow,blue!50!black] (owner) -- node[above,font=\scriptsize]{提交计划} (backend);
+\draw[dflow,blue!50!black] (backend) -- node[above,font=\scriptsize]{存承诺/证明} (storage);
+\draw[dflow,blue!50!black] (storage) -- node[above,font=\scriptsize]{链上映射} (contract);
+
+% ===== 继承阶段（下半部分） =====
+\node[font=\small\bfseries,text=red!50!black] at (0,-5.2) {【继承阶段：虚线】};
+
+\node[entity,fill=gray!10,draw=gray!50!black] at (-4,-4.0) (guardians) {监护人\\Bob、Carol};
+\node[entity,fill=red!8,draw=red!40!black] at (0,-4.0) (verify) {验证管道\\三层串行};
+\node[entity,fill=yellow!8,draw=yellow!50!black] at (4,-4.0) (heir) {继承人\\Eve};
+
+\draw[dflowd,red!50!black] (guardians) -- node[above,font=\scriptsize]{提交份额} (verify);
+\draw[dflowd,red!50!black] (storage.south) -- node[pos=0.5,right,font=\scriptsize]{读取材料} (verify.north);
+\draw[dflowd,red!50!black] (verify) -- node[above,font=\scriptsize]{恢复K$\to$解密} (heir);
+
+% ===== 跨阶段连接 =====
+\draw[dflow,green!50!black] (backend.south) -- node[pos=0.5,right,font=\scriptsize,align=center]{邮件分发\\份额value} (guardians.north);
+
+% ===== 安全标注（右侧独立位置） =====
+\node[font=\footnotesize,right=0.5cm of contract,text=gray,align=left] {
+  $\bullet$ 主密钥K仅内存暂存\\
+  $\bullet$ 存储不含value字段\\
+  $\bullet$ 双层串行验证
+};
+\end{tikzpicture}
+\end{document}

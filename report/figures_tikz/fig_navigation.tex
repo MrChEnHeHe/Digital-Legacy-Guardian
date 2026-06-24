@@ -1,0 +1,51 @@
+\documentclass[border=12pt]{standalone}
+\usepackage{ctex}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,calc,fit,backgrounds,shapes.multipart}
+
+\newcommand{\project}{数字遗产管家}
+\newcommand{\englishname}{Digital Legacy Guardian}
+\newcommand{\riskline}[3]{#1 & #2 & #3\\}
+\newcommand{\apiline}[3]{#1 & #2 & #3\\}
+
+\begin{document}
+\begin{tikzpicture}[
+  page/.style={draw,rounded corners,minimum width=2.8cm,minimum height=0.8cm,align=center,font=\small,inner sep=5pt},
+  arrow/.style={-{Stealth},thick,font=\footnotesize}
+]
+% Central node - Dashboard
+\node[page,fill=green!10,draw=green!50!black,minimum width=3.5cm,minimum height=1.0cm] (dash) {\textbf{控制台}\\用户中心};
+% Top - Home
+\node[page,fill=blue!5,draw=blue!40!black,above=2cm of dash] (home) {\textbf{首页}\\系统入口};
+% Left column - Plan management
+\node[page,fill=yellow!8,draw=yellow!50!black,left=2.5cm of dash] (create) {\textbf{创建计划}\\四步向导};
+% Right column - Inheritance
+\node[page,fill=orange!8,draw=orange!50!black,right=2.5cm of dash] (inherit) {\textbf{继承流程}\\发起与查看};
+% Bottom left
+\node[page,fill=purple!5,draw=purple!40!black,below left=1.5cm of dash,xshift=-0.5cm] (guardian) {\textbf{监护人门户}\\提交份额};
+% Bottom right
+\node[page,fill=red!5,draw=red!40!black,below right=1.5cm of dash,xshift=0.5cm] (ai) {\textbf{AI助手}\\自然语言交互};
+% Bottom
+\node[page,fill=gray!5,draw=gray!40!black,below=2.5cm of dash] (login) {\textbf{登录}\\认证入口};
+
+% Arrows - hub and spoke
+\draw[arrow,blue!50!black] (home) -- (dash);
+\draw[arrow,yellow!50!black] (dash) -- (create);
+\draw[arrow,orange!50!black] (dash) -- (inherit);
+\draw[arrow,purple!50!black] (dash) -- (guardian);
+\draw[arrow,red!50!black] (dash) -- (ai);
+\draw[arrow,gray!50!black,dashed] (login) -- (home) node[midway,right,font=\footnotesize]{认证};
+
+% Labels
+\node[font=\footnotesize,right=0.3cm of home.east,text=blue!50!black] {/};
+\node[font=\footnotesize,below=0.3cm of create.south,text=yellow!70!black] {/create-plan};
+\node[font=\footnotesize,below=0.3cm of inherit.south,text=orange!70!black] {/inheritance};
+\node[font=\footnotesize,below=0.3cm of dash.south,text=green!70!black] {/dashboard};
+\node[font=\footnotesize,below=0.2cm of guardian.south,text=purple!70!black] {/guardian};
+\node[font=\footnotesize,below=0.2cm of ai.south,text=red!70!black] {/ai-helper};
+\end{tikzpicture}
+\end{document}

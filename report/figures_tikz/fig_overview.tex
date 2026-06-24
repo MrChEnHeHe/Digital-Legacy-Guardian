@@ -1,0 +1,53 @@
+\documentclass[border=12pt]{standalone}
+\usepackage{ctex}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric}
+\newcommand{\project}{数字遗产管家}
+\newcommand{\englishname}{Digital Legacy Guardian}
+\newcommand{\riskline}[3]{#1 & #2 & #3\\}
+\newcommand{\apiline}[3]{#1 & #2 & #3\\}
+\begin{document}
+\begin{tikzpicture}[
+    box/.style={draw,rounded corners,minimum width=3.2cm,minimum height=1.0cm,align=center,font=\small,inner sep=4pt,fill=white},
+    arr/.style={-{Stealth},thick,font=\tiny},
+    darr/.style={-{Stealth},thick,dashed,font=\tiny}
+]
+
+% 第1行：资产持有人（顶部居中）
+\node[box,fill=blue!10,draw=blue!50!black] (owner) {资产持有人};
+
+% 第2行：后端服务平台（居中，在监护人上方）
+\node[box,fill=gray!10,draw=gray!50!black,below=3.0cm of owner] (server) {后端服务平台};
+
+% 第3行：三个监护人水平排列
+\node[box,fill=green!8,draw=green!50!black,below=3.0cm of server,xshift=-3.8cm] (g1) {监护人A};
+\node[box,fill=green!8,draw=green!50!black,below=3.0cm of server] (g2) {监护人B};
+\node[box,fill=green!8,draw=green!50!black,below=3.0cm of server,xshift=3.8cm] (g3) {监护人C};
+
+% 第4行：继承人（底部居中）
+\node[box,fill=orange!10,draw=orange!60!black,below=4.0cm of g2] (heir) {合法继承人};
+
+% ===== 创建阶段（实线蓝） =====
+\draw[arr,blue!50!black] (owner.south) -- node[pos=0.5,right,font=\tiny]{主密钥拆分} (server.north);
+\draw[arr,blue!50!black] (server.south) -- node[pos=0.5,left,font=\tiny]{份额$y_1$} (g1.north);
+\draw[arr,blue!50!black] (server.south) -- node[pos=0.5,left,font=\tiny]{份额$y_2$} (g2.north);
+\draw[arr,blue!50!black] (server.south) -- node[pos=0.5,right,font=\tiny]{份额$y_3$} (g3.north);
+
+% ===== 继承阶段（虚线绿） =====
+\draw[darr,green!50!black] (g1.south) -- node[left,font=\tiny]{提交份额} (heir.north west);
+\draw[darr,green!50!black] (g2.south) -- node[above,font=\tiny]{提交份额} (heir.north);
+\draw[darr,green!50!black] (g3.south) -- node[right,font=\tiny]{提交份额} (heir.north east);
+
+% ===== 阶段标签 =====
+\node[font=\small\bfseries,blue!50!black,above=0.2cm of owner] {创建阶段};
+\node[font=\small\bfseries,green!50!black,above=0.2cm of g1] {继承阶段};
+
+% ===== 底部说明 =====
+\node[font=\footnotesize,below=0.3cm of heir,text=gray] {创建 $\to$ 拆分 $\to$ 分发 $\to$ 触发 $\to$ 提交 $\to$ 验证 $\to$ 恢复 $\to$ 交付};
+
+\end{tikzpicture}
+\end{document}

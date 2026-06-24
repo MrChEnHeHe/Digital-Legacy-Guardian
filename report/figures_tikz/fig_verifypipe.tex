@@ -1,0 +1,54 @@
+\documentclass[border=12pt]{standalone}
+\usepackage{ctex}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,calc,fit,backgrounds,shapes.multipart}
+
+\newcommand{\project}{数字遗产管家}
+\newcommand{\englishname}{Digital Legacy Guardian}
+\newcommand{\riskline}[3]{#1 & #2 & #3\\}
+\newcommand{\apiline}[3]{#1 & #2 & #3\\}
+
+\begin{document}
+\begin{tikzpicture}[
+  vnode/.style={rectangle,draw,rounded corners,minimum width=5.2cm,minimum height=1.1cm,align=center,font=\small,inner sep=6pt},
+  pass/.style={-{Stealth},very thick,green!40!black},
+  fail/.style={-{Stealth},thick,red!50!black,dashed},
+  rbox/.style={rectangle,draw,rounded corners,fill=red!5,draw=red!40!black,minimum width=2.8cm,minimum height=0.7cm,align=center,font=\small}
+]
+% Input
+\node[draw,rounded corners,fill=gray!5,minimum width=3.5cm,minimum height=0.8cm,align=center,font=\small] (input) {监护人提交 $(x_i, y_i')$};
+
+% 3 verification layers stacked vertically
+\node[vnode,fill=blue!3,draw=blue!40!black,below=1cm of input] (v1) {\textbf{第一层：份额承诺验证}\\[2pt] $y_i'G \stackrel{?}{=} Y_i$（存储在 StoredShare.commitment）};
+
+\node[vnode,fill=green!3,draw=green!40!black,below=0.7cm of v1] (v2) {\textbf{第二层：Feldman 多项式承诺验证}\\[2pt] $Y_i \stackrel{?}{=} \sum_{j=0}^{t-1} x_i^j \cdot A_j$（$A_j$ 存储在 polynomialCommitments）};
+
+\node[vnode,fill=yellow!5,draw=yellow!50!black,below=0.7cm of v2] (v3) {\textbf{第三层：Schnorr 非交互式零知识证明}\\[2pt] $zG \stackrel{?}{=} R + eY_i$（证明 $(R,z)$ 存储在 proof）};
+
+% Accept at bottom
+\node[rbox,minimum width=4cm,minimum height=0.9cm,below=0.7cm of v3,fill=green!5,draw=green!40!black] (acc) {\textbf{$\checkmark$ 三层全通过}\\份额计入收集，参与密钥恢复};
+
+% Reject nodes on the right
+\node[rbox,right=5cm of v1] (r1) {$\times$ 份额值\\被篡改};
+\node[rbox,right=5cm of v2] (r2) {$\times$ 来源\\不一致};
+\node[rbox,right=5cm of v3] (r3) {$\times$ 证明者\\不掌握秘密};
+
+% Arrows
+\draw[pass] (input) -- (v1);
+\draw[pass] (v1) -- (v2);
+\draw[pass] (v2) -- (v3);
+\draw[pass] (v3) -- (acc);
+
+% Fail arrows to reject boxes
+\draw[fail] (v1.east) -- (r1.west);
+\draw[fail] (v2.east) -- (r2.west);
+\draw[fail] (v3.east) -- (r3.west);
+
+% Bottom note
+\node[font=\footnotesize,below=0.3cm of acc,text=gray] {双层串行验证：任一失败即拒绝，仅全通过才进入恢复};
+\end{tikzpicture}
+\end{document}

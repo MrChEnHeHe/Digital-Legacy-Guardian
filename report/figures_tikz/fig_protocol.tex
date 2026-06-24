@@ -1,0 +1,50 @@
+\documentclass[border=12pt]{standalone}
+\usepackage{ctex}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,calc,fit,backgrounds,shapes.multipart}
+
+\newcommand{\project}{数字遗产管家}
+\newcommand{\englishname}{Digital Legacy Guardian}
+\newcommand{\riskline}[3]{#1 & #2 & #3\\}
+\newcommand{\apiline}[3]{#1 & #2 & #3\\}
+
+\begin{document}
+\begin{tikzpicture}[
+  party/.style={draw,rounded corners,minimum width=2.8cm,minimum height=0.8cm,align=center,font=\small,inner sep=4pt},
+  msg/.style={font=\footnotesize,align=center},
+  arrow/.style={-{Stealth},thick},
+  darrow/.style={-{Stealth},thick,dashed}
+]
+% === Parties ===
+\node[party,fill=blue!5,draw=blue!40!black] (prover) {Prover\\\footnotesize 后端（创建阶段）};
+\node[party,fill=gray!5,draw=gray!40!black,right=5.5cm of prover] (store) {公开存储\\\footnotesize plans.json};
+\node[party,fill=green!5,draw=green!40!black,below=5.5cm of store] (verifier) {Verifier\\\footnotesize 后端（验证阶段）};
+\node[party,fill=orange!5,draw=orange!40!black,left=5.5cm of verifier] (guardian) {监护人\\\footnotesize Prover};
+
+% === Phase labels ===
+\node[font=\small\bfseries,above=0.3cm of prover,text=blue!50!black] {【计划创建阶段】};
+\node[font=\small\bfseries,below=6cm of verifier,text=green!50!black,anchor=north] {【继承恢复阶段】};
+
+% === Creation phase messages ===
+\draw[arrow,blue!50!black] (prover.east) -- (store.west) node[msg,above,pos=0.5]{1. 写入公开材料\\$Y_i=A_0+x_iA_1+\cdots$\\$A_j=a_jG$ for $j=0..t-1$\\$\pi_i=(R_i,e_i,z_i)$};
+\draw[arrow,blue!50!black] (prover.south) |- node[msg,pos=0.85,left]{2. 邮件分发秘密\\$y_i=f(i)$ (仅此一次)} (guardian.north);
+
+% === Verification phase messages ===
+\draw[darrow,green!50!black] (guardian) -- node[msg,above,font=scriptsize]{3. 提交 $(x_i,y_i')$} (verifier);
+\draw[darrow,green!50!black] (verifier.north) -- node[msg,left,pos=0.5,font=scriptsize]{4. 读取公开材料} (store.south);
+\node[msg,right=0.1cm of verifier,text=green!50!black,font=scriptsize] {5. 三层验证};
+
+% === Verification detail box ===
+\node[draw,rounded corners,fill=green!3,minimum width=4.5cm,minimum height=2.2cm,align=left,font=\footnotesize,right=1.2cm of verifier.east,anchor=north west] (detail) {
+  \textbf{三层验证流程：}\\
+  $\bullet$ $y_i'G \stackrel{?}{=} Y_i$\\
+  $\bullet$ $Y_i \stackrel{?}{=} \sum x_i^jA_j$\\
+  $\bullet$ $z_iG \stackrel{?}{=} R_i+e_iY_i$
+};
+
+\end{tikzpicture}
+\end{document}

@@ -1,0 +1,59 @@
+\documentclass[border=12pt]{standalone}
+\usepackage{ctex}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,calc,fit,backgrounds,shapes.multipart}
+
+\newcommand{\project}{数字遗产管家}
+\newcommand{\englishname}{Digital Legacy Guardian}
+\newcommand{\riskline}[3]{#1 & #2 & #3\\}
+\newcommand{\apiline}[3]{#1 & #2 & #3\\}
+
+\begin{document}
+\begin{tikzpicture}[
+  block/.style={rectangle,draw,rounded corners,minimum width=12cm,minimum height=1.0cm,align=left,font=\small,inner sep=8pt},
+  arrow/.style={-{Stealth},thick,font=\footnotesize},
+  lbl/.style={font=\footnotesize,fill=white,inner sep=2pt}
+]
+% Layer 1 - Presentation
+\node[block,fill=blue!5,draw=blue!40!black] (l1) {
+  \textbf{用户层（Presentation）}\hfill React 18 + TypeScript + TailwindCSS + Vite\\
+  \footnotesize 首页 | 创建计划向导 | 控制台 | 继承流程 | 监护人门户 | AI助手
+};
+% Layer 2 - API
+\node[block,fill=green!5,draw=green!40!black,below=0.7cm of l1] (l2) {
+  \textbf{API层（Application）}\hfill Node.js + Express + TypeScript\\
+  \footnotesize RESTful接口 | CORS | 参数校验 | 路由分发 | 错误处理
+};
+% Layer 3 - Core Service
+\node[block,fill=yellow!8,draw=yellow!50!black,below=0.7cm of l2] (l3) {
+  \textbf{核心服务层（Core Service）}\hfill crypto / elliptic / crypto-js\\
+  \footnotesize Shamir SSS | Pedersen承诺 | Pedersen承诺 NIZK（未来） | AES-256 | PBKDF2 | 邮件通知
+};
+% Layer 4 - Storage
+\node[block,fill=orange!8,draw=orange!50!black,below=0.7cm of l3] (l4) {
+  \textbf{存储层（Storage）}\hfill JSON File System\\
+  \footnotesize plans.json (StoredShare, 不含value) | requests.json | users.json | verificationCodes.json
+};
+% Layer 5 - Contract
+\node[block,fill=red!5,draw=red!40!black,below=0.7cm of l4] (l5) {
+  \textbf{智能合约层（Blockchain）}\hfill Solidity 0.8.x + Hardhat\\
+  \footnotesize LegacyContract: createPlan | submitShare | triggerPlan | completePlan | 状态机与事件
+};
+% Arrows
+\draw[arrow,blue!50!black] (l1.south) -- (l2.north) node[lbl,midway,right]{HTTPS/JSON};
+\draw[arrow,green!50!black] (l2.south) -- (l3.north) node[lbl,midway,right]{服务调用};
+\draw[arrow,orange!50!black] (l3.south) -- (l4.north) node[lbl,midway,right]{非敏感数据持久化};
+\draw[arrow,red!50!black] (l4.south) -- (l5.north) node[lbl,midway,right]{链上状态映射};
+
+% Side labels
+\node[font=\footnotesize,anchor=east,left=0.3cm of l1,blue!50!black] {\textbf{L5}};
+\node[font=\footnotesize,anchor=east,left=0.3cm of l2,green!50!black] {\textbf{L4}};
+\node[font=\footnotesize,anchor=east,left=0.3cm of l3,yellow!60!black] {\textbf{L3}};
+\node[font=\footnotesize,anchor=east,left=0.3cm of l4,orange!60!black] {\textbf{L2}};
+\node[font=\footnotesize,anchor=east,left=0.3cm of l5,red!50!black] {\textbf{L1}};
+\end{tikzpicture}
+\end{document}

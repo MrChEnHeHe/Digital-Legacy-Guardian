@@ -1,0 +1,32 @@
+\documentclass[border=12pt]{standalone}
+\usepackage{ctex}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,calc,fit,backgrounds,shapes.multipart}
+
+\newcommand{\project}{数字遗产管家}
+\newcommand{\englishname}{Digital Legacy Guardian}
+\newcommand{\riskline}[3]{#1 & #2 & #3\\}
+\newcommand{\apiline}[3]{#1 & #2 & #3\\}
+
+\begin{document}
+\begin{tikzpicture}[
+  level/.style={draw,rounded corners,minimum width=8cm,minimum height=0.9cm,align=center,font=\small,inner sep=6pt}
+]
+% Pyramid: bottom to top
+\node[level,fill=gray!5,draw=gray!40!black,minimum width=11cm] (e2e) {\textbf{端到端演示验证} — 完整业务闭环：创建 $\to$ 触发 $\to$ 恢复};
+\node[level,fill=yellow!8,draw=yellow!50!black,minimum width=9cm,above=0.6cm of e2e] (security) {\textbf{安全测试} — 伪造份额 | 重复提交 | 时间锁绕过 | 未达门限恢复};
+\node[level,fill=orange!8,draw=orange!50!black,minimum width=7cm,above=0.6cm of security] (contract) {\textbf{合约测试} — createPlan | submitShare | triggerPlan | completePlan};
+\node[level,fill=green!8,draw=green!40!black,minimum width=5cm,above=0.6cm of contract] (api) {\textbf{接口测试} — API端点 | 参数校验 | 状态码 | 错误响应};
+\node[level,fill=blue!8,draw=blue!40!black,minimum width=3cm,above=0.6cm of api] (unit) {\textbf{单元测试} — Shamir SSS | Pedersen承诺 | Pedersen承诺};
+% Left labels
+\node[font=\footnotesize,anchor=east,left=0.2cm of unit,text=blue!50!black] {密码学};
+\node[font=\footnotesize,anchor=east,left=0.2cm of api,text=green!50!black] {API};
+\node[font=\footnotesize,anchor=east,left=0.2cm of contract,text=orange!50!black] {链上};
+\node[font=\footnotesize,anchor=east,left=0.2cm of security,text=yellow!70!black] {安全};
+\node[font=\footnotesize,anchor=east,left=0.2cm of e2e,text=gray!50!black] {集成};
+\end{tikzpicture}
+\end{document}

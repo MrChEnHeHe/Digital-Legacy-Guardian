@@ -1,0 +1,40 @@
+\documentclass[border=12pt]{standalone}
+\usepackage{ctex}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,calc,fit,backgrounds,shapes.multipart}
+
+\newcommand{\project}{数字遗产管家}
+\newcommand{\englishname}{Digital Legacy Guardian}
+\newcommand{\riskline}[3]{#1 & #2 & #3\\}
+\newcommand{\apiline}[3]{#1 & #2 & #3\\}
+
+\begin{document}
+\begin{tikzpicture}
+\begin{axis}[
+  ybar,
+  width=0.82\textwidth,
+  height=5.5cm,
+  ylabel={相对计算开销（1--10）},
+  symbolic x coords={创建计划,提交份额,查询状态,恢复资产,合约部署,合约触发},
+  xtick=data,
+  xticklabel style={font=\footnotesize, align=center, text width=2cm},
+  nodes near coords,
+  ymin=0,
+  ymax=11,
+  bar width=16pt
+]
+\addplot[fill=blue!35] coordinates {
+  (创建计划,8)
+  (提交份额,5)
+  (查询状态,2)
+  (恢复资产,7)
+  (合约部署,9)
+  (合约触发,4)
+};
+\end{axis}
+\end{tikzpicture}
+\end{document}

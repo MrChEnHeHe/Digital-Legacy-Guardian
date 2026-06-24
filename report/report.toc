@@ -1,0 +1,137 @@
+\contentsline {chapter}{摘要}{1}{chapter*.1}%
+\contentsline {chapter}{\numberline {第一章\hspace {.3em}}作品概述}{7}{chapter.1}%
+\contentsline {section}{\numberline {1.1}研究背景}{7}{section.1.1}%
+\contentsline {section}{\numberline {1.2}需求分析}{8}{section.1.2}%
+\contentsline {section}{\numberline {1.3}项目目标}{9}{section.1.3}%
+\contentsline {section}{\numberline {1.4}相关工作}{9}{section.1.4}%
+\contentsline {section}{\numberline {1.5}应用前景}{10}{section.1.5}%
+\contentsline {chapter}{\numberline {第二章\hspace {.3em}}作品设计与实现}{12}{chapter.2}%
+\contentsline {section}{\numberline {2.1}总体架构}{12}{section.2.1}%
+\contentsline {section}{\numberline {2.2}功能模块划分}{13}{section.2.2}%
+\contentsline {section}{\numberline {2.3}核心数据结构}{14}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}后端LegacyPlan结构}{14}{subsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.3.2}Share与StoredShare的差分设计}{16}{subsection.2.3.2}%
+\contentsline {subsection}{\numberline {2.3.3}InheritanceRequest结构}{17}{subsection.2.3.3}%
+\contentsline {section}{\numberline {2.4}创建遗产计划完整流程}{17}{section.2.4}%
+\contentsline {subsection}{\numberline {2.4.1}前端多步骤向导}{17}{subsection.2.4.1}%
+\contentsline {subsection}{\numberline {2.4.2}后端创建流程}{17}{subsection.2.4.2}%
+\contentsline {subsection}{\numberline {2.4.3}创建计划关键代码}{18}{subsection.2.4.3}%
+\contentsline {section}{\numberline {2.5}Shamir秘密共享实现}{20}{section.2.5}%
+\contentsline {subsection}{\numberline {2.5.1}数学原理}{20}{subsection.2.5.1}%
+\contentsline {subsection}{\numberline {2.5.2}代码实现}{20}{subsection.2.5.2}%
+\contentsline {subsection}{\numberline {2.5.3}随机标量生成}{22}{subsection.2.5.3}%
+\contentsline {section}{\numberline {2.6}Pedersen同态承诺与双多项式结构}{23}{section.2.6}%
+\contentsline {subsection}{\numberline {2.6.1}Pedersen同态承诺}{23}{subsection.2.6.1}%
+\contentsline {subsection}{\numberline {2.6.2}双多项式份额结构}{24}{subsection.2.6.2}%
+\contentsline {subsection}{\numberline {2.6.3}同态份额刷新（零和多项式）}{24}{subsection.2.6.3}%
+\contentsline {section}{\numberline {2.7}可验证秘密共享与零知识证明}{25}{section.2.7}%
+\contentsline {subsection}{\numberline {2.7.1}第一层：份额承诺验证}{25}{subsection.2.7.1}%
+\contentsline {subsection}{\numberline {2.7.2}第二层：Pedersen同态承诺验证}{26}{subsection.2.7.2}%
+\contentsline {subsection}{\numberline {2.7.3}Schnorr零知识证明（未来扩展方向）}{27}{subsection.2.7.3}%
+\contentsline {subsection}{\numberline {2.7.4}综合验证流程}{28}{subsection.2.7.4}%
+\contentsline {section}{\numberline {2.8}VSS与未来扩展：Schnorr协议交互时序}{29}{section.2.8}%
+\contentsline {section}{\numberline {2.9}资产加密与恢复}{29}{section.2.9}%
+\contentsline {subsection}{\numberline {2.9.1}加密层设计}{30}{subsection.2.9.1}%
+\contentsline {subsection}{\numberline {2.9.2}门限层设计}{30}{subsection.2.9.2}%
+\contentsline {subsection}{\numberline {2.9.3}恢复链路}{31}{subsection.2.9.3}%
+\contentsline {section}{\numberline {2.10}触发模式设计}{32}{section.2.10}%
+\contentsline {subsection}{\numberline {2.10.1}后端触发模式}{32}{subsection.2.10.1}%
+\contentsline {subsection}{\numberline {2.10.2}智能合约触发模式}{32}{subsection.2.10.2}%
+\contentsline {section}{\numberline {2.11}后端API设计}{33}{section.2.11}%
+\contentsline {subsection}{\numberline {2.11.1}完整接口列表}{33}{subsection.2.11.1}%
+\contentsline {subsection}{\numberline {2.11.2}Express应用初始化}{34}{subsection.2.11.2}%
+\contentsline {section}{\numberline {2.12}智能合约设计}{35}{section.2.12}%
+\contentsline {subsection}{\numberline {2.12.1}数据结构}{35}{subsection.2.12.1}%
+\contentsline {subsection}{\numberline {2.12.2}状态机设计}{35}{subsection.2.12.2}%
+\contentsline {subsection}{\numberline {2.12.3}核心函数实现}{35}{subsection.2.12.3}%
+\contentsline {subsection}{\numberline {2.12.4}合约安全分析}{37}{subsection.2.12.4}%
+\contentsline {subsection}{\numberline {2.12.5}合约扩展方向}{38}{subsection.2.12.5}%
+\contentsline {section}{\numberline {2.13}密码学模块的安全边界分析}{38}{section.2.13}%
+\contentsline {subsection}{\numberline {2.13.1}随机数生成的安全性}{38}{subsection.2.13.1}%
+\contentsline {subsection}{\numberline {2.13.2}私钥材料的生命周期}{38}{subsection.2.13.2}%
+\contentsline {subsection}{\numberline {2.13.3}椭圆曲线运算的正确性}{39}{subsection.2.13.3}%
+\contentsline {subsection}{\numberline {2.13.4}代码质量与安全审计要点}{39}{subsection.2.13.4}%
+\contentsline {subsection}{\numberline {2.13.5}与传统SSS实现的兼容性}{39}{subsection.2.13.5}%
+\contentsline {section}{\numberline {2.14}前端交互设计与组件架构}{40}{section.2.14}%
+\contentsline {subsection}{\numberline {2.14.1}前端技术栈与项目结构}{40}{subsection.2.14.1}%
+\contentsline {subsection}{\numberline {2.14.2}页面导航结构}{40}{subsection.2.14.2}%
+\contentsline {subsection}{\numberline {2.14.3}前端API服务层}{40}{subsection.2.14.3}%
+\contentsline {subsection}{\numberline {2.14.4}组件架构}{40}{subsection.2.14.4}%
+\contentsline {subsection}{\numberline {2.14.5}前端API服务层}{44}{subsection.2.14.5}%
+\contentsline {subsection}{\numberline {2.14.6}前端状态管理策略}{44}{subsection.2.14.6}%
+\contentsline {subsection}{\numberline {2.14.7}前端安全最佳实践}{45}{subsection.2.14.7}%
+\contentsline {section}{\numberline {2.15}后端服务的设计模式}{45}{section.2.15}%
+\contentsline {subsection}{\numberline {2.15.1}仓储模式（Repository Pattern）}{45}{subsection.2.15.1}%
+\contentsline {subsection}{\numberline {2.15.2}工厂方法（Factory Method）}{45}{subsection.2.15.2}%
+\contentsline {subsection}{\numberline {2.15.3}观察者模式（Observer Pattern）}{45}{subsection.2.15.3}%
+\contentsline {subsection}{\numberline {2.15.4}验证器链（Validator Chain）}{46}{subsection.2.15.4}%
+\contentsline {subsection}{\numberline {2.15.5}模板方法（Template Method）}{46}{subsection.2.15.5}%
+\contentsline {subsection}{\numberline {2.15.6}策略模式（Strategy Pattern）的潜在应用}{46}{subsection.2.15.6}%
+\contentsline {section}{\numberline {2.16}AI助手实现}{46}{section.2.16}%
+\contentsline {subsection}{\numberline {2.16.1}意图识别引擎}{46}{subsection.2.16.1}%
+\contentsline {subsection}{\numberline {2.16.2}对话状态管理}{47}{subsection.2.16.2}%
+\contentsline {subsection}{\numberline {2.16.3}命令执行管道}{47}{subsection.2.16.3}%
+\contentsline {section}{\numberline {2.17}邮件通知系统}{47}{section.2.17}%
+\contentsline {subsection}{\numberline {2.17.1}邮件发送架构}{48}{subsection.2.17.1}%
+\contentsline {subsection}{\numberline {2.17.2}邮件通知触发点}{48}{subsection.2.17.2}%
+\contentsline {section}{\numberline {2.18}有限域模运算实现}{49}{section.2.18}%
+\contentsline {subsection}{\numberline {2.18.1}模运算基础函数}{49}{subsection.2.18.1}%
+\contentsline {subsection}{\numberline {2.18.2}域参数选择}{50}{subsection.2.18.2}%
+\contentsline {section}{\numberline {2.19}用户认证与密钥派生}{50}{section.2.19}%
+\contentsline {section}{\numberline {2.20}开发环境与工程管理}{51}{section.2.20}%
+\contentsline {subsection}{\numberline {2.20.1}Monorepo项目组织}{51}{subsection.2.20.1}%
+\contentsline {subsection}{\numberline {2.20.2}技术依赖与版本管理}{51}{subsection.2.20.2}%
+\contentsline {subsection}{\numberline {2.20.3}开发工作流}{51}{subsection.2.20.3}%
+\contentsline {section}{\numberline {2.21}部署架构与生产化路径}{51}{section.2.21}%
+\contentsline {subsection}{\numberline {2.21.1}容器化部署方案}{51}{subsection.2.21.1}%
+\contentsline {subsection}{\numberline {2.21.2}安全加固建议}{51}{subsection.2.21.2}%
+\contentsline {subsection}{\numberline {2.21.3}监控与运维}{53}{subsection.2.21.3}%
+\contentsline {section}{\numberline {2.22}系统完整生命周期与数据流}{53}{section.2.22}%
+\contentsline {chapter}{\numberline {第三章\hspace {.3em}}作品测试与分析}{54}{chapter.3}%
+\contentsline {section}{\numberline {3.1}测试环境与工具链}{54}{section.3.1}%
+\contentsline {subsection}{\numberline {3.1.1}开发与测试环境}{54}{subsection.3.1.1}%
+\contentsline {section}{\numberline {3.2}测试策略与层次}{54}{section.3.2}%
+\contentsline {section}{\numberline {3.3}核心测试用例}{54}{section.3.3}%
+\contentsline {section}{\numberline {3.4}合约测试实现}{57}{section.3.4}%
+\contentsline {section}{\numberline {3.5}安全性分析}{59}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}威胁模型}{59}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}威胁防护矩阵}{59}{subsection.3.5.2}%
+\contentsline {subsection}{\numberline {3.5.3}安全属性的形式化表述}{60}{subsection.3.5.3}%
+\contentsline {subsection}{\numberline {3.5.4}关键安全属性验证}{60}{subsection.3.5.4}%
+\contentsline {subsection}{\numberline {3.5.5}攻击路径分析}{61}{subsection.3.5.5}%
+\contentsline {subsection}{\numberline {3.5.6}密码学安全强度分析}{61}{subsection.3.5.6}%
+\contentsline {section}{\numberline {3.6}密码学功能正确性验证}{62}{section.3.6}%
+\contentsline {subsection}{\numberline {3.6.1}Shamir秘密共享正确性}{62}{subsection.3.6.1}%
+\contentsline {subsection}{\numberline {3.6.2}同态刷新正确性验证}{62}{subsection.3.6.2}%
+\contentsline {subsection}{\numberline {3.6.3}主承诺同态验证精度测试}{62}{subsection.3.6.3}%
+\contentsline {subsection}{\numberline {3.6.4}密码学操作性能基准}{63}{subsection.3.6.4}%
+\contentsline {subsection}{\numberline {3.6.5}规模扩展性测试}{63}{subsection.3.6.5}%
+\contentsline {subsection}{\numberline {3.6.6}API响应时间测试}{63}{subsection.3.6.6}%
+\contentsline {subsection}{\numberline {3.6.7}邮件模板生成性能}{64}{subsection.3.6.7}%
+\contentsline {section}{\numberline {3.7}性能分析}{64}{section.3.7}%
+\contentsline {subsection}{\numberline {3.7.1}计算开销分布}{64}{subsection.3.7.1}%
+\contentsline {subsection}{\numberline {3.7.2}存储分析}{66}{subsection.3.7.2}%
+\contentsline {subsection}{\numberline {3.7.3}并发安全分析}{66}{subsection.3.7.3}%
+\contentsline {subsection}{\numberline {3.7.4}网络通信安全}{67}{subsection.3.7.4}%
+\contentsline {subsection}{\numberline {3.7.5}隐私保护增强方向}{67}{subsection.3.7.5}%
+\contentsline {subsection}{\numberline {3.7.6}区块链层级的安全考量}{67}{subsection.3.7.6}%
+\contentsline {chapter}{\numberline {第四章\hspace {.3em}}创新性说明}{68}{chapter.4}%
+\contentsline {section}{\numberline {4.1}场景创新：数字遗产全生命周期模型}{68}{section.4.1}%
+\contentsline {section}{\numberline {4.2}技术创新：双层可验证秘密共享机制}{68}{section.4.2}%
+\contentsline {section}{\numberline {4.3}工程创新：全栈安全工程实践}{69}{section.4.3}%
+\contentsline {section}{\numberline {4.4}可扩展性创新}{69}{section.4.4}%
+\contentsline {section}{\numberline {4.5}与现有方案的详细对比}{70}{section.4.5}%
+\contentsline {section}{\numberline {4.6}工程实现的创新价值}{71}{section.4.6}%
+\contentsline {section}{\numberline {4.7}社会价值与应用前景展望}{71}{section.4.7}%
+\contentsline {chapter}{\numberline {第五章\hspace {.3em}}总结}{72}{chapter.5}%
+\contentsline {section}{\numberline {5.1}工作总结}{72}{section.5.1}%
+\contentsline {section}{\numberline {5.2}不足与展望}{72}{section.5.2}%
+\contentsline {section}{\numberline {5.3}竞赛演示方案}{73}{section.5.3}%
+\contentsline {subsection}{\numberline {5.3.1}演示场景一：正常创建与继承流程}{74}{subsection.5.3.1}%
+\contentsline {subsection}{\numberline {5.3.2}演示场景二：伪造份额拒绝}{74}{subsection.5.3.2}%
+\contentsline {subsection}{\numberline {5.3.3}演示场景三：时间锁提前触发拒绝}{74}{subsection.5.3.3}%
+\contentsline {subsection}{\numberline {5.3.4}演示场景四：未达门限恢复拒绝}{74}{subsection.5.3.4}%
+\contentsline {subsection}{\numberline {5.3.5}演示场景五：AI助手引导操作}{74}{subsection.5.3.5}%
+\contentsline {subsection}{\numberline {5.3.6}演示技术准备}{75}{subsection.5.3.6}%
+\contentsline {subsection}{\numberline {5.3.7}演示脚本示例}{75}{subsection.5.3.7}%
+\contentsline {chapter}{参考文献}{76}{chapter*.36}%

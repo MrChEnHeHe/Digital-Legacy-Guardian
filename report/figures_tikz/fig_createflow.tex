@@ -1,0 +1,55 @@
+\documentclass[border=12pt]{standalone}
+\usepackage{ctex}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,calc,fit,backgrounds,shapes.multipart}
+
+\newcommand{\project}{数字遗产管家}
+\newcommand{\englishname}{Digital Legacy Guardian}
+\newcommand{\riskline}[3]{#1 & #2 & #3\\}
+\newcommand{\apiline}[3]{#1 & #2 & #3\\}
+
+\begin{document}
+\begin{tikzpicture}[
+  stage/.style={draw,rounded corners,fill=blue!5,minimum width=6cm,minimum height=0.85cm,align=center,font=\small,inner sep=6pt},
+  substage/.style={draw,rounded corners,fill=green!5,minimum width=5cm,minimum height=0.7cm,align=center,font=\scriptsize,inner sep=4pt},
+  arrow/.style={-{Stealth},thick,font=\footnotesize},
+  branch/.style={-{Stealth},thick,dashed,font=\footnotesize}
+]
+% Stage 1: Input
+\node[stage,fill=blue!8,draw=blue!40!black] (s1) {\textbf{阶段一：前端提交与参数校验}};
+\node[substage,below=0.5cm of s1] (s1a) {前端四步向导收集资产、监护人、门限参数};
+\node[substage,below=0.3cm of s1a] (s1b) {后端校验: $1 \le t \le n$, 资产非空, 监护人数量匹配};
+% Stage 2: Generate
+\node[stage,fill=green!8,draw=green!40!black,below=0.7cm of s1b] (s2) {\textbf{阶段二：密钥生成与秘密共享}};
+\node[substage,below=0.5cm of s2] (s2a) {主密钥 $K \xleftarrow{\$} \mathbb{F}_q$（拒绝采样均匀随机生成）};
+\node[substage,below=0.3cm of s2a] (s2b) {构造 $f(x)=K+a_1x+\cdots+a_{t-1}x^{t-1}$，计算 $n$ 个份额};
+% Stage 3: Proof & Encrypt
+\node[stage,fill=yellow!8,draw=yellow!50!black,below=0.7cm of s2b] (s3) {\textbf{阶段三：承诺生成与资产加密}};
+\node[substage,below=0.5cm of s3] (s3a) {生成 Pedersen 多项式承诺与份额承诺};
+\node[substage,below=0.3cm of s3a] (s3b) {AES-256 加密资产包: $C = \text{AES}_K(\text{assets})$};
+% Stage 4: Store & Send
+\node[stage,fill=orange!8,draw=orange!50!black,below=0.7cm of s3b] (s4) {\textbf{阶段四：安全存储与份额分发}};
+\node[substage,below=0.5cm of s4] (s4a) {存储 StoredShare（仅 id, index, commitment），不含 value};
+\node[substage,below=0.3cm of s4a] (s4b) {邮件发送完整份额（含 value）至各监护人};
+% Result
+\node[draw,rounded corners,fill=red!5,draw=red!40!black,minimum width=4cm,minimum height=0.7cm,align=center,font=\small,below=0.7cm of s4b] (done) {计划状态: \texttt{active}};
+
+% Arrows
+\draw[arrow] (s1.south) -- (s1a.north);
+\draw[arrow] (s1a.south) -- (s1b.north);
+\draw[arrow] (s1b.south) -- (s2.north);
+\draw[arrow] (s2.south) -- (s2a.north);
+\draw[arrow] (s2a.south) -- (s2b.north);
+\draw[arrow] (s2b.south) -- (s3.north);
+\draw[arrow] (s3.south) -- (s3a.north);
+\draw[arrow] (s3a.south) -- (s3b.north);
+\draw[arrow] (s3b.south) -- (s4.north);
+\draw[arrow] (s4.south) -- (s4a.north);
+\draw[arrow] (s4a.south) -- (s4b.north);
+\draw[arrow] (s4b.south) -- (done.north);
+\end{tikzpicture}
+\end{document}

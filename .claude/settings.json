@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(timeout 10 node -e ' *)",
+      "Bash(curl -s --max-time 3 http://localhost:3000/api/health)"
+    ]
+  }
+}
