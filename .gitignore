@@ -21,16 +21,16 @@ contracts/cache/
 contracts/artifacts/
 ./docs/Problems.md
 
-# Report build artifacts
-report/*.pdf
-report/*.aux
-report/*.log
-report/*.out
-report/*.toc
-report/*.bbl
-report/*.blg
-report/*.fls
-report/*.fdb_latexmk
-report/*.synctex.gz
-report/figures_tikz/
-report/*.js
+# # Report build artifacts
+# report/*.pdf
+# report/*.aux
+# report/*.log
+# report/*.out
+# report/*.toc
+# report/*.bbl
+# report/*.blg
+# report/*.fls
+# report/*.fdb_latexmk
+# report/*.synctex.gz
+# report/figures_tikz/
+# report/*.js
